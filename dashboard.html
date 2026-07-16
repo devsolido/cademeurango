@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Cadê Meu Rango? 🍽️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+            background: #f0f2f5; 
+            color: #1a1a2e;
+        }
+        
+        /* ===== NAVBAR ===== */
+        .navbar {
+            background: linear-gradient(135deg, #1a472a 0%, #2d6a4f 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .navbar h1 { 
+            font-size: 1.8rem; 
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        .navbar h1 span { color: #ffd700; }
+        .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+        .nav-links a { 
+            color: rgba(255,255,255,0.85); 
+            text-decoration: none; 
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .nav-links a:hover { 
+            background: rgba(255,255,255,0.15); 
+            color: white;
+        }
+        .nav-links .btn-nav {
+            background: #ffd700;
+            color: #1a472a;
+            font-weight: 700;
+            padding: 0.5rem 1.2rem;
+            border-radius: 8px;
+        }
+        .nav-links .btn-nav:hover {
+            background: #ffed4a;
+            transform: scale(1.05);
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        /* ===== CARDS ===== */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .card {
+            background: white;
+            padding: 1.8rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            transition: all 0.3s;
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+        .card .icon { font-size: 2rem; margin-bottom: 0.5rem; }
+        .card h3 { 
+            font-size: 0.8rem; 
+            color: #888; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        .card .valor { 
+            font-size: 2.2rem; 
+            font-weight: 800; 
+            color: #1a472a; 
+            margin-top: 0.3rem;
+        }
+        
+        /* Card de Status - cor dinâmica via JavaScript */
+        .status-card {
+            border-left: 6px solid #ccc;
+            background: white;
+        }
+        .status-card .status-text { 
+            font-size: 1.1rem; 
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+        
+        /* ===== BOTÕES ===== */
+        .btn-primary {
+            background: linear-gradient(135deg, #1a472a 0%, #2d6a4f 100%);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 71, 42, 0.3);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #e53935 0%, #c62828 100%);
+            color: white;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-danger:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(229, 57, 53, 0.4);
+        }
+        
+        /* ===== LISTA DE GASTOS ===== */
+        .gastos-lista { 
+            background: white; 
+            border-radius: 16px; 
+            padding: 1.8rem; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+        .gastos-lista h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #1a1a2e;
+        }
+        .gasto-item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            padding: 0.8rem 0; 
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .gasto-item:last-child { border-bottom: none; }
+        .gasto-info { display: flex; flex-direction: column; }
+        .gasto-info .data { font-size: 0.8rem; color: #999; }
+        .gasto-valor { 
+            font-weight: 700; 
+            color: #e53935;
+            font-size: 1.1rem;
+        }
+        .gasto-actions { display: flex; gap: 0.5rem; align-items: center; }
+        
+        /* ===== MODAL ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 450px;
+            animation: modalSlide 0.3s ease;
+        }
+        @keyframes modalSlide {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-content h2 { 
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: #1a1a2e;
+        }
+        .modal-content .form-group { margin-bottom: 1.2rem; }
+        .modal-content .form-group label { 
+            display: block; 
+            margin-bottom: 0.4rem; 
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+        .modal-content .form-group input, 
+        .modal-content .form-group select,
+        .modal-content .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        .modal-content .form-group input:focus,
+        .modal-content .form-group select:focus,
+        .modal-content .form-group textarea:focus {
+            outline: none;
+            border-color: #2d6a4f;
+        }
+        .modal-content .form-group textarea { 
+            resize: vertical; 
+            min-height: 80px;
+        }
+        .close { 
+            float: right; 
+            font-size: 1.8rem; 
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s;
+        }
+        .close:hover { color: #333; }
+        
+        /* ===== ESTADOS VAZIOS ===== */
+        .sem-auxilio { 
+            text-align: center; 
+            padding: 4rem; 
+            background: white; 
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+        .sem-auxilio h2 { color: #666; margin-bottom: 0.5rem; }
+        .sem-auxilio p { color: #999; margin-bottom: 1.5rem; }
+        
+        .erro { color: #e53935; text-align: center; margin-top: 0.5rem; display: none; font-weight: 500; }
+        .sucesso { color: #4CAF50; text-align: center; margin-top: 0.5rem; display: none; font-weight: 500; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #999;
+        }
+        
+        /* ===== RESPONSIVO ===== */
+        @media (max-width: 768px) {
+            .navbar { flex-direction: column; gap: 0.5rem; padding: 1rem; }
+            .nav-links { flex-wrap: wrap; justify-content: center; }
+            .cards-grid { grid-template-columns: 1fr; }
+            .container { padding: 1rem; }
+            .modal-content { margin: 1rem; padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar">
+        <h1>🍽️ Cadê Meu <span>Rango</span>?</h1>
+        <div class="nav-links">
+            <a href="#" id="btnNovoGasto" class="btn-nav">+ Novo Gasto</a>
+            <a href="meus-auxilios.html">Meus Auxílios</a>
+            <a href="#" id="btnSair">Sair</a>
+        </div>
+    </nav>
+
+    <!-- ===== CONTEÚDO PRINCIPAL ===== -->
+    <div class="container" id="dashboardContent">
+        <!-- Mensagem quando não há auxílio cadastrado -->
+        <div id="semAuxilio" class="sem-auxilio" style="display:none;">
+            <h2>📋 Nenhum auxílio cadastrado</h2>
+            <p>Cadastre seu primeiro auxílio alimentação para começar</p>
+            <button class="btn-primary" onclick="window.location.href='cadastro-auxilio.html'">Cadastrar Auxílio</button>
+        </div>
+
+        <!-- Dashboard principal -->
+        <div id="dashboardPrincipal">
+            <!-- Cards de informação -->
+            <div class="cards-grid">
+                <div class="card status-card" id="statusCard">
+                    <div class="icon" id="statusIcon">⬜</div>
+                    <h3>Status do Rango</h3>
+                    <div class="status-text" id="statusTexto">Nenhum gasto registrado ainda</div>
+                </div>
+                <div class="card">
+                    <div class="icon">💰</div>
+                    <h3>Saldo Atual</h3>
+                    <div class="valor" id="saldoAtual">R$ 0,00</div>
+                </div>
+                <div class="card">
+                    <div class="icon">📅</div>
+                    <h3>Dias Restantes</h3>
+                    <div class="valor" id="diasRestantes">0</div>
+                </div>
+                <div class="card">
+                    <div class="icon">💸</div>
+                    <h3>Média por Dia</h3>
+                    <div class="valor" id="mediaDiaria">R$ 0,00</div>
+                </div>
+            </div>
+
+            <!-- Lista de gastos -->
+            <div class="gastos-lista">
+                <h3>📋 Últimos Gastos</h3>
+                <div id="listaGastos"><div class="empty-state">Nenhum gasto registrado</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: NOVO GASTO ===== -->
+    <div class="modal" id="gastoModal">
+        <div class="modal-content">
+            <span class="close" id="fecharModal">&times;</span>
+            <h2>🍽️ Novo Gasto</h2>
+            <form id="gastoForm">
+                <div class="form-group">
+                    <label>Valor (R$)</label>
+                    <input type="number" id="gastoValor" step="0.01" placeholder="0,00" required>
+                </div>
+                <div class="form-group">
+                    <label>Data</label>
+                    <input type="date" id="gastoData" required>
+                </div>
+                <div class="form-group">
+                    <label>Local</label>
+                    <input type="text" id="gastoLocal" placeholder="Ex: Cantina IFPA">
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Dia</label>
+                    <select id="gastoTipo">
+                        <option value="comum">Aula Comum</option>
+                        <option value="sabado">Sábado Letivo</option>
+                        <option value="atendimento">Atendimento Intraescolar</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Observação</label>
+                    <input type="text" id="gastoObs" placeholder="Ex: Almoço">
+                </div>
+                <button type="submit" class="btn-primary" style="width:100%;">Salvar Gasto</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: EXCLUIR GASTO ===== -->
+    <div class="modal" id="excluirModal">
+        <div class="modal-content">
+            <span class="close" id="fecharExcluirModal">&times;</span>
+            <h2>🗑️ Excluir Gasto</h2>
+            <p style="color:#666; margin-bottom:1rem;">Informe o motivo da exclusão:</p>
+            <form id="excluirForm">
+                <input type="hidden" id="excluirGastoId">
+                <div class="form-group">
+                    <label>Justificativa *</label>
+                    <textarea id="justificativa" placeholder="Ex: Digitei o valor errado" required></textarea>
+                </div>
+                <div class="erro" id="erroExcluir">Erro ao excluir</div>
+                <button type="submit" class="btn-danger" style="width:100%; padding:0.8rem; font-size:1rem;">Confirmar Exclusão</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script type="module">
+        // Importa as configurações do Supabase e funções de autenticação
+        import { supabase } from './js/config.js';
+        import { getSessao, logout } from './js/auth.js';
+
+        // ===== VARIÁVEIS GLOBAIS =====
+        let user = null;        // Dados do usuário logado
+        let auxilio = null;     // Auxílio ativo (o mais recente)
+        let gastos = [];        // Lista de gastos do auxílio atual
+
+        /**
+         * Função principal: carrega os dados do usuário, auxílio e gastos
+         */
+        async function carregarDados() {
+            // Verifica se o usuário está logado
+            const sessao = await getSessao();
+            if (!sessao) { 
+                window.location.href = 'login.html'; 
+                return; 
+            }
+            user = sessao.user;
+
+            // Busca o auxílio mais recente do usuário
+            const { data: auxData } = await supabase
+                .from('auxilios')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false })
+                .limit(1);
+
+            // Se não tem auxílio, mostra tela de cadastro
+            if (!auxData || auxData.length === 0) {
+                document.getElementById('semAuxilio').style.display = 'block';
+                document.getElementById('dashboardPrincipal').style.display = 'none';
+                return;
+            }
+
+            // Armazena o auxílio e mostra o dashboard
+            auxilio = auxData[0];
+            document.getElementById('semAuxilio').style.display = 'none';
+            document.getElementById('dashboardPrincipal').style.display = 'block';
+
+            // Busca os gastos deste auxílio
+            const { data: gastosData } = await supabase
+                .from('gastos')
+                .select('*')
+                .eq('auxilio_id', auxilio.id)
+                .order('data_gasto', { ascending: false });
+
+            gastos = gastosData || [];
+            atualizarDashboard();
+        }
+
+        /**
+         * Atualiza todos os elementos visuais do dashboard
+         */
+        function atualizarDashboard() {
+            // ===== 1. CALCULA SALDO =====
+            // Soma total gasto
+            const totalGasto = gastos.reduce((s, g) => s + g.valor, 0);
+            // Saldo = valor do auxílio - total gasto
+            const saldo = auxilio.valor - totalGasto;
+
+            // ===== 2. CALCULA DIAS RESTANTES =====
+            // IMPORTANTE: conta apenas DIAS ÚNICOS com gastos
+            // Usa Set para armazenar datas únicas
+            const diasComGastos = new Set();
+            gastos.forEach(g => {
+                diasComGastos.add(g.data_gasto);
+            });
+            // Dias restantes = total de dias - dias com gastos
+            const diasRestantes = Math.max(0, auxilio.dias_totais - diasComGastos.size);
+
+            // ===== 3. CALCULA MÉDIA POR DIA =====
+            // Média = saldo / dias restantes (se houver dias restantes)
+            const mediaPorDia = diasRestantes > 0 ? saldo / diasRestantes : 0;
+
+            // ===== 4. ATUALIZA OS CARDS =====
+            document.getElementById('saldoAtual').textContent = `R$ ${saldo.toFixed(2)}`;
+            document.getElementById('diasRestantes').textContent = diasRestantes;
+            document.getElementById('mediaDiaria').textContent = `R$ ${mediaPorDia.toFixed(2)}`;
+
+            // ===== 5. DEFINE COR DO STATUS =====
+            // Regras:
+            // - Se não tem gastos: BRANCO (⬜)
+            // - Média >= R$ 10: VERDE (🟢)
+            // - Média entre R$ 5 e R$ 10: AMARELO (🟡)
+            // - Média < R$ 5: VERMELHO (🔴)
+            const statusEl = document.getElementById('statusTexto');
+            const iconEl = document.getElementById('statusIcon');
+            const cardEl = document.getElementById('statusCard');
+
+            // Caso 1: Nenhum gasto registrado
+            if (gastos.length === 0) {
+                iconEl.textContent = '⬜';
+                statusEl.textContent = 'Nenhum gasto registrado ainda';
+                cardEl.style.borderLeftColor = '#ccc';
+                cardEl.style.background = 'white';
+                return;
+            }
+
+            // Caso 2: Média >= R$ 10 - VERDE
+            if (mediaPorDia >= 10) {
+                iconEl.textContent = '🟢';
+                statusEl.textContent = 'Tá suave! Você pode gastar até R$ 10 por dia! 🍽️';
+                cardEl.style.borderLeftColor = '#4CAF50';
+                cardEl.style.background = 'linear-gradient(135deg, #ffffff 0%, #f0fff0 100%)';
+            } 
+            // Caso 3: Média entre R$ 5 e R$ 10 - AMARELO
+            else if (mediaPorDia >= 5) {
+                iconEl.textContent = '🟡';
+                statusEl.textContent = 'Segura o gasto! Só dá pra uma coxinha de R$ 5 por dia. 😅';
+                cardEl.style.borderLeftColor = '#FFC107';
+                cardEl.style.background = 'linear-gradient(135deg, #ffffff 0%, #fffde7 100%)';
+            } 
+            // Caso 4: Média < R$ 5 - VERMELHO
+            else {
+                iconEl.textContent = '🔴';
+                statusEl.textContent = 'Alerta! Não dá nem pra uma coxinha por dia! 😰';
+                cardEl.style.borderLeftColor = '#e53935';
+                cardEl.style.background = 'linear-gradient(135deg, #ffffff 0%, #ffebee 100%)';
+            }
+
+            // ===== 6. ATUALIZA LISTA DE GASTOS =====
+            const lista = document.getElementById('listaGastos');
+            if (gastos.length === 0) {
+                lista.innerHTML = '<div class="empty-state">Nenhum gasto registrado</div>';
+                return;
+            }
+
+            // Mostra os 10 gastos mais recentes
+            lista.innerHTML = gastos.slice(0, 10).map(g => `
+                <div class="gasto-item">
+                    <div class="gasto-info">
+                        <span>${new Date(g.data_gasto).toLocaleDateString()} - ${g.local || 'Sem local'} ${g.observacao ? ' - ' + g.observacao : ''}</span>
+                        <span class="data">${g.tipo_dia || ''}</span>
+                    </div>
+                    <div class="gasto-actions">
+                        <span class="gasto-valor">R$ ${g.valor.toFixed(2)}</span>
+                        <button class="btn-danger" onclick="abrirExcluir('${g.id}')">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ===== MODAL: NOVO GASTO =====
+        const modal = document.getElementById('gastoModal');
+        
+        // Abrir modal
+        document.getElementById('btnNovoGasto').addEventListener('click', () => {
+            document.getElementById('gastoData').value = new Date().toISOString().split('T')[0];
+            modal.style.display = 'flex';
+        });
+        
+        // Fechar modal
+        document.getElementById('fecharModal').addEventListener('click', () => modal.style.display = 'none');
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+
+        // Salvar novo gasto
+        document.getElementById('gastoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const valor = parseFloat(document.getElementById('gastoValor').value);
+            const data = document.getElementById('gastoData').value;
+            const local = document.getElementById('gastoLocal').value || 'Sem local';
+            const tipo = document.getElementById('gastoTipo').value;
+            const obs = document.getElementById('gastoObs').value || '';
+
+            // Insere o gasto no banco de dados
+            await supabase.from('gastos').insert({
+                user_id: user.id,
+                auxilio_id: auxilio.id,
+                valor: valor,
+                data_gasto: data,
+                local: local,
+                tipo_dia: tipo,
+                observacao: obs
+            });
+
+            // Fecha modal e recarrega dados
+            modal.style.display = 'none';
+            document.getElementById('gastoForm').reset();
+            await carregarDados();
+        });
+
+        // ===== MODAL: EXCLUIR GASTO =====
+        const excluirModal = document.getElementById('excluirModal');
+        
+        // Função global para abrir modal de exclusão (chamada pelo botão na lista)
+        window.abrirExcluir = function(gastoId) {
+            document.getElementById('excluirGastoId').value = gastoId;
+            document.getElementById('justificativa').value = '';
+            document.getElementById('erroExcluir').style.display = 'none';
+            excluirModal.style.display = 'flex';
+        };
+
+        // Fechar modal de exclusão
+        document.getElementById('fecharExcluirModal').addEventListener('click', () => excluirModal.style.display = 'none');
+        excluirModal.addEventListener('click', (e) => { if (e.target === excluirModal) excluirModal.style.display = 'none'; });
+
+        // Confirmar exclusão
+        document.getElementById('excluirForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const gastoId = document.getElementById('excluirGastoId').value;
+            const justificativa = document.getElementById('justificativa').value.trim();
+            const erroEl = document.getElementById('erroExcluir');
+            
+            // Valida se a justificativa foi preenchida
+            if (!justificativa) {
+                erroEl.style.display = 'block';
+                erroEl.textContent = 'Por favor, informe uma justificativa';
+                return;
+            }
+
+            try {
+                // Busca o gasto para salvar no histórico antes de excluir
+                const gasto = gastos.find(g => g.id === gastoId);
+                if (!gasto) throw new Error('Gasto não encontrado');
+
+                // Salva no histórico de exclusões
+                await supabase.from('historico_exclusoes').insert({
+                    user_id: user.id,
+                    gasto_id: gastoId,
+                    valor: gasto.valor,
+                    data_gasto: gasto.data_gasto,
+                    local: gasto.local,
+                    observacao: gasto.observacao,
+                    justificativa: justificativa
+                });
+
+                // Exclui o gasto
+                const { error } = await supabase
+                    .from('gastos')
+                    .delete()
+                    .eq('id', gastoId)
+                    .eq('user_id', user.id);
+
+                if (error) throw error;
+
+                // Fecha modal e recarrega dados
+                excluirModal.style.display = 'none';
+                alert('✅ Gasto excluído com sucesso! Justificativa registrada.');
+                await carregarDados();
+            } catch (error) {
+                erroEl.style.display = 'block';
+                erroEl.textContent = error.message || 'Erro ao excluir gasto';
+            }
+        });
+
+        // ===== BOTÃO SAIR =====
+        document.getElementById('btnSair').addEventListener('click', async () => {
+            await logout();
+            window.location.href = 'login.html';
+        });
+
+        // ===== INICIALIZA =====
+        carregarDados();
+    </script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - Cadê Meu Rango? 🍽️</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .cadastro-container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+        }
+        .logo { text-align: center; margin-bottom: 2rem; }
+        .logo h1 { font-size: 2rem; color: #2E7D32; }
+        .logo p { color: #666; font-size: 0.9rem; }
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; margin-bottom: 0.3rem; font-weight: 500; color: #333; }
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .form-group input:focus { outline: none; border-color: #2E7D32; }
+        .btn-primary {
+            width: 100%;
+            padding: 0.8rem;
+            background: #2E7D32;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-primary:hover { background: #1B5E20; }
+        .links { text-align: center; margin-top: 1.5rem; }
+        .links a { color: #2E7D32; text-decoration: none; }
+        .links a:hover { text-decoration: underline; }
+        .erro { color: #F44336; text-align: center; margin-top: 0.5rem; display: none; }
+        .sucesso { color: #4CAF50; text-align: center; margin-top: 0.5rem; display: none; }
+    </style>
+</head>
+<body>
+    <div class="cadastro-container">
+        <div class="logo">
+            <h1>🍽️ Cadê Meu Rango?</h1>
+            <p>Crie sua conta</p>
+        </div>
+        <form id="cadastroForm">
+            <div class="form-group">
+                <label>E-mail</label>
+                <input type="email" id="email" required placeholder="seu@email.com">
+            </div>
+            <div class="form-group">
+                <label>Matrícula IFPA</label>
+                <input type="text" id="matricula" required placeholder="Ex: 2024001">
+            </div>
+            <div class="form-group">
+                <label>Senha (mínimo 6 caracteres)</label>
+                <input type="password" id="password" required placeholder="••••••••" minlength="6">
+            </div>
+            <div class="erro" id="erroMsg">Erro ao cadastrar</div>
+            <div class="sucesso" id="sucessoMsg">Cadastro realizado! Faça login.</div>
+            <button type="submit" class="btn-primary">Cadastrar</button>
+        </form>
+        <div class="links">
+            <a href="login.html">Já tenho conta</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { cadastrar } from './js/auth.js';
+        
+        document.getElementById('cadastroForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const matricula = document.getElementById('matricula').value;
+            const erroMsg = document.getElementById('erroMsg');
+            const sucessoMsg = document.getElementById('sucessoMsg');
+            
+            erroMsg.style.display = 'none';
+            sucessoMsg.style.display = 'none';
+            
+            try {
+                await cadastrar(email, password, matricula);
+                sucessoMsg.style.display = 'block';
+                sucessoMsg.textContent = '✅ Cadastro realizado! Redirecionando...';
+                setTimeout(() => window.location.href = 'login.html', 2000);
+            } catch (error) {
+                erroMsg.style.display = 'block';
+                erroMsg.textContent = error.message || 'Erro ao cadastrar';
+            }
+        });
+    </script>
+</body>
+</html>

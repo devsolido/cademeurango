@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Auxílios - Cadê Meu Rango? 🍽️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+            background: #f0f2f5; 
+            color: #1a1a2e;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #1a472a 0%, #2d6a4f 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .navbar h1 { 
+            font-size: 1.8rem; 
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        .navbar h1 span { color: #ffd700; }
+        .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+        .nav-links a { 
+            color: rgba(255,255,255,0.85); 
+            text-decoration: none; 
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .nav-links a:hover { 
+            background: rgba(255,255,255,0.15); 
+            color: white;
+        }
+        .nav-links a.active {
+            background: rgba(255,215,0,0.2);
+            color: #ffd700;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #1a472a 0%, #2d6a4f 100%);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 71, 42, 0.3);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #e53935 0%, #c62828 100%);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-danger:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(229, 57, 53, 0.4);
+        }
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover {
+            background: #d0d0d0;
+            transform: scale(1.05);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #43a047 0%, #2e7d32 100%);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-success:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(67, 160, 71, 0.4);
+        }
+        .btn-back {
+            background: #666;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-bottom: 1rem;
+        }
+        .btn-back:hover {
+            background: #555;
+            transform: translateX(-3px);
+        }
+        
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .header-actions h2 { font-size: 1.8rem; color: #1a1a2e; }
+        
+        .lista-auxilios { display: grid; gap: 1.5rem; }
+        
+        .auxilio-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+        .auxilio-card:hover { 
+            transform: translateY(-4px); 
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+        
+        .auxilio-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .auxilio-info h3 { 
+            color: #1a472a; 
+            margin-bottom: 0.3rem; 
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+        .auxilio-info p { 
+            color: #666; 
+            font-size: 0.9rem; 
+            margin: 0.2rem 0;
+        }
+        .auxilio-info .badge {
+            display: inline-block;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: #e8f5e9;
+            color: #2e7d32;
+            margin-top: 0.3rem;
+        }
+        
+        .auxilio-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        
+        .sem-auxilios {
+            text-align: center;
+            padding: 4rem;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+        .sem-auxilios h2 { color: #666; margin-bottom: 0.5rem; }
+        .sem-auxilios p { color: #999; margin-bottom: 1.5rem; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlide 0.3s ease;
+        }
+        @keyframes modalSlide {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-content h2 { 
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: #1a1a2e;
+        }
+        .modal-content .form-group { margin-bottom: 1.2rem; }
+        .modal-content .form-group label { 
+            display: block; 
+            margin-bottom: 0.4rem; 
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+        .modal-content .form-group input,
+        .modal-content .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.3s;
+            background: white;
+        }
+        .modal-content .form-group input:focus,
+        .modal-content .form-group select:focus {
+            outline: none;
+            border-color: #2d6a4f;
+        }
+        .close { 
+            float: right; 
+            font-size: 1.8rem; 
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s;
+        }
+        .close:hover { color: #333; }
+        .erro { color: #e53935; text-align: center; margin-top: 0.5rem; display: none; font-weight: 500; }
+        .sucesso { color: #4CAF50; text-align: center; margin-top: 0.5rem; display: none; font-weight: 500; }
+        
+        .detalhes-auxilio {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+        
+        .detalhes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .detalhes-header h2 { 
+            color: #1a472a; 
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .detalhes-header .total { 
+            font-size: 1.5rem; 
+            font-weight: 800; 
+            color: #1a472a;
+        }
+        .detalhes-header .actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+        
+        .resumo-auxilio {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .resumo-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #f0f0f0;
+        }
+        .resumo-item .label { 
+            font-size: 0.7rem; 
+            color: #888; 
+            text-transform: uppercase; 
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .resumo-item .value { 
+            font-size: 1.3rem; 
+            font-weight: 700; 
+            color: #1a472a; 
+            margin-top: 0.2rem;
+        }
+        .resumo-item .value.danger { color: #e53935; }
+        
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .mes-grupo {
+            margin-bottom: 0.8rem;
+            border-radius: 12px;
+            border: 1px solid #e8e8e8;
+            overflow: hidden;
+            background: white;
+            transition: all 0.3s;
+        }
+        .mes-grupo:hover {
+            border-color: #c8c8c8;
+        }
+        
+        .mes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 1.2rem;
+            cursor: pointer;
+            background: #fafafa;
+            transition: background 0.3s;
+            user-select: none;
+        }
+        .mes-header:hover {
+            background: #f0f0f0;
+        }
+        .mes-header .mes-nome {
+            font-weight: 600;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .mes-header .mes-nome .icone { font-size: 1.2rem; }
+        .mes-header .mes-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.9rem;
+        }
+        .mes-header .mes-info .valor { 
+            font-weight: 700; 
+            color: #1a472a;
+        }
+        .mes-header .mes-status {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .mes-header .mes-status.ativo { background: #e8f5e9; color: #2e7d32; }
+        .mes-header .mes-status.inativo { background: #fce4ec; color: #c62828; }
+        .mes-header .seta {
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+            color: #999;
+        }
+        .mes-header .seta.aberta { transform: rotate(180deg); }
+        
+        .mes-body {
+            padding: 1rem 1.2rem;
+            background: white;
+            display: none;
+            border-top: 1px solid #f0f0f0;
+        }
+        .mes-body.aberto { display: block; }
+        
+        .mes-gasto-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid #f5f5f5;
+            font-size: 0.9rem;
+        }
+        .mes-gasto-item:last-child { border-bottom: none; }
+        .mes-gasto-item .gasto-info { display: flex; flex-direction: column; }
+        .mes-gasto-item .gasto-info .data { font-size: 0.75rem; color: #999; }
+        .mes-gasto-item .gasto-valor { 
+            font-weight: 600; 
+            color: #e53935;
+        }
+        
+        .mes-sem-gastos {
+            text-align: center;
+            padding: 1rem;
+            color: #999;
+            font-size: 0.9rem;
+        }
+        
+        .select-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .navbar { flex-direction: column; gap: 0.5rem; padding: 1rem; }
+            .nav-links { flex-wrap: wrap; justify-content: center; }
+            .container { padding: 1rem; }
+            .modal-content { margin: 1rem; padding: 1.5rem; }
+            .resumo-auxilio { grid-template-columns: 1fr 1fr; }
+            .select-group { grid-template-columns: 1fr; }
+            .mes-header { flex-wrap: wrap; gap: 0.3rem; }
+            .detalhes-header .actions { width: 100%; justify-content: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>🍽️ Cadê Meu <span>Rango</span>?</h1>
+        <div class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="meus-auxilios.html" class="active">Meus Auxílios</a>
+            <a href="#" id="btnSair">Sair</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="viewLista">
+            <div class="header-actions">
+                <h2>📋 Meus Auxílios</h2>
+                <button class="btn-primary" id="btnNovoAuxilio">+ Novo Auxílio</button>
+            </div>
+            <div id="listaAuxilios" class="lista-auxilios"></div>
+        </div>
+
+        <div id="viewDetalhes" style="display:none;">
+            <button class="btn-back" id="btnVoltar">← Voltar</button>
+            <div class="detalhes-auxilio" id="detalhesContainer"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="auxilioModal">
+        <div class="modal-content">
+            <span class="close" id="fecharModal">&times;</span>
+            <h2 id="modalTitulo">📝 Cadastrar Auxílio</h2>
+            <form id="auxilioForm">
+                <input type="hidden" id="auxilioId">
+                <div class="form-group">
+                    <label>Período (Ex: Agosto/2026)</label>
+                    <input type="text" id="periodo" placeholder="Ex: Agosto/2026" required>
+                </div>
+                <div class="form-group">
+                    <label>Valor (R$)</label>
+                    <input type="number" id="valor" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Data de Início</label>
+                    <input type="date" id="dataInicio" required>
+                </div>
+                <div class="form-group">
+                    <label>Dias Totais</label>
+                    <input type="number" id="dias" value="22" min="1" required>
+                </div>
+                <div class="erro" id="erroMsg">Erro ao salvar</div>
+                <div class="sucesso" id="sucessoMsg">Salvo com sucesso!</div>
+                <button type="submit" class="btn-primary" style="width:100%;">💾 Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="mesModal">
+        <div class="modal-content">
+            <span class="close" id="fecharMesModal">&times;</span>
+            <h2>📅 Iniciar Novo Mês</h2>
+            <form id="mesForm">
+                <input type="hidden" id="mesAuxilioId">
+                <div class="form-group">
+                    <label>Selecione o Mês e Ano</label>
+                    <div class="select-group">
+                        <select id="mesSelecionado" required>
+                            <option value="">Mês</option>
+                            <option value="Janeiro">Janeiro</option>
+                            <option value="Fevereiro">Fevereiro</option>
+                            <option value="Março">Março</option>
+                            <option value="Abril">Abril</option>
+                            <option value="Maio">Maio</option>
+                            <option value="Junho">Junho</option>
+                            <option value="Julho">Julho</option>
+                            <option value="Agosto">Agosto</option>
+                            <option value="Setembro">Setembro</option>
+                            <option value="Outubro">Outubro</option>
+                            <option value="Novembro">Novembro</option>
+                            <option value="Dezembro">Dezembro</option>
+                        </select>
+                        <select id="anoSelecionado" required>
+                            <option value="">Ano</option>
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                            <option value="2026" selected>2026</option>
+                            <option value="2027">2027</option>
+                            <option value="2028">2028</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Valor do Mês (R$)</label>
+                    <input type="number" id="mesValor" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Dias do Mês</label>
+                    <input type="number" id="mesDias" value="22" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label>Data de Início</label>
+                    <input type="date" id="mesDataInicio" required>
+                </div>
+                <div class="erro" id="erroMes">Erro ao salvar</div>
+                <div class="sucesso" id="sucessoMes">Salvo com sucesso!</div>
+                <button type="submit" class="btn-success" style="width:100%;">✅ Iniciar Mês</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { supabase } from './js/config.js';
+        import { getSessao, logout } from './js/auth.js';
+
+        let user = null;
+        let auxilios = [];
+        let meses = [];
+        let gastos = [];
+
+        function abrirModalAuxilio() {
+            document.getElementById('modalTitulo').textContent = '📝 Cadastrar Auxílio';
+            document.getElementById('auxilioId').value = '';
+            document.getElementById('periodo').value = '';
+            document.getElementById('valor').value = '440';
+            document.getElementById('dataInicio').value = new Date().toISOString().split('T')[0];
+            document.getElementById('dias').value = '22';
+            document.getElementById('erroMsg').style.display = 'none';
+            document.getElementById('sucessoMsg').style.display = 'none';
+            document.getElementById('auxilioModal').style.display = 'flex';
+        }
+
+        async function carregarAuxilios() {
+            try {
+                const sessao = await getSessao();
+                if (!sessao) { window.location.href = 'login.html'; return; }
+                user = sessao.user;
+
+                const { data, error } = await supabase
+                    .from('auxilios')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+                auxilios = data || [];
+                renderizarAuxilios();
+            } catch (error) {
+                console.error('Erro ao carregar:', error);
+                alert('Erro ao carregar auxílios: ' + error.message);
+            }
+        }
+
+        function renderizarAuxilios() {
+            const container = document.getElementById('listaAuxilios');
+            
+            if (auxilios.length === 0) {
+                container.innerHTML = `
+                    <div class="sem-auxilios">
+                        <h2>📭 Nenhum auxílio cadastrado</h2>
+                        <p>Clique em "Novo Auxílio" para começar</p>
+                        <button class="btn-primary" id="btnNovoAuxilioEmpty">+ Novo Auxílio</button>
+                    </div>
+                `;
+                document.getElementById('btnNovoAuxilioEmpty')?.addEventListener('click', abrirModalAuxilio);
+                return;
+            }
+
+            container.innerHTML = auxilios.map(a => `
+                <div class="auxilio-card" data-id="${a.id}">
+                    <div class="auxilio-header">
+                        <div class="auxilio-info">
+                            <h3>📅 ${a.periodo}</h3>
+                            <p>💰 <strong>Valor:</strong> R$ ${a.valor.toFixed(2)}</p>
+                            <p>📆 <strong>Início:</strong> ${new Date(a.data_inicio).toLocaleDateString()}</p>
+                            <p>📌 <strong>Dias:</strong> ${a.dias_totais} dias</p>
+                            <span class="badge">Clique para ver detalhes</span>
+                        </div>
+                        <div class="auxilio-actions">
+                            <button class="btn-success" data-mes="${a.id}" onclick="event.stopPropagation();">📅 + Mês</button>
+                            <button class="btn-secondary" data-editar="${a.id}" onclick="event.stopPropagation();">✏️</button>
+                            <button class="btn-danger" data-excluir="${a.id}" onclick="event.stopPropagation();">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('.auxilio-card').forEach(card => {
+                card.addEventListener('click', () => verDetalhes(card.dataset.id));
+            });
+
+            document.querySelectorAll('[data-editar]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    editarAuxilio(btn.dataset.editar);
+                });
+            });
+
+            document.querySelectorAll('[data-excluir]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    excluirAuxilio(btn.dataset.excluir);
+                });
+            });
+
+            document.querySelectorAll('[data-mes]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    abrirMesModal(btn.dataset.mes);
+                });
+            });
+        }
+
+        async function verDetalhes(auxilioId) {
+            const auxilio = auxilios.find(a => a.id === auxilioId);
+            if (!auxilio) return;
+
+            const { data: mesesData } = await supabase
+                .from('meses')
+                .select('*')
+                .eq('auxilio_id', auxilioId)
+                .order('created_at', { ascending: false });
+
+            meses = mesesData || [];
+
+            const { data: gastosData } = await supabase
+                .from('gastos')
+                .select('*')
+                .eq('auxilio_id', auxilioId)
+                .order('data_gasto', { ascending: false });
+
+            gastos = gastosData || [];
+
+            const totalGasto = gastos.reduce((s, g) => s + g.valor, 0);
+            const saldo = auxilio.valor - totalGasto;
+
+            document.getElementById('viewLista').style.display = 'none';
+            document.getElementById('viewDetalhes').style.display = 'block';
+
+            const container = document.getElementById('detalhesContainer');
+            container.innerHTML = `
+                <div class="detalhes-header">
+                    <h2>📅 ${auxilio.periodo}</h2>
+                    <div class="actions">
+                        <span class="total">R$ ${auxilio.valor.toFixed(2)}</span>
+                        <button class="btn-success" id="btnMesFromDetalhes">📅 + Mês</button>
+                    </div>
+                </div>
+
+                <div class="resumo-auxilio">
+                    <div class="resumo-item">
+                        <div class="label">💰 Saldo Atual</div>
+                        <div class="value">R$ ${saldo.toFixed(2)}</div>
+                    </div>
+                    <div class="resumo-item">
+                        <div class="label">💸 Total Gasto</div>
+                        <div class="value danger">R$ ${totalGasto.toFixed(2)}</div>
+                    </div>
+                    <div class="resumo-item">
+                        <div class="label">📆 Dias</div>
+                        <div class="value">${auxilio.dias_totais}</div>
+                    </div>
+                </div>
+
+                <div class="section-title">📅 Meses</div>
+                <div id="mesesLista">
+                    ${meses.length === 0 ? '<p style="color:#999; text-align:center; padding:0.5rem;">Nenhum mês iniciado</p>' : 
+                    meses.map((m, index) => {
+                        const gastosMes = gastos.filter(g => {
+                            const dataGasto = new Date(g.data_gasto);
+                            const dataInicioMes = new Date(m.data_inicio);
+                            return dataGasto >= dataInicioMes;
+                        });
+                        const totalMes = gastosMes.reduce((s, g) => s + g.valor, 0);
+                        const saldoMes = m.valor_mensal - totalMes;
+                        const isAtivo = m.ativo;
+                        const estaAberto = index === 0;
+                        
+                        return `
+                            <div class="mes-grupo">
+                                <div class="mes-header" onclick="toggleMes(this)">
+                                    <span class="mes-nome">
+                                        <span class="icone">📅</span>
+                                        ${m.nome}
+                                    </span>
+                                    <div class="mes-info">
+                                        <span class="valor">R$ ${m.valor_mensal.toFixed(2)}</span>
+                                        <span class="mes-status ${isAtivo ? 'ativo' : 'inativo'}">
+                                            ${isAtivo ? '🟢 Ativo' : '🔴 Finalizado'}
+                                        </span>
+                                        <span class="seta ${estaAberto ? 'aberta' : ''}">▼</span>
+                                    </div>
+                                </div>
+                                <div class="mes-body ${estaAberto ? 'aberto' : ''}">
+                                    <div style="display:flex; gap:1rem; margin-bottom:0.8rem; flex-wrap:wrap;">
+                                        <span style="font-size:0.85rem; color:#666;">💸 Gastos: <strong>R$ ${totalMes.toFixed(2)}</strong></span>
+                                        <span style="font-size:0.85rem; color:#666;">💰 Saldo: <strong>R$ ${saldoMes.toFixed(2)}</strong></span>
+                                    </div>
+                                    ${gastosMes.length === 0 ? 
+                                        '<div class="mes-sem-gastos">Nenhum gasto registrado neste mês</div>' :
+                                        gastosMes.slice(0, 15).map(g => `
+                                            <div class="mes-gasto-item">
+                                                <div class="gasto-info">
+                                                    <span>${new Date(g.data_gasto).toLocaleDateString()} - ${g.local || 'Sem local'}</span>
+                                                    <span class="data">${g.observacao || ''} ${g.tipo_dia ? ' | ' + g.tipo_dia : ''}</span>
+                                                </div>
+                                                <span class="gasto-valor">R$ ${g.valor.toFixed(2)}</span>
+                                            </div>
+                                        `).join('')
+                                    }
+                                    ${gastosMes.length > 15 ? `<div style="text-align:center; padding:0.5rem; color:#999; font-size:0.8rem;">+ ${gastosMes.length - 15} gastos</div>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+
+            document.getElementById('btnMesFromDetalhes').addEventListener('click', () => {
+                abrirMesModal(auxilioId);
+            });
+        }
+
+        window.toggleMes = function(element) {
+            const body = element.nextElementSibling;
+            const seta = element.querySelector('.seta');
+            body.classList.toggle('aberto');
+            seta.classList.toggle('aberta');
+        };
+
+        function abrirMesModal(auxilioId) {
+            const auxilio = auxilios.find(a => a.id === auxilioId);
+            if (!auxilio) return;
+
+            const hoje = new Date();
+            const mesAtual = hoje.getMonth();
+            const anoAtual = hoje.getFullYear();
+
+            document.getElementById('mesAuxilioId').value = auxilioId;
+            document.getElementById('mesValor').value = (auxilio.valor / 1).toFixed(2);
+            document.getElementById('mesDias').value = auxilio.dias_totais || 22;
+            document.getElementById('mesDataInicio').value = hoje.toISOString().split('T')[0];
+            
+            const mesesArray = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+            document.getElementById('mesSelecionado').value = mesesArray[mesAtual];
+            document.getElementById('anoSelecionado').value = anoAtual;
+            
+            document.getElementById('erroMes').style.display = 'none';
+            document.getElementById('sucessoMes').style.display = 'none';
+            document.getElementById('mesModal').style.display = 'flex';
+        }
+
+        document.getElementById('btnVoltar').addEventListener('click', () => {
+            document.getElementById('viewDetalhes').style.display = 'none';
+            document.getElementById('viewLista').style.display = 'block';
+            carregarAuxilios();
+        });
+
+        document.getElementById('btnNovoAuxilio').addEventListener('click', abrirModalAuxilio);
+        document.getElementById('fecharModal').addEventListener('click', () => document.getElementById('auxilioModal').style.display = 'none');
+        document.getElementById('auxilioModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.style.display = 'none'; });
+
+        document.getElementById('fecharMesModal').addEventListener('click', () => document.getElementById('mesModal').style.display = 'none');
+        document.getElementById('mesModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.style.display = 'none'; });
+
+        document.getElementById('auxilioForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const id = document.getElementById('auxilioId').value;
+            const periodo = document.getElementById('periodo').value;
+            const valor = parseFloat(document.getElementById('valor').value);
+            const dataInicio = document.getElementById('dataInicio').value;
+            const dias = parseInt(document.getElementById('dias').value);
+            const erroMsg = document.getElementById('erroMsg');
+            const sucessoMsg = document.getElementById('sucessoMsg');
+            
+            erroMsg.style.display = 'none';
+            sucessoMsg.style.display = 'none';
+
+            try {
+                if (id) {
+                    const { error } = await supabase
+                        .from('auxilios')
+                        .update({ periodo, valor, data_inicio: dataInicio, dias_totais: dias })
+                        .eq('id', id)
+                        .eq('user_id', user.id);
+                    if (error) throw error;
+                    sucessoMsg.textContent = '✅ Auxílio atualizado!';
+                } else {
+                    const { error } = await supabase.from('auxilios').insert({
+                        user_id: user.id,
+                        periodo: periodo,
+                        valor: valor,
+                        data_inicio: dataInicio,
+                        dias_totais: dias,
+                        saldo_inicial: valor
+                    });
+                    if (error) throw error;
+                    sucessoMsg.textContent = '✅ Auxílio cadastrado!';
+                }
+
+                sucessoMsg.style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('auxilioModal').style.display = 'none';
+                    carregarAuxilios();
+                }, 1000);
+            } catch (error) {
+                erroMsg.style.display = 'block';
+                erroMsg.textContent = error.message || 'Erro ao salvar';
+            }
+        });
+
+        document.getElementById('mesForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const auxilioId = document.getElementById('mesAuxilioId').value;
+            const mes = document.getElementById('mesSelecionado').value;
+            const ano = document.getElementById('anoSelecionado').value;
+            const nome = `${mes}/${ano}`;
+            const valor = parseFloat(document.getElementById('mesValor').value);
+            const dias = parseInt(document.getElementById('mesDias').value);
+            const dataInicio = document.getElementById('mesDataInicio').value;
+            const erroMsg = document.getElementById('erroMes');
+            const sucessoMsg = document.getElementById('sucessoMes');
+            
+            erroMsg.style.display = 'none';
+            sucessoMsg.style.display = 'none';
+
+            if (!mes || !ano) {
+                erroMsg.style.display = 'block';
+                erroMsg.textContent = 'Selecione o mês e o ano';
+                return;
+            }
+
+            try {
+                const { error } = await supabase.from('meses').insert({
+                    user_id: user.id,
+                    auxilio_id: auxilioId,
+                    nome: nome,
+                    valor_mensal: valor,
+                    dias_mes: dias,
+                    saldo_inicial_mes: valor,
+                    data_inicio: dataInicio,
+                    ativo: true
+                });
+
+                if (error) throw error;
+
+                sucessoMsg.style.display = 'block';
+                sucessoMsg.textContent = '✅ Mês iniciado!';
+                setTimeout(() => {
+                    document.getElementById('mesModal').style.display = 'none';
+                    verDetalhes(auxilioId);
+                }, 1000);
+            } catch (error) {
+                erroMsg.style.display = 'block';
+                erroMsg.textContent = error.message || 'Erro ao iniciar mês';
+            }
+        });
+
+        async function editarAuxilio(id) {
+            const auxilio = auxilios.find(a => a.id === id);
+            if (!auxilio) return;
+
+            document.getElementById('modalTitulo').textContent = '✏️ Editar Auxílio';
+            document.getElementById('auxilioId').value = auxilio.id;
+            document.getElementById('periodo').value = auxilio.periodo;
+            document.getElementById('valor').value = auxilio.valor;
+            document.getElementById('dataInicio').value = auxilio.data_inicio;
+            document.getElementById('dias').value = auxilio.dias_totais;
+            document.getElementById('erroMsg').style.display = 'none';
+            document.getElementById('sucessoMsg').style.display = 'none';
+            document.getElementById('auxilioModal').style.display = 'flex';
+        }
+
+        async function excluirAuxilio(id) {
+            if (!confirm('⚠️ Tem certeza que deseja excluir este auxílio?')) return;
+            
+            try {
+                await supabase.from('meses').delete().eq('auxilio_id', id);
+                await supabase.from('gastos').delete().eq('auxilio_id', id);
+                const { error } = await supabase
+                    .from('auxilios')
+                    .delete()
+                    .eq('id', id)
+                    .eq('user_id', user.id);
+                if (error) throw error;
+                
+                alert('✅ Auxílio excluído!');
+                await carregarAuxilios();
+            } catch (error) {
+                alert('❌ Erro: ' + error.message);
+            }
+        }
+
+        document.getElementById('btnSair').addEventListener('click', async () => {
+            await logout();
+            window.location.href = 'login.html';
+        });
+
+        carregarAuxilios();
+    </script>
+</body>
+</html>
