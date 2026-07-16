@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Cadê Meu Rango? 🍽️</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -13,7 +14,6 @@
             color: #1a1a2e;
         }
         
-        /* ===== NAVBAR ===== */
         .navbar {
             background: linear-gradient(135deg, #1a472a 0%, #2d6a4f 100%);
             color: white;
@@ -59,7 +59,6 @@
         
         .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
         
-        /* ===== CARDS ===== */
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -93,7 +92,6 @@
             margin-top: 0.3rem;
         }
         
-        /* Card de Status - cor dinâmica via JavaScript */
         .status-card {
             border-left: 6px solid #ccc;
             background: white;
@@ -104,7 +102,6 @@
             font-weight: 500;
         }
         
-        /* ===== BOTÕES ===== */
         .btn-primary {
             background: linear-gradient(135deg, #1a472a 0%, #2d6a4f 100%);
             color: white;
@@ -135,8 +132,21 @@
             transform: scale(1.05);
             box-shadow: 0 4px 15px rgba(229, 57, 53, 0.4);
         }
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
         
-        /* ===== LISTA DE GASTOS ===== */
         .gastos-lista { 
             background: white; 
             border-radius: 16px; 
@@ -155,6 +165,8 @@
             align-items: center;
             padding: 0.8rem 0; 
             border-bottom: 1px solid #f0f0f0;
+            flex-wrap: wrap;
+            gap: 0.3rem;
         }
         .gasto-item:last-child { border-bottom: none; }
         .gasto-info { display: flex; flex-direction: column; }
@@ -164,9 +176,33 @@
             color: #e53935;
             font-size: 1.1rem;
         }
-        .gasto-actions { display: flex; gap: 0.5rem; align-items: center; }
+        .gasto-actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+        .comprovante-link { font-size: 0.8rem; }
+        .comprovante-link a { color: #2d6a4f; text-decoration: none; }
+        .comprovante-link a:hover { text-decoration: underline; }
         
-        /* ===== MODAL ===== */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+        .chart-container h4 {
+            margin-bottom: 0.8rem;
+            color: #1a1a2e;
+            font-size: 1rem;
+        }
+        .chart-container canvas {
+            max-height: 200px;
+        }
+        
         .modal {
             display: none;
             position: fixed;
@@ -224,6 +260,11 @@
             resize: vertical; 
             min-height: 80px;
         }
+        .modal-content .form-group input[type="file"] {
+            padding: 0.5rem;
+            border: 2px dashed #e0e0e0;
+            cursor: pointer;
+        }
         .close { 
             float: right; 
             font-size: 1.8rem; 
@@ -233,7 +274,6 @@
         }
         .close:hover { color: #333; }
         
-        /* ===== ESTADOS VAZIOS ===== */
         .sem-auxilio { 
             text-align: center; 
             padding: 4rem; 
@@ -253,18 +293,17 @@
             color: #999;
         }
         
-        /* ===== RESPONSIVO ===== */
         @media (max-width: 768px) {
             .navbar { flex-direction: column; gap: 0.5rem; padding: 1rem; }
             .nav-links { flex-wrap: wrap; justify-content: center; }
             .cards-grid { grid-template-columns: 1fr; }
             .container { padding: 1rem; }
             .modal-content { margin: 1rem; padding: 1.5rem; }
+            .charts-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <!-- ===== NAVBAR ===== -->
     <nav class="navbar">
         <h1>🍽️ Cadê Meu <span>Rango</span>?</h1>
         <div class="nav-links">
@@ -274,18 +313,14 @@
         </div>
     </nav>
 
-    <!-- ===== CONTEÚDO PRINCIPAL ===== -->
     <div class="container" id="dashboardContent">
-        <!-- Mensagem quando não há auxílio cadastrado -->
         <div id="semAuxilio" class="sem-auxilio" style="display:none;">
             <h2>📋 Nenhum auxílio cadastrado</h2>
             <p>Cadastre seu primeiro auxílio alimentação para começar</p>
             <button class="btn-primary" onclick="window.location.href='cadastro-auxilio.html'">Cadastrar Auxílio</button>
         </div>
 
-        <!-- Dashboard principal -->
         <div id="dashboardPrincipal">
-            <!-- Cards de informação -->
             <div class="cards-grid">
                 <div class="card status-card" id="statusCard">
                     <div class="icon" id="statusIcon">⬜</div>
@@ -309,7 +344,18 @@
                 </div>
             </div>
 
-            <!-- Lista de gastos -->
+            <!-- GRÁFICOS -->
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h4>📈 Evolução do Saldo</h4>
+                    <canvas id="graficoSaldo"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h4>📊 Gastos por Dia</h4>
+                    <canvas id="graficoGastos"></canvas>
+                </div>
+            </div>
+
             <div class="gastos-lista">
                 <h3>📋 Últimos Gastos</h3>
                 <div id="listaGastos"><div class="empty-state">Nenhum gasto registrado</div></div>
@@ -317,7 +363,7 @@
         </div>
     </div>
 
-    <!-- ===== MODAL: NOVO GASTO ===== -->
+    <!-- MODAL: NOVO GASTO -->
     <div class="modal" id="gastoModal">
         <div class="modal-content">
             <span class="close" id="fecharModal">&times;</span>
@@ -347,12 +393,17 @@
                     <label>Observação</label>
                     <input type="text" id="gastoObs" placeholder="Ex: Almoço">
                 </div>
+                <div class="form-group">
+                    <label>📎 Comprovante (opcional)</label>
+                    <input type="file" id="comprovante" accept="image/*,.pdf">
+                    <small style="color:#999;">Formatos: JPG, PNG, PDF</small>
+                </div>
                 <button type="submit" class="btn-primary" style="width:100%;">Salvar Gasto</button>
             </form>
         </div>
     </div>
 
-    <!-- ===== MODAL: EXCLUIR GASTO ===== -->
+    <!-- MODAL: EXCLUIR GASTO -->
     <div class="modal" id="excluirModal">
         <div class="modal-content">
             <span class="close" id="fecharExcluirModal">&times;</span>
@@ -370,30 +421,21 @@
         </div>
     </div>
 
-    <!-- ===== JAVASCRIPT ===== -->
     <script type="module">
-        // Importa as configurações do Supabase e funções de autenticação
         import { supabase } from './js/config.js';
         import { getSessao, logout } from './js/auth.js';
 
-        // ===== VARIÁVEIS GLOBAIS =====
-        let user = null;        // Dados do usuário logado
-        let auxilio = null;     // Auxílio ativo (o mais recente)
-        let gastos = [];        // Lista de gastos do auxílio atual
+        let user = null;
+        let auxilio = null;
+        let gastos = [];
+        let graficoSaldo = null;
+        let graficoGastos = null;
 
-        /**
-         * Função principal: carrega os dados do usuário, auxílio e gastos
-         */
         async function carregarDados() {
-            // Verifica se o usuário está logado
             const sessao = await getSessao();
-            if (!sessao) { 
-                window.location.href = 'login.html'; 
-                return; 
-            }
+            if (!sessao) { window.location.href = 'login.html'; return; }
             user = sessao.user;
 
-            // Busca o auxílio mais recente do usuário
             const { data: auxData } = await supabase
                 .from('auxilios')
                 .select('*')
@@ -401,19 +443,16 @@
                 .order('created_at', { ascending: false })
                 .limit(1);
 
-            // Se não tem auxílio, mostra tela de cadastro
             if (!auxData || auxData.length === 0) {
                 document.getElementById('semAuxilio').style.display = 'block';
                 document.getElementById('dashboardPrincipal').style.display = 'none';
                 return;
             }
 
-            // Armazena o auxílio e mostra o dashboard
             auxilio = auxData[0];
             document.getElementById('semAuxilio').style.display = 'none';
             document.getElementById('dashboardPrincipal').style.display = 'block';
 
-            // Busca os gastos deste auxílio
             const { data: gastosData } = await supabase
                 .from('gastos')
                 .select('*')
@@ -422,48 +461,26 @@
 
             gastos = gastosData || [];
             atualizarDashboard();
+            atualizarGraficos();
         }
 
-        /**
-         * Atualiza todos os elementos visuais do dashboard
-         */
         function atualizarDashboard() {
-            // ===== 1. CALCULA SALDO =====
-            // Soma total gasto
             const totalGasto = gastos.reduce((s, g) => s + g.valor, 0);
-            // Saldo = valor do auxílio - total gasto
             const saldo = auxilio.valor - totalGasto;
 
-            // ===== 2. CALCULA DIAS RESTANTES =====
-            // IMPORTANTE: conta apenas DIAS ÚNICOS com gastos
-            // Usa Set para armazenar datas únicas
             const diasComGastos = new Set();
-            gastos.forEach(g => {
-                diasComGastos.add(g.data_gasto);
-            });
-            // Dias restantes = total de dias - dias com gastos
+            gastos.forEach(g => diasComGastos.add(g.data_gasto));
             const diasRestantes = Math.max(0, auxilio.dias_totais - diasComGastos.size);
-
-            // ===== 3. CALCULA MÉDIA POR DIA =====
-            // Média = saldo / dias restantes (se houver dias restantes)
             const mediaPorDia = diasRestantes > 0 ? saldo / diasRestantes : 0;
 
-            // ===== 4. ATUALIZA OS CARDS =====
             document.getElementById('saldoAtual').textContent = `R$ ${saldo.toFixed(2)}`;
             document.getElementById('diasRestantes').textContent = diasRestantes;
             document.getElementById('mediaDiaria').textContent = `R$ ${mediaPorDia.toFixed(2)}`;
 
-            // ===== 5. DEFINE COR DO STATUS =====
-            // Regras:
-            // - Se não tem gastos: BRANCO (⬜)
-            // - Média >= R$ 10: VERDE (🟢)
-            // - Média entre R$ 5 e R$ 10: AMARELO (🟡)
-            // - Média < R$ 5: VERMELHO (🔴)
             const statusEl = document.getElementById('statusTexto');
             const iconEl = document.getElementById('statusIcon');
             const cardEl = document.getElementById('statusCard');
 
-            // Caso 1: Nenhum gasto registrado
             if (gastos.length === 0) {
                 iconEl.textContent = '⬜';
                 statusEl.textContent = 'Nenhum gasto registrado ainda';
@@ -472,41 +489,35 @@
                 return;
             }
 
-            // Caso 2: Média >= R$ 10 - VERDE
             if (mediaPorDia >= 10) {
                 iconEl.textContent = '🟢';
                 statusEl.textContent = 'Tá suave! Você pode gastar até R$ 10 por dia! 🍽️';
                 cardEl.style.borderLeftColor = '#4CAF50';
                 cardEl.style.background = 'linear-gradient(135deg, #ffffff 0%, #f0fff0 100%)';
-            } 
-            // Caso 3: Média entre R$ 5 e R$ 10 - AMARELO
-            else if (mediaPorDia >= 5) {
+            } else if (mediaPorDia >= 5) {
                 iconEl.textContent = '🟡';
                 statusEl.textContent = 'Segura o gasto! Só dá pra uma coxinha de R$ 5 por dia. 😅';
                 cardEl.style.borderLeftColor = '#FFC107';
                 cardEl.style.background = 'linear-gradient(135deg, #ffffff 0%, #fffde7 100%)';
-            } 
-            // Caso 4: Média < R$ 5 - VERMELHO
-            else {
+            } else {
                 iconEl.textContent = '🔴';
                 statusEl.textContent = 'Alerta! Não dá nem pra uma coxinha por dia! 😰';
                 cardEl.style.borderLeftColor = '#e53935';
                 cardEl.style.background = 'linear-gradient(135deg, #ffffff 0%, #ffebee 100%)';
             }
 
-            // ===== 6. ATUALIZA LISTA DE GASTOS =====
             const lista = document.getElementById('listaGastos');
             if (gastos.length === 0) {
                 lista.innerHTML = '<div class="empty-state">Nenhum gasto registrado</div>';
                 return;
             }
 
-            // Mostra os 10 gastos mais recentes
             lista.innerHTML = gastos.slice(0, 10).map(g => `
                 <div class="gasto-item">
                     <div class="gasto-info">
                         <span>${new Date(g.data_gasto).toLocaleDateString()} - ${g.local || 'Sem local'} ${g.observacao ? ' - ' + g.observacao : ''}</span>
                         <span class="data">${g.tipo_dia || ''}</span>
+                        ${g.comprovante ? `<span class="comprovante-link">📎 <a href="${g.comprovante}" target="_blank">Ver comprovante</a></span>` : ''}
                     </div>
                     <div class="gasto-actions">
                         <span class="gasto-valor">R$ ${g.valor.toFixed(2)}</span>
@@ -516,20 +527,122 @@
             `).join('');
         }
 
-        // ===== MODAL: NOVO GASTO =====
+        function atualizarGraficos() {
+            if (gastos.length === 0) {
+                // Limpar gráficos
+                if (graficoSaldo) { graficoSaldo.destroy(); graficoSaldo = null; }
+                if (graficoGastos) { graficoGastos.destroy(); graficoGastos = null; }
+                return;
+            }
+
+            // Dados para gráfico de gastos por dia
+            const gastosPorDia = {};
+            gastos.forEach(g => {
+                const data = new Date(g.data_gasto).toLocaleDateString();
+                if (!gastosPorDia[data]) gastosPorDia[data] = 0;
+                gastosPorDia[data] += g.valor;
+            });
+
+            const datas = Object.keys(gastosPorDia).sort((a, b) => new Date(a) - new Date(b));
+            const dadosGastos = datas.map(data => ({ data, total: gastosPorDia[data] }));
+
+            // Dados para gráfico de saldo
+            let saldoAtual = auxilio.valor;
+            const dadosSaldo = [{ data: 'Início', saldo: auxilio.valor }];
+            
+            const gastosOrdenados = [...gastos].sort((a, b) => new Date(a.data_gasto) - new Date(b.data_gasto));
+            let totalGasto = 0;
+            let dataAtual = null;
+
+            gastosOrdenados.forEach(g => {
+                totalGasto += g.valor;
+                const data = new Date(g.data_gasto).toLocaleDateString();
+                if (data !== dataAtual) {
+                    dadosSaldo.push({ data, saldo: auxilio.valor - totalGasto });
+                    dataAtual = data;
+                } else {
+                    dadosSaldo[dadosSaldo.length - 1].saldo = auxilio.valor - totalGasto;
+                }
+            });
+
+            // Gráfico de Saldo
+            const ctxSaldo = document.getElementById('graficoSaldo');
+            if (ctxSaldo) {
+                if (graficoSaldo) graficoSaldo.destroy();
+                graficoSaldo = new Chart(ctxSaldo, {
+                    type: 'line',
+                    data: {
+                        labels: dadosSaldo.map(d => d.data),
+                        datasets: [{
+                            label: '💰 Saldo Disponível',
+                            data: dadosSaldo.map(d => d.saldo),
+                            borderColor: '#2E7D32',
+                            backgroundColor: 'rgba(46, 125, 50, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#2E7D32',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: true, labels: { font: { size: 10 } } },
+                            tooltip: { callbacks: { label: ctx => 'R$ ' + ctx.parsed.y.toFixed(2) } }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { callback: v => 'R$ ' + v.toFixed(2) } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            // Gráfico de Gastos por Dia
+            const ctxGastos = document.getElementById('graficoGastos');
+            if (ctxGastos) {
+                if (graficoGastos) graficoGastos.destroy();
+                graficoGastos = new Chart(ctxGastos, {
+                    type: 'bar',
+                    data: {
+                        labels: dadosGastos.map(d => d.data),
+                        datasets: [{
+                            label: '💸 Gastos por Dia',
+                            data: dadosGastos.map(d => d.total),
+                            backgroundColor: 'rgba(229, 57, 53, 0.7)',
+                            borderColor: '#e53935',
+                            borderWidth: 2,
+                            borderRadius: 6,
+                            barPercentage: 0.6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: true, labels: { font: { size: 10 } } },
+                            tooltip: { callbacks: { label: ctx => 'R$ ' + ctx.parsed.y.toFixed(2) } }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { callback: v => 'R$ ' + v.toFixed(2) } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+        }
+
+        // MODAL NOVO GASTO
         const modal = document.getElementById('gastoModal');
-        
-        // Abrir modal
         document.getElementById('btnNovoGasto').addEventListener('click', () => {
             document.getElementById('gastoData').value = new Date().toISOString().split('T')[0];
+            document.getElementById('comprovante').value = '';
             modal.style.display = 'flex';
         });
-        
-        // Fechar modal
         document.getElementById('fecharModal').addEventListener('click', () => modal.style.display = 'none');
         modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
 
-        // Salvar novo gasto
         document.getElementById('gastoForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -538,8 +651,32 @@
             const local = document.getElementById('gastoLocal').value || 'Sem local';
             const tipo = document.getElementById('gastoTipo').value;
             const obs = document.getElementById('gastoObs').value || '';
+            const comprovanteInput = document.getElementById('comprovante');
+            
+            let comprovanteUrl = '';
 
-            // Insere o gasto no banco de dados
+            // Upload do comprovante se houver
+            if (comprovanteInput.files.length > 0) {
+                const file = comprovanteInput.files[0];
+                const fileExt = file.name.split('.').pop();
+                const fileName = `comprovantes/${user.id}/${Date.now()}.${fileExt}`;
+                
+                try {
+                    const { data: uploadData, error: uploadError } = await supabase.storage
+                        .from('comprovantes')
+                        .upload(fileName, file);
+                    
+                    if (!uploadError) {
+                        const { data: urlData } = supabase.storage
+                            .from('comprovantes')
+                            .getPublicUrl(fileName);
+                        comprovanteUrl = urlData.publicUrl;
+                    }
+                } catch (err) {
+                    console.error('Erro ao fazer upload:', err);
+                }
+            }
+
             await supabase.from('gastos').insert({
                 user_id: user.id,
                 auxilio_id: auxilio.id,
@@ -547,19 +684,18 @@
                 data_gasto: data,
                 local: local,
                 tipo_dia: tipo,
-                observacao: obs
+                observacao: obs,
+                comprovante: comprovanteUrl
             });
 
-            // Fecha modal e recarrega dados
             modal.style.display = 'none';
             document.getElementById('gastoForm').reset();
             await carregarDados();
         });
 
-        // ===== MODAL: EXCLUIR GASTO =====
+        // MODAL EXCLUIR GASTO
         const excluirModal = document.getElementById('excluirModal');
         
-        // Função global para abrir modal de exclusão (chamada pelo botão na lista)
         window.abrirExcluir = function(gastoId) {
             document.getElementById('excluirGastoId').value = gastoId;
             document.getElementById('justificativa').value = '';
@@ -567,11 +703,9 @@
             excluirModal.style.display = 'flex';
         };
 
-        // Fechar modal de exclusão
         document.getElementById('fecharExcluirModal').addEventListener('click', () => excluirModal.style.display = 'none');
         excluirModal.addEventListener('click', (e) => { if (e.target === excluirModal) excluirModal.style.display = 'none'; });
 
-        // Confirmar exclusão
         document.getElementById('excluirForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -579,7 +713,6 @@
             const justificativa = document.getElementById('justificativa').value.trim();
             const erroEl = document.getElementById('erroExcluir');
             
-            // Valida se a justificativa foi preenchida
             if (!justificativa) {
                 erroEl.style.display = 'block';
                 erroEl.textContent = 'Por favor, informe uma justificativa';
@@ -587,11 +720,9 @@
             }
 
             try {
-                // Busca o gasto para salvar no histórico antes de excluir
                 const gasto = gastos.find(g => g.id === gastoId);
                 if (!gasto) throw new Error('Gasto não encontrado');
 
-                // Salva no histórico de exclusões
                 await supabase.from('historico_exclusoes').insert({
                     user_id: user.id,
                     gasto_id: gastoId,
@@ -602,7 +733,6 @@
                     justificativa: justificativa
                 });
 
-                // Exclui o gasto
                 const { error } = await supabase
                     .from('gastos')
                     .delete()
@@ -611,7 +741,6 @@
 
                 if (error) throw error;
 
-                // Fecha modal e recarrega dados
                 excluirModal.style.display = 'none';
                 alert('✅ Gasto excluído com sucesso! Justificativa registrada.');
                 await carregarDados();
@@ -621,13 +750,11 @@
             }
         });
 
-        // ===== BOTÃO SAIR =====
         document.getElementById('btnSair').addEventListener('click', async () => {
             await logout();
             window.location.href = 'login.html';
         });
 
-        // ===== INICIALIZA =====
         carregarDados();
     </script>
 </body>

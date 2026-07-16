@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meus Auxílios - Cadê Meu Rango? 🍽️</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -122,6 +123,34 @@
         .btn-back:hover {
             background: #555;
             transform: translateX(-3px);
+        }
+        .btn-pdf {
+            background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-pdf:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.4);
+        }
+        .btn-pdf-blue {
+            background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-pdf-blue:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(21, 101, 192, 0.4);
         }
         
         .header-actions {
@@ -284,7 +313,12 @@
             font-weight: 800; 
             color: #1a472a;
         }
-        .detalhes-header .actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+        .detalhes-header .actions { 
+            display: flex; 
+            gap: 0.5rem; 
+            align-items: center; 
+            flex-wrap: wrap; 
+        }
         
         .resumo-auxilio {
             display: grid;
@@ -539,6 +573,7 @@
     <script type="module">
         import { supabase } from './js/config.js';
         import { getSessao, logout } from './js/auth.js';
+        import { gerarRelatorioPDF, gerarCalendarioPDF } from './js/relatorios.js';
 
         let user = null;
         let auxilios = [];
@@ -670,6 +705,8 @@
                     <h2>📅 ${auxilio.periodo}</h2>
                     <div class="actions">
                         <span class="total">R$ ${auxilio.valor.toFixed(2)}</span>
+                        <button class="btn-pdf" id="btnRelatorioPDF">📊 Relatório</button>
+                        <button class="btn-pdf-blue" id="btnCalendarioPDF">📅 Calendário</button>
                         <button class="btn-success" id="btnMesFromDetalhes">📅 + Mês</button>
                     </div>
                 </div>
@@ -743,6 +780,13 @@
                 </div>
             `;
 
+            // Botões de PDF
+            document.getElementById('btnRelatorioPDF').addEventListener('click', () => {
+                gerarRelatorioPDF(auxilioId, gastos, auxilio);
+            });
+            document.getElementById('btnCalendarioPDF').addEventListener('click', () => {
+                gerarCalendarioPDF(auxilioId, gastos, auxilio);
+            });
             document.getElementById('btnMesFromDetalhes').addEventListener('click', () => {
                 abrirMesModal(auxilioId);
             });
