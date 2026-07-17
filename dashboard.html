@@ -15,7 +15,6 @@
             min-height: 100vh;
         }
         
-        /* ===== NAVBAR COM MENU HAMBÚRGUER ===== */
         .navbar {
             background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
             padding: 0.8rem 1.5rem;
@@ -42,7 +41,6 @@
         }
         .navbar h1 span { color: #2E7D32; }
 
-        /* Menu Hamburguer */
         .menu-toggle {
             display: none;
             flex-direction: column;
@@ -119,7 +117,6 @@
         
         .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
         
-        /* ===== CARDS ===== */
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -165,7 +162,6 @@
         }
         .status-card .icon-grande { font-size: 2.5rem; }
         
-        /* ===== BOTÕES ===== */
         .btn-primary {
             background: linear-gradient(135deg, #1a472a 0%, #2E7D32 50%, #00BFA5 100%);
             color: white;
@@ -199,7 +195,6 @@
             box-shadow: 0 4px 15px rgba(229, 57, 53, 0.4);
         }
         
-        /* ===== LISTA DE GASTOS ===== */
         .gastos-lista { 
             background: linear-gradient(145deg, #121212 0%, #1a1a1a 100%);
             border-radius: 16px; 
@@ -234,7 +229,6 @@
         .comprovante-link a { color: #2E7D32; text-decoration: none; }
         .comprovante-link a:hover { text-decoration: underline; }
         
-        /* ===== GRÁFICOS ===== */
         .charts-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -257,7 +251,6 @@
             max-height: 200px;
         }
         
-        /* ===== MODAL ===== */
         .modal {
             display: none;
             position: fixed;
@@ -364,13 +357,8 @@
             color: #555;
         }
 
-        /* ===== RESPONSIVIDADE COMPLETA ===== */
-
-        /* Tablets e celulares grandes */
         @media (max-width: 768px) {
-            .menu-toggle {
-                display: flex;
-            }
+            .menu-toggle { display: flex; }
             .nav-links {
                 display: none;
                 flex-direction: column;
@@ -381,154 +369,62 @@
                 margin-top: 0.5rem;
                 align-items: stretch;
             }
-            .nav-links.open {
-                display: flex;
-            }
+            .nav-links.open { display: flex; }
             .nav-links a {
                 text-align: center;
                 padding: 0.6rem;
                 font-size: 0.95rem;
                 width: 100%;
             }
-            .nav-links .btn-nav {
-                text-align: center;
-            }
-            .container {
-                padding: 1rem;
-            }
-            .cards-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-            .charts-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-            .modal-content {
-                margin: 1rem;
-                padding: 1.5rem;
-                max-width: 100%;
-            }
-            .navbar h1 {
-                font-size: 1.2rem;
-            }
+            .nav-links .btn-nav { text-align: center; }
+            .container { padding: 1rem; }
+            .cards-grid { grid-template-columns: 1fr; gap: 1rem; }
+            .charts-grid { grid-template-columns: 1fr; gap: 1rem; }
+            .modal-content { margin: 1rem; padding: 1.5rem; max-width: 100%; }
+            .navbar h1 { font-size: 1.2rem; }
         }
 
-        /* Celulares médios */
         @media (max-width: 480px) {
-            .navbar {
-                padding: 0.6rem 1rem;
-            }
-            .menu-toggle span {
-                width: 20px;
-                height: 2px;
-            }
-            .card {
-                padding: 1.2rem;
-            }
-            .card .valor {
-                font-size: 1.6rem;
-            }
-            .card .icon {
-                font-size: 1.5rem;
-            }
-            .gasto-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.3rem;
-            }
-            .gasto-actions {
-                width: 100%;
-                justify-content: space-between;
-            }
-            .chart-container {
-                padding: 1rem;
-            }
-            .chart-container canvas {
-                max-height: 150px;
-            }
-            .modal-content {
-                padding: 1.2rem;
-                border-radius: 16px;
-            }
-            .modal-content h2 {
-                font-size: 1.2rem;
-            }
-            .btn-primary {
-                padding: 0.6rem 1.2rem;
-                font-size: 0.9rem;
-            }
+            .navbar { padding: 0.6rem 1rem; }
+            .menu-toggle span { width: 20px; height: 2px; }
+            .card { padding: 1.2rem; }
+            .card .valor { font-size: 1.6rem; }
+            .card .icon { font-size: 1.5rem; }
+            .gasto-item { flex-direction: column; align-items: flex-start; gap: 0.3rem; }
+            .gasto-actions { width: 100%; justify-content: space-between; }
+            .chart-container { padding: 1rem; }
+            .chart-container canvas { max-height: 150px; }
+            .modal-content { padding: 1.2rem; border-radius: 16px; }
+            .modal-content h2 { font-size: 1.2rem; }
+            .btn-primary { padding: 0.6rem 1.2rem; font-size: 0.9rem; }
         }
 
-        /* Celulares pequenos */
         @media (max-width: 360px) {
-            .navbar h1 {
-                font-size: 1rem;
-            }
-            .menu-toggle span {
-                width: 18px;
-                height: 2px;
-            }
-            .card {
-                padding: 1rem;
-            }
-            .card .valor {
-                font-size: 1.4rem;
-            }
-            .card h3 {
-                font-size: 0.65rem;
-            }
-            .gastos-lista {
-                padding: 1rem;
-            }
-            .gastos-lista h3 {
-                font-size: 0.95rem;
-            }
+            .navbar h1 { font-size: 1rem; }
+            .menu-toggle span { width: 18px; height: 2px; }
+            .card { padding: 1rem; }
+            .card .valor { font-size: 1.4rem; }
+            .card h3 { font-size: 0.65rem; }
+            .gastos-lista { padding: 1rem; }
+            .gastos-lista h3 { font-size: 0.95rem; }
         }
 
-        /* Landscape (celular deitado) */
         @media (max-height: 500px) and (orientation: landscape) {
-            .navbar {
-                padding: 0.4rem 1rem;
-            }
-            .navbar h1 {
-                font-size: 1.1rem;
-            }
-            .menu-toggle span {
-                width: 18px;
-                height: 2px;
-            }
-            .container {
-                padding: 0.8rem;
-            }
-            .cards-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 0.8rem;
-            }
-            .card {
-                padding: 1rem;
-            }
-            .card .valor {
-                font-size: 1.4rem;
-            }
-            .charts-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 0.8rem;
-            }
-            .chart-container canvas {
-                max-height: 100px;
-            }
-            .gastos-lista {
-                padding: 1rem;
-            }
-            .gasto-item {
-                padding: 0.4rem 0;
-            }
+            .navbar { padding: 0.4rem 1rem; }
+            .navbar h1 { font-size: 1.1rem; }
+            .menu-toggle span { width: 18px; height: 2px; }
+            .container { padding: 0.8rem; }
+            .cards-grid { grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+            .card { padding: 1rem; }
+            .card .valor { font-size: 1.4rem; }
+            .charts-grid { grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+            .chart-container canvas { max-height: 100px; }
+            .gastos-lista { padding: 1rem; }
+            .gasto-item { padding: 0.4rem 0; }
         }
     </style>
 </head>
 <body>
-    <!-- ===== NAVBAR COM MENU HAMBÚRGUER ===== -->
     <nav class="navbar">
         <div class="nav-left">
             <div class="menu-toggle" id="menuToggle">
@@ -545,7 +441,6 @@
         </div>
     </nav>
 
-    <!-- ===== CONTEÚDO PRINCIPAL ===== -->
     <div class="container" id="dashboardContent">
         <div id="semAuxilio" class="sem-auxilio" style="display:none;">
             <h2>📋 Nenhum auxílio cadastrado</h2>
@@ -577,7 +472,6 @@
                 </div>
             </div>
 
-            <!-- GRÁFICOS -->
             <div class="charts-grid">
                 <div class="chart-container">
                     <h4>📈 Evolução do Saldo</h4>
@@ -596,7 +490,6 @@
         </div>
     </div>
 
-    <!-- ===== MODAL: NOVO GASTO ===== -->
     <div class="modal" id="gastoModal">
         <div class="modal-content">
             <span class="close" id="fecharModal">&times;</span>
@@ -636,9 +529,9 @@
         </div>
     </div>
 
-    <!-- ===== MODAL: EXCLUIR GASTO ===== -->
+    <!-- ===== MODAL: EXCLUIR GASTO (CORRIGIDO) ===== -->
     <div class="modal" id="excluirModal">
-        <div class="modal-content">
+        <div class="modal-content" id="excluirModalContent">
             <span class="close" id="fecharExcluirModal">&times;</span>
             <h2>🗑️ Excluir Gasto</h2>
             <p style="color:#888; margin-bottom:1rem;">Informe o motivo da exclusão:</p>
@@ -667,7 +560,6 @@
             navLinks.classList.toggle('open');
         });
 
-        // Fechar menu ao clicar em um link
         document.querySelectorAll('.nav-links a').forEach(link => {
             link.addEventListener('click', () => {
                 menuToggle.classList.remove('active');
@@ -808,7 +700,6 @@
                 }
             });
 
-            // Gráfico de Saldo
             const ctxSaldo = document.getElementById('graficoSaldo');
             if (ctxSaldo) {
                 if (graficoSaldo) graficoSaldo.destroy();
@@ -843,7 +734,6 @@
                 });
             }
 
-            // Gráfico de Gastos por Dia
             const ctxGastos = document.getElementById('graficoGastos');
             if (ctxGastos) {
                 if (graficoGastos) graficoGastos.destroy();
@@ -935,18 +825,44 @@
             await carregarDados();
         });
 
-        // MODAL EXCLUIR GASTO
+        // ===== MODAL EXCLUIR GASTO (CORRIGIDO) =====
         const excluirModal = document.getElementById('excluirModal');
+        const excluirModalContent = document.getElementById('excluirModalContent');
         
         window.abrirExcluir = function(gastoId) {
             document.getElementById('excluirGastoId').value = gastoId;
             document.getElementById('justificativa').value = '';
             document.getElementById('erroExcluir').style.display = 'none';
             excluirModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
         };
 
-        document.getElementById('fecharExcluirModal').addEventListener('click', () => excluirModal.style.display = 'none');
-        excluirModal.addEventListener('click', (e) => { if (e.target === excluirModal) excluirModal.style.display = 'none'; });
+        // Fechar pelo X
+        document.getElementById('fecharExcluirModal').addEventListener('click', () => {
+            excluirModal.style.display = 'none';
+            document.body.style.overflow = '';
+        });
+
+        // Fechar clicando fora (apenas no fundo, não no conteúdo)
+        excluirModal.addEventListener('click', (e) => {
+            if (e.target === excluirModal) {
+                excluirModal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        });
+
+        // IMPEDIR que o modal feche ao clicar dentro do conteúdo
+        excluirModalContent.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        // Fechar com tecla ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && excluirModal.style.display === 'flex') {
+                excluirModal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        });
 
         document.getElementById('excluirForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -984,6 +900,7 @@
                 if (error) throw error;
 
                 excluirModal.style.display = 'none';
+                document.body.style.overflow = '';
                 alert('✅ Gasto excluído com sucesso! Justificativa registrada.');
                 await carregarDados();
             } catch (error) {
