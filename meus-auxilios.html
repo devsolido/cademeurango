@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        /* ===== VARIÁVEIS PADRONIZADAS ===== */
         :root {
             --primary: #22C55E;
             --primary-hover: #16A34A;
@@ -40,7 +39,6 @@
             min-height: 100vh;
         }
         
-        /* ===== NAVBAR ===== */
         .navbar {
             background: var(--card);
             padding: 0.8rem 1.5rem;
@@ -144,7 +142,6 @@
         
         .container { max-width: 1200px; margin: 0 auto; padding: var(--space-32); }
         
-        /* ===== BOTÕES ===== */
         .btn-primary {
             padding: 10px 24px;
             background: var(--primary);
@@ -192,7 +189,7 @@
 
         .btn-secondary {
             padding: 6px 14px;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255,255,255,0.05);
             color: var(--text-secondary);
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
@@ -207,7 +204,7 @@
             gap: var(--space-4);
         }
         .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255,255,255,0.08);
             color: var(--text);
         }
 
@@ -235,7 +232,7 @@
 
         .btn-back {
             padding: 8px 20px;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255,255,255,0.05);
             color: var(--text-secondary);
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
@@ -248,7 +245,7 @@
             margin-bottom: var(--space-16);
         }
         .btn-back:hover {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255,255,255,0.08);
             color: var(--text);
             transform: translateX(-3px);
         }
@@ -267,7 +264,6 @@
             font-weight: 700;
         }
         
-        /* ===== LISTA DE MESES ===== */
         .lista-meses { display: grid; gap: var(--space-16); }
         
         .mes-card {
@@ -340,7 +336,6 @@
         .sem-meses h2 { color: var(--text-secondary); margin-bottom: var(--space-8); }
         .sem-meses p { color: #555; margin-bottom: var(--space-16); }
         
-        /* ===== MODAL ===== */
         .modal {
             display: none;
             position: fixed;
@@ -418,7 +413,6 @@
         .erro { color: var(--danger); text-align: center; margin-top: var(--space-8); display: none; font-weight: 500; }
         .sucesso { color: var(--success); text-align: center; margin-top: var(--space-8); display: none; font-weight: 500; }
         
-        /* ===== DETALHES DOS GASTOS ===== */
         .detalhes-container {
             background: var(--card);
             border-radius: var(--radius);
@@ -516,7 +510,6 @@
             gap: var(--space-16);
         }
 
-        /* ===== RESPONSIVIDADE ===== */
         @media (max-width: 768px) {
             .menu-toggle { display: flex; }
             .nav-links {
@@ -570,7 +563,6 @@
     </style>
 </head>
 <body>
-    <!-- ===== NAVBAR ===== -->
     <nav class="navbar">
         <div class="nav-left">
             <div class="menu-toggle" id="menuToggle">
@@ -588,9 +580,7 @@
         </div>
     </nav>
 
-    <!-- ===== CONTEÚDO PRINCIPAL ===== -->
     <div class="container">
-        <!-- VIEW: LISTA DE MESES -->
         <div id="viewLista">
             <div class="header-actions">
                 <h2>📋 Meus Auxílios</h2>
@@ -599,14 +589,12 @@
             <div id="listaMeses" class="lista-meses"></div>
         </div>
 
-        <!-- VIEW: DETALHES DOS GASTOS DO MÊS -->
         <div id="viewDetalhes" style="display:none;">
             <button class="btn-back" id="btnVoltar">← Voltar</button>
             <div class="detalhes-container" id="detalhesContainer"></div>
         </div>
     </div>
 
-    <!-- ===== MODAL: NOVO AUXÍLIO ===== -->
     <div class="modal" id="auxilioModal">
         <div class="modal-content">
             <span class="close" id="fecharModal">&times;</span>
@@ -636,7 +624,6 @@
         </div>
     </div>
 
-    <!-- ===== MODAL: NOVO MÊS ===== -->
     <div class="modal" id="mesModal">
         <div class="modal-content">
             <span class="close" id="fecharMesModal">&times;</span>
@@ -690,7 +677,6 @@
         </div>
     </div>
 
-    <!-- ===== MODAL: EXCLUIR MÊS COM JUSTIFICATIVA ===== -->
     <div class="modal" id="excluirMesModal">
         <div class="modal-content" id="excluirMesModalContent">
             <span class="close" id="fecharExcluirMesModal">&times;</span>
@@ -712,7 +698,6 @@
         import { supabase } from './js/config.js';
         import { getSessao, logout } from './js/auth.js';
 
-        // ===== MENU HAMBÚRGUER =====
         const menuToggle = document.getElementById('menuToggle');
         const navLinks = document.getElementById('navLinks');
 
@@ -733,7 +718,6 @@
         let meses = [];
         let gastos = [];
 
-        // ===== FUNÇÕES =====
         function abrirModalAuxilio() {
             document.getElementById('modalTitulo').textContent = '📝 Cadastrar Auxílio';
             document.getElementById('auxilioId').value = '';
@@ -752,7 +736,6 @@
                 if (!sessao) { window.location.href = 'login.html'; return; }
                 user = sessao.user;
 
-                // Buscar auxílios
                 const { data: auxData, error: auxError } = await supabase
                     .from('auxilios')
                     .select('*')
@@ -762,7 +745,6 @@
                 if (auxError) throw auxError;
                 auxilios = auxData || [];
 
-                // Buscar meses
                 const { data: mesesData, error: mesesError } = await supabase
                     .from('meses')
                     .select('*')
@@ -820,7 +802,6 @@
             });
         }
 
-        // ===== EXCLUIR MÊS COM JUSTIFICATIVA =====
         const excluirMesModal = document.getElementById('excluirMesModal');
         const excluirMesModalContent = document.getElementById('excluirMesModalContent');
 
@@ -869,11 +850,9 @@
             }
 
             try {
-                // Buscar dados do mês antes de excluir
                 const mes = meses.find(m => m.id === mesId);
                 if (!mes) throw new Error('Mês não encontrado');
 
-                // Salvar no histórico de exclusão
                 await supabase.from('historico_exclusao_meses').insert({
                     user_id: user.id,
                     mes_id: mesId,
@@ -884,10 +863,8 @@
                     justificativa: justificativa
                 });
 
-                // Excluir gastos relacionados a este mês
                 await supabase.from('gastos').delete().eq('mes_id', mesId);
 
-                // Excluir o mês
                 const { error } = await supabase
                     .from('meses')
                     .delete()
@@ -898,23 +875,21 @@
 
                 excluirMesModal.style.display = 'none';
                 document.body.style.overflow = '';
-                alert('✅ Mês excluído com sucesso! Justificativa registrada.');
                 
-                // ===== FORÇAR RECARREGAMENTO =====
-                await carregarDados();
+                // ===== RECARREGAR A PÁGINA FORÇADAMENTE =====
+                window.location.reload();
                 
             } catch (error) {
                 erroEl.style.display = 'block';
                 erroEl.textContent = error.message || 'Erro ao excluir mês';
+                console.error('Erro detalhado:', error);
             }
         });
 
-        // ===== VER DETALHES DOS GASTOS DO MÊS =====
         async function verDetalhesMes(mesId) {
             const mes = meses.find(m => m.id === mesId);
             if (!mes) return;
 
-            // Buscar gastos deste mês
             const { data: gastosData } = await supabase
                 .from('gastos')
                 .select('*')
@@ -974,29 +949,24 @@
             `;
         }
 
-        // ===== VOLTAR =====
         document.getElementById('btnVoltar').addEventListener('click', () => {
             document.getElementById('viewDetalhes').style.display = 'none';
             document.getElementById('viewLista').style.display = 'block';
             carregarDados();
         });
 
-        // ===== SAIR =====
         document.getElementById('btnSair').addEventListener('click', async () => {
             await logout();
             window.location.href = 'login.html';
         });
 
-        // ===== MODAL AUXÍLIO =====
         document.getElementById('btnNovoAuxilio').addEventListener('click', abrirModalAuxilio);
         document.getElementById('fecharModal').addEventListener('click', () => document.getElementById('auxilioModal').style.display = 'none');
         document.getElementById('auxilioModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.style.display = 'none'; });
 
-        // ===== MODAL MÊS =====
         document.getElementById('fecharMesModal').addEventListener('click', () => document.getElementById('mesModal').style.display = 'none');
         document.getElementById('mesModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.style.display = 'none'; });
 
-        // ===== FORMULÁRIO AUXÍLIO =====
         document.getElementById('auxilioForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -1044,7 +1014,6 @@
             }
         });
 
-        // ===== FORMULÁRIO MÊS =====
         document.getElementById('mesForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -1093,7 +1062,6 @@
             }
         });
 
-        // ===== INICIAR =====
         carregarDados();
     </script>
 </body>
