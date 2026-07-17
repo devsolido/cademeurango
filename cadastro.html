@@ -3,82 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro - Cadê Meu Rango? 🍽️</title>
+    <title>Criar Conta - Cadê Meu Rango? 🍽️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0a;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 20px;
         }
         .cadastro-container {
-            background: white;
-            padding: 2.5rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 420px;
             width: 100%;
-            max-width: 400px;
+            background: linear-gradient(145deg, #0d0d0d 0%, #1a1a1a 100%);
+            border-radius: 20px;
+            padding: 48px 40px;
+            border: 1px solid rgba(46, 125, 50, 0.15);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(46, 125, 50, 0.05);
+            position: relative;
+            overflow: hidden;
         }
-        .logo { text-align: center; margin-bottom: 2rem; }
-        .logo h1 { font-size: 2rem; color: #2E7D32; }
-        .logo p { color: #666; font-size: 0.9rem; }
-        .form-group { margin-bottom: 1.2rem; }
-        .form-group label { display: block; margin-bottom: 0.3rem; font-weight: 500; color: #333; }
+        .cadastro-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 70% 30%, rgba(46, 125, 50, 0.06) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .cadastro-container::after {
+            content: '';
+            position: absolute;
+            bottom: -50%;
+            left: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 70%, rgba(0, 150, 136, 0.04) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 36px;
+            position: relative;
+            z-index: 1;
+        }
+        .logo h1 {
+            font-size: 30px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+        .logo h1 span {
+            color: #2E7D32;
+        }
+        .logo p {
+            color: #888888;
+            font-size: 14px;
+            margin-top: 4px;
+            font-weight: 400;
+        }
+        .divider {
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, #2E7D32, #00BFA5);
+            border-radius: 4px;
+            margin: 0 auto 32px;
+        }
+        .form-group {
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 1;
+        }
+        .form-group label {
+            display: block;
+            color: #b0b0b0;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            letter-spacing: 0.3px;
+        }
         .form-group input {
             width: 100%;
-            padding: 0.8rem;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            outline: none;
         }
-        .form-group input:focus { outline: none; border-color: #2E7D32; }
-        .btn-primary {
+        .form-group input::placeholder {
+            color: #555555;
+        }
+        .form-group input:focus {
+            border-color: #2E7D32;
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 0 20px rgba(46, 125, 50, 0.08);
+        }
+        .btn-cadastrar {
             width: 100%;
-            padding: 0.8rem;
-            background: #2E7D32;
-            color: white;
+            padding: 14px;
+            background: linear-gradient(135deg, #1a472a 0%, #2E7D32 50%, #00BFA5 100%);
+            color: #ffffff;
             border: none;
-            border-radius: 8px;
-            font-size: 1rem;
+            border-radius: 12px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(46, 125, 50, 0.2);
+            font-family: 'Inter', sans-serif;
+            margin-top: 8px;
+            position: relative;
+            z-index: 1;
         }
-        .btn-primary:hover { background: #1B5E20; }
-        .links { text-align: center; margin-top: 1.5rem; }
-        .links a { color: #2E7D32; text-decoration: none; }
-        .links a:hover { text-decoration: underline; }
-        .erro { color: #F44336; text-align: center; margin-top: 0.5rem; display: none; }
-        .sucesso { color: #4CAF50; text-align: center; margin-top: 0.5rem; display: none; }
+        .btn-cadastrar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(46, 125, 50, 0.35);
+        }
+        .btn-cadastrar:active {
+            transform: translateY(0);
+        }
+        .links {
+            text-align: center;
+            margin-top: 24px;
+            position: relative;
+            z-index: 1;
+        }
+        .links a {
+            color: #888888;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+        .links a:hover {
+            color: #2E7D32;
+        }
+        .erro {
+            color: #e53935;
+            text-align: center;
+            font-size: 13px;
+            margin-top: 12px;
+            display: none;
+            position: relative;
+            z-index: 1;
+        }
+        .sucesso {
+            color: #4CAF50;
+            text-align: center;
+            font-size: 13px;
+            margin-top: 12px;
+            display: none;
+            position: relative;
+            z-index: 1;
+        }
+        .footer-text {
+            text-align: center;
+            margin-top: 28px;
+            color: #444444;
+            font-size: 11px;
+            position: relative;
+            z-index: 1;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .footer-text span {
+            color: #2E7D32;
+        }
+        @media (max-width: 480px) {
+            .cadastro-container {
+                padding: 32px 20px;
+            }
+            .logo h1 {
+                font-size: 26px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="cadastro-container">
         <div class="logo">
-            <h1>🍽️ Cadê Meu Rango?</h1>
+            <h1>🍽️ Cadê Meu <span>Rango</span>?</h1>
             <p>Crie sua conta</p>
         </div>
+        <div class="divider"></div>
+
         <form id="cadastroForm">
             <div class="form-group">
                 <label>E-mail</label>
-                <input type="email" id="email" required placeholder="seu@email.com">
+                <input type="email" id="email" placeholder="seu@email.com" required>
             </div>
             <div class="form-group">
                 <label>Matrícula IFPA</label>
-                <input type="text" id="matricula" required placeholder="Ex: 2024001">
+                <input type="text" id="matricula" placeholder="Ex: 2024001" required>
             </div>
             <div class="form-group">
                 <label>Senha (mínimo 6 caracteres)</label>
-                <input type="password" id="password" required placeholder="••••••••" minlength="6">
+                <input type="password" id="password" placeholder="••••••••" required minlength="6">
             </div>
             <div class="erro" id="erroMsg">Erro ao cadastrar</div>
-            <div class="sucesso" id="sucessoMsg">Cadastro realizado! Faça login.</div>
-            <button type="submit" class="btn-primary">Cadastrar</button>
+            <div class="sucesso" id="sucessoMsg">Cadastro realizado com sucesso!</div>
+            <button type="submit" class="btn-cadastrar">Criar Conta</button>
         </form>
+
         <div class="links">
             <a href="login.html">Já tenho conta</a>
+        </div>
+
+        <div class="footer-text">
+            <span>🍽️ Cadê Meu Rango?</span> • IFPA Campus Marabá Industrial
         </div>
     </div>
 
@@ -88,8 +233,8 @@
         document.getElementById('cadastroForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
             const matricula = document.getElementById('matricula').value;
+            const password = document.getElementById('password').value;
             const erroMsg = document.getElementById('erroMsg');
             const sucessoMsg = document.getElementById('sucessoMsg');
             
