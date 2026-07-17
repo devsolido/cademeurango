@@ -183,9 +183,6 @@
             color: #2E7D32;
         }
 
-        /* ===== RESPONSIVIDADE COMPLETA ===== */
-
-        /* Tablets e celulares grandes */
         @media (max-width: 768px) {
             .cadastro-container {
                 padding: 36px 28px;
@@ -196,7 +193,6 @@
             }
         }
 
-        /* Celulares médios */
         @media (max-width: 480px) {
             .cadastro-container {
                 padding: 28px 18px;
@@ -243,7 +239,6 @@
             }
         }
 
-        /* Celulares pequenos */
         @media (max-width: 360px) {
             .cadastro-container {
                 padding: 20px 14px;
@@ -287,7 +282,6 @@
             }
         }
 
-        /* Telas muito pequenas */
         @media (max-width: 280px) {
             .cadastro-container {
                 padding: 14px 10px;
@@ -312,7 +306,6 @@
             }
         }
 
-        /* Landscape (celular deitado) */
         @media (max-height: 500px) and (orientation: landscape) {
             .cadastro-container {
                 padding: 20px 24px;
@@ -362,15 +355,15 @@
         <form id="cadastroForm">
             <div class="form-group">
                 <label>E-mail</label>
-                <input type="email" id="email" placeholder="seu@email.com" required>
+                <input type="email" id="email" placeholder="seu@email.com" required autocomplete="email">
             </div>
             <div class="form-group">
                 <label>Matrícula IFPA</label>
-                <input type="text" id="matricula" placeholder="Ex: 2024001" required>
+                <input type="text" id="matricula" placeholder="Ex: 2024001" required autocomplete="off">
             </div>
             <div class="form-group">
                 <label>Senha (mínimo 6 caracteres)</label>
-                <input type="password" id="password" placeholder="••••••••" required minlength="6">
+                <input type="password" id="password" placeholder="••••••••" required minlength="6" autocomplete="new-password">
             </div>
             <div class="erro" id="erroMsg">Erro ao cadastrar</div>
             <div class="sucesso" id="sucessoMsg">Cadastro realizado com sucesso!</div>
