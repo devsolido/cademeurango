@@ -847,10 +847,9 @@
             container.innerHTML = `
                 <div class="header-actions" style="margin-top:0;">
                     <h2 style="font-size:20px; color:var(--primary);">📅 ${auxilioSelecionado.periodo}</h2>
-                    <div style="display:flex; gap:var(--space-8); flex-wrap:wrap;">
-                        <button class="btn-success" onclick="adicionarProximoMes('${auxilioId}')">📅 + Próximo Mês</button>
-                        <button class="btn-primary" onclick="abrirMesModal('${auxilioId}')">+ Novo Mês</button>
-                    </div>
+                   <div style="display:flex; gap:var(--space-8); flex-wrap:wrap;">
+    <button class="btn-primary" onclick="abrirMesModal('${auxilioId}')">+ Adicionar Mês</button>
+</div>
                 </div>
                 <div style="display:flex; gap:var(--space-16); flex-wrap:wrap; margin-bottom:var(--space-24);">
                     <div class="resumo-item" style="flex:1; min-width:100px;">
