@@ -105,6 +105,20 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(46, 125, 50, 0.35);
         }
+        .btn-pdf-calendario {
+            background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+            color: #ffffff;
+            font-weight: 600;
+            padding: 0.4rem 1rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(21, 101, 192, 0.2);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .btn-pdf-calendario:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(21, 101, 192, 0.35);
+        }
         .nav-links .btn-sair {
             color: rgba(255,255,255,0.4);
             font-size: 0.8rem;
@@ -437,6 +451,7 @@
         <div class="nav-links" id="navLinks">
             <a href="#" id="btnNovoGasto" class="btn-nav">+ Novo Gasto</a>
             <a href="meus-auxilios.html">Meus Auxílios</a>
+            <a href="assets/calendario-academico.pdf" download="Calendario_Academico_IFPA.pdf" class="btn-pdf-calendario">📅 Calendário</a>
             <a href="#" id="btnSair" class="btn-sair">Sair</a>
         </div>
     </nav>
@@ -924,4 +939,4 @@
         carregarDados();
     </script>
 </body>
-</html> 
+</html>
