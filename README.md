@@ -61,34 +61,3 @@ Desenvolver um sistema web inteligente capaz de acompanhar o uso do auxílio ali
 
 ### Hospedagem
 ![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
- ## 📁 Estrutura do Projeto
-cade-meu-rango/
-│
-├── index.html # Página inicial
-├── login.html # Tela de login
-├── cadastro.html # Tela de cadastro
-├── recuperar.html # Recuperação de senha
-├── dashboard.html # Dashboard principal
-├── meus-auxilios.html # Gerenciamento de auxílios
-├── cadastro-auxilio.html # Cadastro de auxílio
-│
-├── css/
-│ ├── style.css # Estilos principais
-│ └── dark-mode.css # Modo escuro
-│
-├── js/
-│ ├── config.js # Configuração do Supabase
-│ ├── auth.js # Autenticação
-│ ├── dashboard.js # Lógica do dashboard
-│ ├── gastos.js # Gerenciamento de gastos
-│ └── graficos.js # Gráficos com Chart.js
-│
-├── assets/
-│ ├── images/ # Imagens do projeto
-│ └── icons/ # Ícones
-│
-├── .gitignore
-└── README.md
----
-
-## 📁 Estrutura do Projeto
