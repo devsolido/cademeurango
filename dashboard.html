@@ -10,55 +10,70 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
-            background: #f0f2f5; 
-            color: #1a1a2e;
+            background: #0a0a0a; 
+            color: #ffffff;
+            min-height: 100vh;
         }
         
+        /* ===== NAVBAR ===== */
         .navbar {
-            background: linear-gradient(135deg, #1a472a 0%, #2d6a4f 100%);
-            color: white;
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            border-bottom: 1px solid rgba(46, 125, 50, 0.15);
             position: sticky;
             top: 0;
             z-index: 100;
+            backdrop-filter: blur(10px);
         }
         .navbar h1 { 
-            font-size: 1.8rem; 
+            font-size: 1.6rem; 
             font-weight: 800;
             letter-spacing: -0.5px;
+            color: #ffffff;
         }
-        .navbar h1 span { color: #ffd700; }
-        .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+        .navbar h1 span { color: #2E7D32; }
+        .nav-links { display: flex; gap: 1rem; align-items: center; }
         .nav-links a { 
-            color: rgba(255,255,255,0.85); 
+            color: rgba(255,255,255,0.7); 
             text-decoration: none; 
             font-weight: 500;
             padding: 0.5rem 1rem;
-            border-radius: 8px;
+            border-radius: 10px;
             transition: all 0.3s;
+            font-size: 0.9rem;
         }
         .nav-links a:hover { 
-            background: rgba(255,255,255,0.15); 
-            color: white;
+            background: rgba(255,255,255,0.06); 
+            color: #ffffff;
         }
         .nav-links .btn-nav {
-            background: #ffd700;
-            color: #1a472a;
-            font-weight: 700;
+            background: linear-gradient(135deg, #1a472a 0%, #2E7D32 50%, #00BFA5 100%);
+            color: #ffffff;
+            font-weight: 600;
             padding: 0.5rem 1.2rem;
-            border-radius: 8px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(46, 125, 50, 0.2);
         }
         .nav-links .btn-nav:hover {
-            background: #ffed4a;
-            transform: scale(1.05);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(46, 125, 50, 0.35);
+        }
+        .nav-links .btn-sair {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.85rem;
+            padding: 0.4rem 0.8rem;
+        }
+        .nav-links .btn-sair:hover {
+            color: #e53935;
+            background: rgba(229, 57, 53, 0.1);
         }
         
         .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
         
+        /* ===== CARDS ===== */
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -66,20 +81,20 @@
             margin-bottom: 2rem;
         }
         .card {
-            background: white;
+            background: linear-gradient(145deg, #121212 0%, #1a1a1a 100%);
             padding: 1.8rem;
             border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            border: 1px solid rgba(255,255,255,0.06);
             transition: all 0.3s;
-            border: 1px solid rgba(0,0,0,0.04);
         }
         .card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            border-color: rgba(46, 125, 50, 0.2);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
         }
         .card .icon { font-size: 2rem; margin-bottom: 0.5rem; }
         .card h3 { 
-            font-size: 0.8rem; 
+            font-size: 0.75rem; 
             color: #888; 
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -88,37 +103,42 @@
         .card .valor { 
             font-size: 2.2rem; 
             font-weight: 800; 
-            color: #1a472a; 
+            color: #ffffff; 
             margin-top: 0.3rem;
         }
         
         .status-card {
-            border-left: 6px solid #ccc;
-            background: white;
+            border-left: 4px solid #555;
+            background: linear-gradient(145deg, #121212 0%, #1a1a1a 100%);
         }
         .status-card .status-text { 
-            font-size: 1.1rem; 
+            font-size: 1rem; 
             margin-top: 0.5rem;
             font-weight: 500;
+            color: #b0b0b0;
         }
+        .status-card .icon-grande { font-size: 2.5rem; }
         
+        /* ===== BOTÕES ===== */
         .btn-primary {
-            background: linear-gradient(135deg, #1a472a 0%, #2d6a4f 100%);
+            background: linear-gradient(135deg, #1a472a 0%, #2E7D32 50%, #00BFA5 100%);
             color: white;
             border: none;
             padding: 0.8rem 2rem;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
             font-size: 1rem;
             font-weight: 600;
             transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 4px 15px rgba(46, 125, 50, 0.2);
         }
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(26, 71, 42, 0.3);
+            box-shadow: 0 8px 25px rgba(46, 125, 50, 0.35);
         }
         .btn-danger {
-            background: linear-gradient(135deg, #e53935 0%, #c62828 100%);
+            background: linear-gradient(135deg, #c62828 0%, #e53935 100%);
             color: white;
             border: none;
             padding: 0.4rem 0.8rem;
@@ -132,55 +152,43 @@
             transform: scale(1.05);
             box-shadow: 0 4px 15px rgba(229, 57, 53, 0.4);
         }
-        .btn-secondary {
-            background: #e0e0e0;
-            color: #333;
-            border: none;
-            padding: 0.4rem 0.8rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        .btn-secondary:hover {
-            background: #d0d0d0;
-        }
         
+        /* ===== LISTA DE GASTOS ===== */
         .gastos-lista { 
-            background: white; 
+            background: linear-gradient(145deg, #121212 0%, #1a1a1a 100%);
             border-radius: 16px; 
             padding: 1.8rem; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-            border: 1px solid rgba(0,0,0,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
         }
         .gastos-lista h3 {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             margin-bottom: 1rem;
-            color: #1a1a2e;
+            color: #ffffff;
+            font-weight: 600;
         }
         .gasto-item { 
             display: flex; 
             justify-content: space-between; 
             align-items: center;
             padding: 0.8rem 0; 
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
             flex-wrap: wrap;
             gap: 0.3rem;
         }
         .gasto-item:last-child { border-bottom: none; }
         .gasto-info { display: flex; flex-direction: column; }
-        .gasto-info .data { font-size: 0.8rem; color: #999; }
+        .gasto-info .data { font-size: 0.75rem; color: #666; }
         .gasto-valor { 
             font-weight: 700; 
             color: #e53935;
             font-size: 1.1rem;
         }
         .gasto-actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
-        .comprovante-link { font-size: 0.8rem; }
-        .comprovante-link a { color: #2d6a4f; text-decoration: none; }
+        .comprovante-link { font-size: 0.75rem; }
+        .comprovante-link a { color: #2E7D32; text-decoration: none; }
         .comprovante-link a:hover { text-decoration: underline; }
         
+        /* ===== GRÁFICOS ===== */
         .charts-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -188,39 +196,42 @@
             margin-bottom: 2rem;
         }
         .chart-container {
-            background: white;
+            background: linear-gradient(145deg, #121212 0%, #1a1a1a 100%);
             border-radius: 16px;
             padding: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-            border: 1px solid rgba(0,0,0,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
         }
         .chart-container h4 {
             margin-bottom: 0.8rem;
-            color: #1a1a2e;
-            font-size: 1rem;
+            color: #b0b0b0;
+            font-size: 0.95rem;
+            font-weight: 500;
         }
         .chart-container canvas {
             max-height: 200px;
         }
         
+        /* ===== MODAL ===== */
         .modal {
             display: none;
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.7);
             backdrop-filter: blur(8px);
             justify-content: center;
             align-items: center;
             z-index: 1000;
         }
         .modal-content {
-            background: white;
+            background: linear-gradient(145deg, #121212 0%, #1a1a1a 100%);
             padding: 2.5rem;
             border-radius: 20px;
             width: 100%;
             max-width: 450px;
+            border: 1px solid rgba(255,255,255,0.06);
             animation: modalSlide 0.3s ease;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
         }
         @keyframes modalSlide {
             from { transform: translateY(-30px); opacity: 0; }
@@ -228,61 +239,75 @@
         }
         .modal-content h2 { 
             margin-bottom: 1.5rem;
-            font-size: 1.5rem;
-            color: #1a1a2e;
+            font-size: 1.4rem;
+            color: #ffffff;
+            font-weight: 700;
         }
         .modal-content .form-group { margin-bottom: 1.2rem; }
         .modal-content .form-group label { 
             display: block; 
             margin-bottom: 0.4rem; 
-            font-weight: 600;
-            color: #333;
-            font-size: 0.9rem;
+            font-weight: 500;
+            color: #b0b0b0;
+            font-size: 0.85rem;
         }
         .modal-content .form-group input, 
         .modal-content .form-group select,
         .modal-content .form-group textarea {
             width: 100%;
-            padding: 0.8rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
+            padding: 0.8rem 1rem;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
             font-size: 1rem;
-            font-family: inherit;
-            transition: border-color 0.3s;
+            font-family: 'Inter', sans-serif;
+            color: #ffffff;
+            transition: all 0.3s;
         }
         .modal-content .form-group input:focus,
         .modal-content .form-group select:focus,
         .modal-content .form-group textarea:focus {
             outline: none;
-            border-color: #2d6a4f;
+            border-color: #2E7D32;
+            background: rgba(255,255,255,0.06);
+            box-shadow: 0 0 20px rgba(46, 125, 50, 0.08);
         }
         .modal-content .form-group textarea { 
             resize: vertical; 
             min-height: 80px;
         }
         .modal-content .form-group input[type="file"] {
-            padding: 0.5rem;
-            border: 2px dashed #e0e0e0;
+            padding: 0.8rem;
+            border: 1px dashed rgba(255,255,255,0.15);
             cursor: pointer;
+        }
+        .modal-content .form-group input[type="file"]:hover {
+            border-color: rgba(46, 125, 50, 0.3);
+        }
+        .modal-content .form-group small {
+            color: #555;
+            font-size: 0.75rem;
+            display: block;
+            margin-top: 4px;
         }
         .close { 
             float: right; 
-            font-size: 1.8rem; 
+            font-size: 1.5rem; 
             cursor: pointer;
-            color: #999;
+            color: #666;
             transition: color 0.3s;
         }
-        .close:hover { color: #333; }
+        .close:hover { color: #ffffff; }
         
         .sem-auxilio { 
             text-align: center; 
             padding: 4rem; 
-            background: white; 
+            background: linear-gradient(145deg, #121212 0%, #1a1a1a 100%);
             border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            border: 1px solid rgba(255,255,255,0.06);
         }
-        .sem-auxilio h2 { color: #666; margin-bottom: 0.5rem; }
-        .sem-auxilio p { color: #999; margin-bottom: 1.5rem; }
+        .sem-auxilio h2 { color: #888; margin-bottom: 0.5rem; }
+        .sem-auxilio p { color: #555; margin-bottom: 1.5rem; }
         
         .erro { color: #e53935; text-align: center; margin-top: 0.5rem; display: none; font-weight: 500; }
         .sucesso { color: #4CAF50; text-align: center; margin-top: 0.5rem; display: none; font-weight: 500; }
@@ -290,7 +315,7 @@
         .empty-state {
             text-align: center;
             padding: 2rem;
-            color: #999;
+            color: #555;
         }
         
         @media (max-width: 768px) {
@@ -304,15 +329,17 @@
     </style>
 </head>
 <body>
+    <!-- ===== NAVBAR ===== -->
     <nav class="navbar">
         <h1>🍽️ Cadê Meu <span>Rango</span>?</h1>
         <div class="nav-links">
             <a href="#" id="btnNovoGasto" class="btn-nav">+ Novo Gasto</a>
             <a href="meus-auxilios.html">Meus Auxílios</a>
-            <a href="#" id="btnSair">Sair</a>
+            <a href="#" id="btnSair" class="btn-sair">Sair</a>
         </div>
     </nav>
 
+    <!-- ===== CONTEÚDO PRINCIPAL ===== -->
     <div class="container" id="dashboardContent">
         <div id="semAuxilio" class="sem-auxilio" style="display:none;">
             <h2>📋 Nenhum auxílio cadastrado</h2>
@@ -323,7 +350,7 @@
         <div id="dashboardPrincipal">
             <div class="cards-grid">
                 <div class="card status-card" id="statusCard">
-                    <div class="icon" id="statusIcon">⬜</div>
+                    <div class="icon-grande" id="statusIcon">⬜</div>
                     <h3>Status do Rango</h3>
                     <div class="status-text" id="statusTexto">Nenhum gasto registrado ainda</div>
                 </div>
@@ -363,7 +390,7 @@
         </div>
     </div>
 
-    <!-- MODAL: NOVO GASTO -->
+    <!-- ===== MODAL: NOVO GASTO ===== -->
     <div class="modal" id="gastoModal">
         <div class="modal-content">
             <span class="close" id="fecharModal">&times;</span>
@@ -396,19 +423,19 @@
                 <div class="form-group">
                     <label>📎 Comprovante (opcional)</label>
                     <input type="file" id="comprovante" accept="image/*,.pdf">
-                    <small style="color:#999;">Formatos: JPG, PNG, PDF</small>
+                    <small>Formatos: JPG, PNG, PDF</small>
                 </div>
                 <button type="submit" class="btn-primary" style="width:100%;">Salvar Gasto</button>
             </form>
         </div>
     </div>
 
-    <!-- MODAL: EXCLUIR GASTO -->
+    <!-- ===== MODAL: EXCLUIR GASTO ===== -->
     <div class="modal" id="excluirModal">
         <div class="modal-content">
             <span class="close" id="fecharExcluirModal">&times;</span>
             <h2>🗑️ Excluir Gasto</h2>
-            <p style="color:#666; margin-bottom:1rem;">Informe o motivo da exclusão:</p>
+            <p style="color:#888; margin-bottom:1rem;">Informe o motivo da exclusão:</p>
             <form id="excluirForm">
                 <input type="hidden" id="excluirGastoId">
                 <div class="form-group">
@@ -484,8 +511,7 @@
             if (gastos.length === 0) {
                 iconEl.textContent = '⬜';
                 statusEl.textContent = 'Nenhum gasto registrado ainda';
-                cardEl.style.borderLeftColor = '#ccc';
-                cardEl.style.background = 'white';
+                cardEl.style.borderLeftColor = '#555';
                 return;
             }
 
@@ -493,17 +519,14 @@
                 iconEl.textContent = '🟢';
                 statusEl.textContent = 'Tá suave! Você pode gastar até R$ 10 por dia! 🍽️';
                 cardEl.style.borderLeftColor = '#4CAF50';
-                cardEl.style.background = 'linear-gradient(135deg, #ffffff 0%, #f0fff0 100%)';
             } else if (mediaPorDia >= 5) {
                 iconEl.textContent = '🟡';
                 statusEl.textContent = 'Segura o gasto! Só dá pra uma coxinha de R$ 5 por dia. 😅';
                 cardEl.style.borderLeftColor = '#FFC107';
-                cardEl.style.background = 'linear-gradient(135deg, #ffffff 0%, #fffde7 100%)';
             } else {
                 iconEl.textContent = '🔴';
                 statusEl.textContent = 'Alerta! Não dá nem pra uma coxinha por dia! 😰';
                 cardEl.style.borderLeftColor = '#e53935';
-                cardEl.style.background = 'linear-gradient(135deg, #ffffff 0%, #ffebee 100%)';
             }
 
             const lista = document.getElementById('listaGastos');
@@ -529,13 +552,11 @@
 
         function atualizarGraficos() {
             if (gastos.length === 0) {
-                // Limpar gráficos
                 if (graficoSaldo) { graficoSaldo.destroy(); graficoSaldo = null; }
                 if (graficoGastos) { graficoGastos.destroy(); graficoGastos = null; }
                 return;
             }
 
-            // Dados para gráfico de gastos por dia
             const gastosPorDia = {};
             gastos.forEach(g => {
                 const data = new Date(g.data_gasto).toLocaleDateString();
@@ -546,7 +567,6 @@
             const datas = Object.keys(gastosPorDia).sort((a, b) => new Date(a) - new Date(b));
             const dadosGastos = datas.map(data => ({ data, total: gastosPorDia[data] }));
 
-            // Dados para gráfico de saldo
             let saldoAtual = auxilio.valor;
             const dadosSaldo = [{ data: 'Início', saldo: auxilio.valor }];
             
@@ -581,7 +601,7 @@
                             fill: true,
                             tension: 0.4,
                             pointBackgroundColor: '#2E7D32',
-                            pointBorderColor: '#fff',
+                            pointBorderColor: '#1a1a1a',
                             pointBorderWidth: 2,
                             pointRadius: 4
                         }]
@@ -589,12 +609,12 @@
                     options: {
                         responsive: true,
                         plugins: {
-                            legend: { display: true, labels: { font: { size: 10 } } },
+                            legend: { display: true, labels: { color: '#888', font: { size: 10 } } },
                             tooltip: { callbacks: { label: ctx => 'R$ ' + ctx.parsed.y.toFixed(2) } }
                         },
                         scales: {
-                            y: { beginAtZero: true, ticks: { callback: v => 'R$ ' + v.toFixed(2) } },
-                            x: { grid: { display: false } }
+                            y: { beginAtZero: true, ticks: { color: '#555', callback: v => 'R$ ' + v.toFixed(2) }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                            x: { ticks: { color: '#555' }, grid: { display: false } }
                         }
                     }
                 });
@@ -611,7 +631,7 @@
                         datasets: [{
                             label: '💸 Gastos por Dia',
                             data: dadosGastos.map(d => d.total),
-                            backgroundColor: 'rgba(229, 57, 53, 0.7)',
+                            backgroundColor: 'rgba(229, 57, 53, 0.6)',
                             borderColor: '#e53935',
                             borderWidth: 2,
                             borderRadius: 6,
@@ -621,12 +641,12 @@
                     options: {
                         responsive: true,
                         plugins: {
-                            legend: { display: true, labels: { font: { size: 10 } } },
+                            legend: { display: true, labels: { color: '#888', font: { size: 10 } } },
                             tooltip: { callbacks: { label: ctx => 'R$ ' + ctx.parsed.y.toFixed(2) } }
                         },
                         scales: {
-                            y: { beginAtZero: true, ticks: { callback: v => 'R$ ' + v.toFixed(2) } },
-                            x: { grid: { display: false } }
+                            y: { beginAtZero: true, ticks: { color: '#555', callback: v => 'R$ ' + v.toFixed(2) }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                            x: { ticks: { color: '#555' }, grid: { display: false } }
                         }
                     }
                 });
@@ -655,7 +675,6 @@
             
             let comprovanteUrl = '';
 
-            // Upload do comprovante se houver
             if (comprovanteInput.files.length > 0) {
                 const file = comprovanteInput.files[0];
                 const fileExt = file.name.split('.').pop();
