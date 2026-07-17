@@ -4,108 +4,401 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastrar Auxílio - Cadê Meu Rango? 🍽️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #22C55E;
+            --primary-hover: #16A34A;
+            --success: #22C55E;
+            --danger: #EF4444;
+            --info: #3B82F6;
+            --warning: #F59E0B;
+            --background: #0D0D0D;
+            --card: #181818;
+            --border: #2B2B2B;
+            --text: #FFFFFF;
+            --text-secondary: #A1A1AA;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 8px 30px rgba(0,0,0,0.4);
+            --transition: all 0.3s ease;
+            --space-4: 4px;
+            --space-8: 8px;
+            --space-16: 16px;
+            --space-24: 24px;
+            --space-32: 32px;
+            --space-48: 48px;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+            background: var(--background); 
+            color: var(--text);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: var(--space-24);
         }
+
         .container {
-            background: white;
-            padding: 2.5rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 480px;
             width: 100%;
-            max-width: 450px;
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: var(--space-48) var(--space-32);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
         }
-        .logo { text-align: center; margin-bottom: 2rem; }
-        .logo h1 { font-size: 2rem; color: #2E7D32; }
-        .logo p { color: #666; font-size: 0.9rem; }
-        .form-group { margin-bottom: 1.2rem; }
-        .form-group label { display: block; margin-bottom: 0.3rem; font-weight: 500; color: #333; }
-        .form-group input, .form-group select {
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
             width: 100%;
-            padding: 0.8rem;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
+            height: 100%;
+            background: radial-gradient(circle at 70% 30%, rgba(34, 197, 94, 0.06) 0%, transparent 70%);
+            pointer-events: none;
         }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: #2E7D32; }
+
+        .container::after {
+            content: '';
+            position: absolute;
+            bottom: -50%;
+            left: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 70%, rgba(59, 130, 246, 0.04) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: var(--space-32);
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.5px;
+        }
+
+        .logo h1 span {
+            color: var(--primary);
+        }
+
+        .logo p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: var(--space-4);
+            font-weight: 400;
+        }
+
+        .divider {
+            width: 50px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 4px;
+            margin: 0 auto var(--space-32);
+        }
+
+        .info-box {
+            background: rgba(34, 197, 94, 0.08);
+            border: 1px solid rgba(34, 197, 94, 0.15);
+            border-radius: var(--radius-sm);
+            padding: var(--space-16) var(--space-20);
+            margin-bottom: var(--space-24);
+            position: relative;
+            z-index: 1;
+        }
+
+        .info-box p {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin: var(--space-4) 0;
+            display: flex;
+            align-items: center;
+            gap: var(--space-8);
+        }
+
+        .info-box p strong {
+            color: var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: var(--space-16);
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: var(--space-4);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: var(--transition);
+            outline: none;
+        }
+
+        .form-group input::placeholder {
+            color: #555;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.08);
+        }
+
         .btn-primary {
             width: 100%;
-            padding: 0.8rem;
-            background: #2E7D32;
-            color: white;
+            padding: 12px 24px;
+            background: var(--primary);
+            color: var(--text);
             border: none;
-            border-radius: 8px;
-            font-size: 1rem;
+            border-radius: var(--radius-sm);
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Inter', sans-serif;
+            height: 48px;
+            margin-top: var(--space-8);
+            position: relative;
+            z-index: 1;
         }
-        .btn-primary:hover { background: #1B5E20; }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(34, 197, 94, 0.35);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
         .btn-secondary {
             width: 100%;
-            padding: 0.8rem;
-            background: #666;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
+            padding: 10px 24px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
             cursor: pointer;
-            margin-top: 0.5rem;
+            transition: var(--transition);
+            font-family: 'Inter', sans-serif;
+            height: 40px;
+            margin-top: var(--space-8);
+            position: relative;
+            z-index: 1;
         }
-        .btn-secondary:hover { background: #444; }
-        .info-box {
-            background: #e8f5e9;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            border-left: 4px solid #2E7D32;
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text);
         }
-        .info-box p { color: #1B5E20; font-size: 0.95rem; }
-        .erro { color: #F44336; text-align: center; margin-top: 0.5rem; display: none; }
-        .sucesso { color: #4CAF50; text-align: center; margin-top: 0.5rem; display: none; }
+
+        .erro {
+            color: var(--danger);
+            text-align: center;
+            font-size: 14px;
+            margin-top: var(--space-12);
+            display: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sucesso {
+            color: var(--success);
+            text-align: center;
+            font-size: 14px;
+            margin-top: var(--space-12);
+            display: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: var(--space-32);
+            color: #444;
+            font-size: 12px;
+            position: relative;
+            z-index: 1;
+            padding-top: var(--space-20);
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-text span {
+            color: var(--primary);
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: var(--space-24) var(--space-16);
+                border-radius: var(--radius-sm);
+                margin: var(--space-8);
+            }
+            .logo h1 {
+                font-size: 24px;
+            }
+            .logo p {
+                font-size: 12px;
+            }
+            .info-box p {
+                font-size: 12px;
+            }
+            .btn-primary {
+                padding: 10px 20px;
+                font-size: 15px;
+                height: 44px;
+            }
+            .btn-secondary {
+                padding: 8px 20px;
+                font-size: 13px;
+                height: 36px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .container {
+                padding: var(--space-16) var(--space-12);
+            }
+            .logo h1 {
+                font-size: 20px;
+            }
+            .form-group input {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+            .btn-primary {
+                padding: 8px 16px;
+                font-size: 14px;
+                height: 40px;
+            }
+            .btn-secondary {
+                padding: 6px 16px;
+                font-size: 12px;
+                height: 32px;
+            }
+        }
+
+        @media (max-height: 500px) and (orientation: landscape) {
+            .container {
+                padding: var(--space-16) var(--space-24);
+                max-width: 400px;
+            }
+            .logo {
+                margin-bottom: var(--space-16);
+            }
+            .logo h1 {
+                font-size: 22px;
+            }
+            .logo p {
+                font-size: 11px;
+            }
+            .info-box {
+                padding: var(--space-8) var(--space-16);
+                margin-bottom: var(--space-16);
+            }
+            .info-box p {
+                font-size: 11px;
+                margin: var(--space-2) 0;
+            }
+            .form-group {
+                margin-bottom: var(--space-8);
+            }
+            .form-group input {
+                padding: 6px 10px;
+                font-size: 13px;
+            }
+            .btn-primary {
+                padding: 6px 16px;
+                font-size: 14px;
+                height: 34px;
+            }
+            .btn-secondary {
+                padding: 4px 16px;
+                font-size: 12px;
+                height: 30px;
+            }
+            .footer-text {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- ===== LOGO ===== -->
         <div class="logo">
-            <h1>🍽️ Cadê Meu Rango?</h1>
+            <h1>🍽️ Cadê Meu <span>Rango</span>?</h1>
             <p>Cadastre seu auxílio alimentação</p>
         </div>
+        <div class="divider"></div>
 
+        <!-- ===== INFO ===== -->
         <div class="info-box">
-            <p>📌 <strong>Valor padrão:</strong> R$ 440,00<br>
-            📅 <strong>Dias padrão:</strong> 22 dias<br>
-            💰 <strong>Média:</strong> R$ 20,00 por dia</p>
+            <p>📌 <strong>Valor padrão:</strong> R$ 440,00</p>
+            <p>📅 <strong>Dias padrão:</strong> 22 dias</p>
+            <p>💰 <strong>Média:</strong> R$ 20,00 por dia</p>
         </div>
 
+        <!-- ===== FORMULÁRIO ===== -->
         <form id="auxilioForm">
+            <div class="form-group">
+                <label>Período (Ex: Agosto/2026)</label>
+                <input type="text" id="periodo" placeholder="Ex: Agosto/2026" required>
+            </div>
+
             <div class="form-group">
                 <label>Valor do Auxílio (R$)</label>
                 <input type="number" id="valor" value="440" step="0.01" required>
             </div>
-            <div class="form-group">
-                <label>Período</label>
-                <input type="text" id="periodo" placeholder="Ex: Agosto/2026" required>
-            </div>
+
             <div class="form-group">
                 <label>Data de Início</label>
                 <input type="date" id="dataInicio" required>
             </div>
+
             <div class="form-group">
                 <label>Quantidade de Dias</label>
                 <input type="number" id="dias" value="22" min="1" required>
             </div>
+
             <div class="erro" id="erroMsg">Erro ao cadastrar auxílio</div>
-            <div class="sucesso" id="sucessoMsg">Auxílio cadastrado com sucesso!</div>
+            <div class="sucesso" id="sucessoMsg">✅ Auxílio cadastrado com sucesso!</div>
+
             <button type="submit" class="btn-primary">💾 Cadastrar Auxílio</button>
             <button type="button" class="btn-secondary" onclick="window.location.href='dashboard.html'">← Voltar ao Dashboard</button>
         </form>
+
+        <!-- ===== RODAPÉ ===== -->
+        <div class="footer-text">
+            <span>🍽️ Cadê Meu Rango?</span> • IFPA Campus Marabá Industrial
+        </div>
     </div>
 
     <script type="module">
@@ -134,8 +427,8 @@
 
                 const { data, error } = await supabase.from('auxilios').insert({
                     user_id: sessao.user.id,
-                    valor: valor,
                     periodo: periodo,
+                    valor: valor,
                     data_inicio: dataInicio,
                     dias_totais: dias,
                     saldo_inicial: valor
@@ -149,6 +442,7 @@
             } catch (error) {
                 erroMsg.style.display = 'block';
                 erroMsg.textContent = error.message || 'Erro ao cadastrar auxílio';
+                console.error('Erro:', error);
             }
         });
     </script>
