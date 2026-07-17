@@ -914,7 +914,10 @@
                                 <span class="mes-status ${m.ativo ? 'ativo' : 'inativo'}">
                                     ${m.ativo ? '🟢 Ativo' : '🔴 Finalizado'}
                                 </span>
-                                <button class="btn-danger" onclick="event.stopPropagation(); abrirExcluirMes('${m.id}')" style="font-size:11px; padding:2px 8px; height:28px;">🗑️</button>
+                                <div style="display:flex; gap:4px;">
+                                    ${m.ativo ? `<button class="btn-secondary" onclick="event.stopPropagation(); finalizarMes('${m.id}')" style="font-size:11px; padding:2px 8px; height:28px;">🔴 Finalizar</button>` : ''}
+                                    <button class="btn-danger" onclick="event.stopPropagation(); abrirExcluirMes('${m.id}')" style="font-size:11px; padding:2px 8px; height:28px;">🗑️</button>
+                                </div>
                             </div>
                         `).join('')
                     }
@@ -927,48 +930,25 @@
             };
         };
 
-        window.adicionarProximoMes = async function(auxilioId) {
-            const auxilio = auxilios.find(a => a.id === auxilioId);
-            if (!auxilio) {
-                alert('Erro: Auxílio não encontrado');
-                return;
-            }
-
-            const mesesAuxilio = meses.filter(m => m.auxilio_id === auxilioId);
-            const ultimoMes = mesesAuxilio.length > 0 ? mesesAuxilio[mesesAuxilio.length - 1] : null;
+        // ===== FINALIZAR MÊS =====
+        window.finalizarMes = async function(mesId) {
+            if (!confirm('⚠️ Tem certeza que deseja finalizar este mês? Ele não poderá mais receber gastos.')) return;
             
-            const mesesArray = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-            let proximoNome = 'Janeiro';
-            let proximoAno = 2026;
-            
-            if (ultimoMes) {
-                const nomeParts = ultimoMes.nome.split('/');
-                const mesIndex = mesesArray.indexOf(nomeParts[0]);
-                const ano = parseInt(nomeParts[1]);
+            try {
+                const { error } = await supabase
+                    .from('meses')
+                    .update({ ativo: false })
+                    .eq('id', mesId)
+                    .eq('user_id', user.id);
                 
-                if (mesIndex === 11) {
-                    proximoNome = mesesArray[0];
-                    proximoAno = ano + 1;
-                } else {
-                    proximoNome = mesesArray[mesIndex + 1];
-                    proximoAno = ano;
-                }
-            } else {
-                const hoje = new Date();
-                proximoNome = mesesArray[hoje.getMonth()];
-                proximoAno = hoje.getFullYear();
+                if (error) throw error;
+                
+                alert('✅ Mês finalizado com sucesso!');
+                await carregarDados();
+            } catch (error) {
+                alert('❌ Erro ao finalizar mês: ' + error.message);
+                console.error('Erro:', error);
             }
-
-            document.getElementById('mesAuxilioId').value = auxilioId;
-            document.getElementById('mesSelecionado').value = proximoNome;
-            document.getElementById('anoSelecionado').value = proximoAno.toString();
-            document.getElementById('mesValor').value = (auxilio.valor / 1).toFixed(2);
-            document.getElementById('mesDias').value = auxilio.dias_totais || 22;
-            document.getElementById('mesDataInicio').value = new Date().toISOString().split('T')[0];
-            
-            document.getElementById('erroMes').style.display = 'none';
-            document.getElementById('sucessoMes').style.display = 'none';
-            document.getElementById('mesModal').style.display = 'flex';
         };
 
         window.verDetalhesMes = async function(mesId) {
@@ -1290,4 +1270,3 @@
     </script>
 </body>
 </html>
-```
