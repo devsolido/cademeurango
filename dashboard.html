@@ -829,30 +829,52 @@
                 }
             }
 
-            // ===== BUSCAR MÊS ATIVO =====
+            // ===== BUSCAR MÊS CORRESPONDENTE À DATA DO GASTO =====
+            const dataGasto = new Date(data);
+            const mesGasto = dataGasto.getMonth();
+            const anoGasto = dataGasto.getFullYear();
+            
+            const mesesArray = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+            const nomeMes = `${mesesArray[mesGasto]}/${anoGasto}`;
+            
             let mesId = null;
             try {
-                const { data: mesData } = await supabase
+                // Buscar mês correspondente à data
+                const { data: mesData, error: mesError } = await supabase
                     .from('meses')
                     .select('id')
                     .eq('auxilio_id', auxilio.id)
-                    .eq('ativo', true)
+                    .eq('nome', nomeMes)
                     .limit(1);
                 
                 if (mesData && mesData.length > 0) {
                     mesId = mesData[0].id;
-                    console.log('📅 Mês ativo encontrado:', mesId);
+                    console.log(`📅 Mês encontrado para ${nomeMes}:`, mesId);
                 } else {
-                    console.log('⚠️ Nenhum mês ativo encontrado para este auxílio');
+                    // Se não encontrar, buscar mês ativo
+                    const { data: mesAtivo } = await supabase
+                        .from('meses')
+                        .select('id')
+                        .eq('auxilio_id', auxilio.id)
+                        .eq('ativo', true)
+                        .limit(1);
+                    
+                    if (mesAtivo && mesAtivo.length > 0) {
+                        mesId = mesAtivo[0].id;
+                        console.log(`📅 Nenhum mês para ${nomeMes}, usando mês ativo:`, mesId);
+                    } else {
+                        console.log('⚠️ Nenhum mês encontrado para este auxílio');
+                    }
                 }
             } catch (err) {
-                console.error('Erro ao buscar mês ativo:', err);
+                console.error('Erro ao buscar mês:', err);
             }
 
+            // ===== INSERIR GASTO =====
             await supabase.from('gastos').insert({
                 user_id: user.id,
                 auxilio_id: auxilio.id,
-                mes_id: mesId,  // <-- ADICIONADO
+                mes_id: mesId,
                 valor: valor,
                 data_gasto: data,
                 local: local,
