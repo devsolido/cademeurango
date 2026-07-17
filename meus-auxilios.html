@@ -264,9 +264,10 @@
             font-weight: 700;
         }
         
-        .lista-meses { display: grid; gap: var(--space-16); }
+        /* ===== LISTA DE AUXÍLIOS ===== */
+        .lista-auxilios { display: grid; gap: var(--space-16); }
         
-        .mes-card {
+        .auxilio-card {
             background: var(--card);
             border-radius: var(--radius);
             padding: var(--space-24);
@@ -274,13 +275,13 @@
             transition: var(--transition);
             cursor: pointer;
         }
-        .mes-card:hover { 
+        .auxilio-card:hover { 
             transform: translateY(-2px); 
             border-color: var(--primary);
             box-shadow: var(--shadow);
         }
         
-        .mes-content {
+        .auxilio-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -288,53 +289,74 @@
             gap: var(--space-16);
         }
         
-        .mes-info {
+        .auxilio-info {
             display: flex;
             flex-direction: column;
             gap: var(--space-4);
         }
-        .mes-info h3 { 
+        .auxilio-info h3 { 
             color: var(--primary); 
             font-size: 18px;
             font-weight: 700;
         }
-        .mes-info .mes-detalhes {
+        .auxilio-info .auxilio-detalhes {
             display: flex;
             gap: var(--space-16);
             flex-wrap: wrap;
             color: var(--text-secondary);
             font-size: 14px;
         }
-        .mes-info .mes-detalhes span {
+        .auxilio-info .auxilio-detalhes span {
             display: flex;
             align-items: center;
             gap: var(--space-4);
         }
-        .mes-status {
-            font-size: 12px;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-weight: 600;
-        }
-        .mes-status.ativo { background: rgba(34, 197, 94, 0.2); color: var(--primary); }
-        .mes-status.inativo { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
         
-        .mes-actions {
+        .auxilio-actions {
             display: flex;
             gap: var(--space-8);
             flex-wrap: wrap;
             align-items: center;
         }
         
-        .sem-meses {
+        .sem-auxilios {
             text-align: center;
             padding: var(--space-48);
             background: var(--card);
             border-radius: var(--radius);
             border: 1px solid var(--border);
         }
-        .sem-meses h2 { color: var(--text-secondary); margin-bottom: var(--space-8); }
-        .sem-meses p { color: #555; margin-bottom: var(--space-16); }
+        .sem-auxilios h2 { color: var(--text-secondary); margin-bottom: var(--space-8); }
+        .sem-auxilios p { color: #555; margin-bottom: var(--space-16); }
+        
+        /* ===== LISTA DE MESES (DENTRO DO AUXÍLIO) ===== */
+        .mes-item {
+            background: rgba(255,255,255,0.03);
+            border-radius: var(--radius-sm);
+            padding: var(--space-12) var(--space-16);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--space-8);
+        }
+        .mes-item:hover {
+            border-color: var(--primary);
+            background: rgba(255,255,255,0.06);
+        }
+        .mes-item .mes-nome { color: var(--text); font-weight: 500; }
+        .mes-item .mes-valor { color: var(--primary); font-weight: 600; }
+        .mes-status {
+            font-size: 11px;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .mes-status.ativo { background: rgba(34, 197, 94, 0.2); color: var(--primary); }
+        .mes-status.inativo { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
         
         .modal {
             display: none;
@@ -413,6 +435,13 @@
         .erro { color: var(--danger); text-align: center; margin-top: var(--space-8); display: none; font-weight: 500; }
         .sucesso { color: var(--success); text-align: center; margin-top: var(--space-8); display: none; font-weight: 500; }
         
+        .select-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-16);
+        }
+
+        /* ===== DETALHES DOS GASTOS ===== */
         .detalhes-container {
             background: var(--card);
             border-radius: var(--radius);
@@ -439,13 +468,6 @@
             font-weight: 700; 
             color: var(--text);
         }
-        .detalhes-header .actions { 
-            display: flex; 
-            gap: var(--space-8); 
-            align-items: center; 
-            flex-wrap: wrap; 
-        }
-        
         .resumo-detalhes {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -492,22 +514,14 @@
             color: var(--danger);
             font-size: 16px;
         }
-        .gasto-actions { display: flex; gap: var(--space-8); align-items: center; flex-wrap: wrap; }
         .comprovante-link { font-size: 12px; }
         .comprovante-link a { color: var(--info); text-decoration: none; }
         .comprovante-link a:hover { text-decoration: underline; }
-        
         .sem-gastos {
             text-align: center;
             padding: var(--space-32);
             color: var(--text-secondary);
             font-size: 14px;
-        }
-        
-        .select-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: var(--space-16);
         }
 
         @media (max-width: 768px) {
@@ -533,8 +547,8 @@
             .modal-content { margin: var(--space-16); padding: var(--space-24); max-width: 100%; }
             .resumo-detalhes { grid-template-columns: 1fr 1fr; }
             .select-group { grid-template-columns: 1fr; }
-            .mes-content { flex-direction: column; align-items: stretch; }
-            .mes-actions { justify-content: flex-start; }
+            .auxilio-content { flex-direction: column; align-items: stretch; }
+            .auxilio-actions { justify-content: flex-start; }
             .detalhes-header { flex-direction: column; align-items: flex-start; }
             .navbar h1 { font-size: 1.2rem; }
             .header-actions h2 { font-size: 1.2rem; }
@@ -543,8 +557,8 @@
         @media (max-width: 480px) {
             .navbar { padding: 0.6rem 1rem; }
             .menu-toggle span { width: 20px; height: 2px; }
-            .mes-card { padding: var(--space-16); }
-            .mes-info h3 { font-size: 16px; }
+            .auxilio-card { padding: var(--space-16); }
+            .auxilio-info h3 { font-size: 16px; }
             .detalhes-container { padding: var(--space-16); }
             .resumo-detalhes { grid-template-columns: 1fr 1fr; gap: var(--space-8); }
             .resumo-item { padding: var(--space-8); }
@@ -557,7 +571,7 @@
         @media (max-width: 360px) {
             .navbar h1 { font-size: 1rem; }
             .menu-toggle span { width: 18px; height: 2px; }
-            .mes-info .mes-detalhes { flex-direction: column; gap: var(--space-4); }
+            .auxilio-info .auxilio-detalhes { flex-direction: column; gap: var(--space-4); }
             .resumo-detalhes { grid-template-columns: 1fr; }
         }
     </style>
@@ -581,20 +595,29 @@
     </nav>
 
     <div class="container">
+        <!-- VIEW: LISTA DE AUXÍLIOS -->
         <div id="viewLista">
             <div class="header-actions">
                 <h2>📋 Meus Auxílios</h2>
                 <button class="btn-primary" id="btnNovoAuxilio">+ Novo Auxílio</button>
             </div>
-            <div id="listaMeses" class="lista-meses"></div>
+            <div id="listaAuxilios" class="lista-auxilios"></div>
         </div>
 
+        <!-- VIEW: MESES DO AUXÍLIO -->
+        <div id="viewMeses" style="display:none;">
+            <button class="btn-back" id="btnVoltarMeses">← Voltar</button>
+            <div id="mesesContainer"></div>
+        </div>
+
+        <!-- VIEW: DETALHES DOS GASTOS DO MÊS -->
         <div id="viewDetalhes" style="display:none;">
-            <button class="btn-back" id="btnVoltar">← Voltar</button>
+            <button class="btn-back" id="btnVoltarDetalhes">← Voltar</button>
             <div class="detalhes-container" id="detalhesContainer"></div>
         </div>
     </div>
 
+    <!-- ===== MODAL: NOVO AUXÍLIO ===== -->
     <div class="modal" id="auxilioModal">
         <div class="modal-content">
             <span class="close" id="fecharModal">&times;</span>
@@ -624,6 +647,7 @@
         </div>
     </div>
 
+    <!-- ===== MODAL: NOVO MÊS ===== -->
     <div class="modal" id="mesModal">
         <div class="modal-content">
             <span class="close" id="fecharMesModal">&times;</span>
@@ -677,6 +701,7 @@
         </div>
     </div>
 
+    <!-- ===== MODAL: EXCLUIR MÊS ===== -->
     <div class="modal" id="excluirMesModal">
         <div class="modal-content" id="excluirMesModalContent">
             <span class="close" id="fecharExcluirMesModal">&times;</span>
@@ -698,6 +723,7 @@
         import { supabase } from './js/config.js';
         import { getSessao, logout } from './js/auth.js';
 
+        // ===== MENU HAMBÚRGUER =====
         const menuToggle = document.getElementById('menuToggle');
         const navLinks = document.getElementById('navLinks');
 
@@ -713,11 +739,14 @@
             });
         });
 
+        // ===== VARIÁVEIS =====
         let user = null;
         let auxilios = [];
         let meses = [];
         let gastos = [];
+        let auxilioSelecionado = null;
 
+        // ===== FUNÇÕES =====
         function abrirModalAuxilio() {
             document.getElementById('modalTitulo').textContent = '📝 Cadastrar Auxílio';
             document.getElementById('auxilioId').value = '';
@@ -730,6 +759,7 @@
             document.getElementById('auxilioModal').style.display = 'flex';
         }
 
+        // ===== CARREGAR DADOS =====
         async function carregarDados() {
             try {
                 console.log('🔄 Carregando dados...');
@@ -738,6 +768,7 @@
                 user = sessao.user;
                 console.log('✅ Usuário logado:', user.email);
 
+                // Carregar auxílios
                 const { data: auxData, error: auxError } = await supabase
                     .from('auxilios')
                     .select('*')
@@ -747,19 +778,19 @@
                 if (auxError) throw auxError;
                 auxilios = auxData || [];
                 console.log('📦 Auxílios carregados:', auxilios.length);
-// Adicionar timestamp para evitar cache
-const timestamp = new Date().getTime();
-const { data: mesesData, error: mesesError } = await supabase
-    .from('meses')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false });
+
+                // Carregar meses
+                const { data: mesesData, error: mesesError } = await supabase
+                    .from('meses')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .order('created_at', { ascending: false });
 
                 if (mesesError) throw mesesError;
                 meses = mesesData || [];
                 console.log('📦 Meses carregados:', meses.length);
 
-                renderizarMeses();
+                renderizarAuxilios();
                 console.log('✅ Renderização concluída');
             } catch (error) {
                 console.error('❌ Erro ao carregar:', error);
@@ -767,14 +798,14 @@ const { data: mesesData, error: mesesError } = await supabase
             }
         }
 
-        function renderizarMeses() {
-            const container = document.getElementById('listaMeses');
-            console.log('🔄 Renderizando meses. Total:', meses.length);
+        // ===== RENDERIZAR AUXÍLIOS =====
+        function renderizarAuxilios() {
+            const container = document.getElementById('listaAuxilios');
             
-            if (meses.length === 0) {
+            if (auxilios.length === 0) {
                 container.innerHTML = `
-                    <div class="sem-meses">
-                        <h2>📭 Nenhum mês cadastrado</h2>
+                    <div class="sem-auxilios">
+                        <h2>📭 Nenhum auxílio cadastrado</h2>
                         <p>Clique em "Novo Auxílio" para começar</p>
                         <button class="btn-primary" id="btnNovoAuxilioEmpty" style="margin:0 auto;">+ Novo Auxílio</button>
                     </div>
@@ -783,37 +814,184 @@ const { data: mesesData, error: mesesError } = await supabase
                 return;
             }
 
-            container.innerHTML = meses.map(m => `
-                <div class="mes-card" data-id="${m.id}">
-                    <div class="mes-content">
-                        <div class="mes-info">
-                            <h3>📅 ${m.nome}</h3>
-                            <div class="mes-detalhes">
-                                <span>💰 R$ ${m.valor_mensal.toFixed(2)}</span>
-                                <span>📆 ${m.dias_mes} dias</span>
-                                <span>📅 Início: ${new Date(m.data_inicio).toLocaleDateString()}</span>
+            container.innerHTML = auxilios.map(a => {
+                // Contar meses deste auxílio
+                const mesesAuxilio = meses.filter(m => m.auxilio_id === a.id);
+                const totalMeses = mesesAuxilio.length;
+                const ativos = mesesAuxilio.filter(m => m.ativo).length;
+                
+                return `
+                    <div class="auxilio-card" data-id="${a.id}">
+                        <div class="auxilio-content">
+                            <div class="auxilio-info">
+                                <h3>📅 ${a.periodo}</h3>
+                                <div class="auxilio-detalhes">
+                                    <span>💰 R$ ${a.valor.toFixed(2)}</span>
+                                    <span>📆 Início: ${new Date(a.data_inicio).toLocaleDateString()}</span>
+                                    <span>📌 ${a.dias_totais} dias</span>
+                                    <span style="color:var(--text-secondary); font-size:12px;">
+                                        📅 ${totalMeses} meses (${ativos} ativos)
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="auxilio-actions">
+                                <button class="btn-success" onclick="event.stopPropagation(); verMeses('${a.id}')">📅 Ver Meses</button>
+                                <button class="btn-secondary" onclick="event.stopPropagation(); editarAuxilio('${a.id}')">✏️</button>
+                                <button class="btn-danger" onclick="event.stopPropagation(); excluirAuxilio('${a.id}')">🗑️</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ===== VER MESES DO AUXÍLIO =====
+        async function verMeses(auxilioId) {
+            auxilioSelecionado = auxilios.find(a => a.id === auxilioId);
+            if (!auxilioSelecionado) return;
+
+            const mesesAuxilio = meses.filter(m => m.auxilio_id === auxilioId);
+
+            document.getElementById('viewLista').style.display = 'none';
+            document.getElementById('viewMeses').style.display = 'block';
+
+            const container = document.getElementById('mesesContainer');
+            container.innerHTML = `
+                <div class="header-actions" style="margin-top:0;">
+                    <h2 style="font-size:20px; color:var(--primary);">📅 ${auxilioSelecionado.periodo}</h2>
+                    <button class="btn-primary" onclick="abrirMesModal('${auxilioId}')">+ Novo Mês</button>
+                </div>
+                <div style="display:flex; gap:var(--space-16); flex-wrap:wrap; margin-bottom:var(--space-24);">
+                    <div class="resumo-item" style="flex:1; min-width:100px;">
+                        <div class="label">💰 Total</div>
+                        <div class="value">R$ ${auxilioSelecionado.valor.toFixed(2)}</div>
+                    </div>
+                    <div class="resumo-item" style="flex:1; min-width:100px;">
+                        <div class="label">📅 Meses</div>
+                        <div class="value">${mesesAuxilio.length}</div>
+                    </div>
+                    <div class="resumo-item" style="flex:1; min-width:100px;">
+                        <div class="label">🟢 Ativos</div>
+                        <div class="value" style="color:var(--primary);">${mesesAuxilio.filter(m => m.ativo).length}</div>
+                    </div>
+                </div>
+                <div style="display:grid; gap:var(--space-12);">
+                    ${mesesAuxilio.length === 0 ? 
+                        '<div class="sem-auxilios" style="padding:var(--space-32);"><p style="color:var(--text-secondary);">Nenhum mês cadastrado neste auxílio</p></div>' :
+                        mesesAuxilio.map(m => `
+                            <div class="mes-item" onclick="verDetalhesMes('${m.id}')">
+                                <span class="mes-nome">📅 ${m.nome}</span>
+                                <span class="mes-valor">R$ ${m.valor_mensal.toFixed(2)}</span>
                                 <span class="mes-status ${m.ativo ? 'ativo' : 'inativo'}">
                                     ${m.ativo ? '🟢 Ativo' : '🔴 Finalizado'}
                                 </span>
+                                <button class="btn-danger" onclick="event.stopPropagation(); abrirExcluirMes('${m.id}')" style="font-size:11px; padding:2px 8px; height:28px;">🗑️</button>
                             </div>
-                        </div>
-                        <div class="mes-actions">
-                            <button class="btn-danger" onclick="event.stopPropagation(); abrirExcluirMes('${m.id}')">🗑️ Excluir</button>
-                        </div>
-                    </div>
+                        `).join('')
+                    }
                 </div>
-            `).join('');
+            `;
 
-            document.querySelectorAll('.mes-card').forEach(card => {
-                card.addEventListener('click', () => verDetalhesMes(card.dataset.id));
-            });
+            // Botão para voltar
+            document.getElementById('btnVoltarMeses').onclick = () => {
+                document.getElementById('viewMeses').style.display = 'none';
+                document.getElementById('viewLista').style.display = 'block';
+            };
         }
 
+        // ===== VER DETALHES DOS GASTOS DO MÊS =====
+        async function verDetalhesMes(mesId) {
+            const mes = meses.find(m => m.id === mesId);
+            if (!mes) return;
+
+            const { data: gastosData } = await supabase
+                .from('gastos')
+                .select('*')
+                .eq('mes_id', mesId)
+                .order('data_gasto', { ascending: false });
+
+            gastos = gastosData || [];
+
+            const totalGasto = gastos.reduce((s, g) => s + g.valor, 0);
+            const saldo = mes.valor_mensal - totalGasto;
+
+            document.getElementById('viewMeses').style.display = 'none';
+            document.getElementById('viewDetalhes').style.display = 'block';
+
+            const container = document.getElementById('detalhesContainer');
+            container.innerHTML = `
+                <div class="detalhes-header">
+                    <h2>📅 ${mes.nome}</h2>
+                    <span class="total">R$ ${mes.valor_mensal.toFixed(2)}</span>
+                </div>
+
+                <div class="resumo-detalhes">
+                    <div class="resumo-item">
+                        <div class="label">💰 Saldo Atual</div>
+                        <div class="value success">R$ ${saldo.toFixed(2)}</div>
+                    </div>
+                    <div class="resumo-item">
+                        <div class="label">💸 Total Gasto</div>
+                        <div class="value danger">R$ ${totalGasto.toFixed(2)}</div>
+                    </div>
+                    <div class="resumo-item">
+                        <div class="label">📆 Dias</div>
+                        <div class="value">${mes.dias_mes}</div>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom:var(--space-16); color:var(--text-secondary); font-size:16px;">📋 Gastos</h3>
+                <div>
+                    ${gastos.length === 0 ? 
+                        '<div class="sem-gastos">🍽️ Nenhum gasto registrado</div>' :
+                        gastos.map(g => `
+                            <div class="gasto-item">
+                                <div class="gasto-info">
+                                    <span>${new Date(g.data_gasto).toLocaleDateString()} - ${g.local || 'Sem local'}</span>
+                                    <span class="data">${g.observacao || ''} ${g.tipo_dia ? ' | ' + g.tipo_dia : ''}</span>
+                                    ${g.comprovante ? `<span class="comprovante-link">📎 <a href="${g.comprovante}" target="_blank">Ver comprovante</a></span>` : ''}
+                                </div>
+                                <span class="gasto-valor">R$ ${g.valor.toFixed(2)}</span>
+                            </div>
+                        `).join('')
+                    }
+                </div>
+            `;
+
+            document.getElementById('btnVoltarDetalhes').onclick = () => {
+                document.getElementById('viewDetalhes').style.display = 'none';
+                verMeses(mes.auxilio_id);
+            };
+        }
+
+        // ===== FUNÇÕES DO MODAL MÊS =====
+        function abrirMesModal(auxilioId) {
+            const auxilio = auxilios.find(a => a.id === auxilioId);
+            if (!auxilio) return;
+
+            const hoje = new Date();
+            const mesAtual = hoje.getMonth();
+            const anoAtual = hoje.getFullYear();
+
+            document.getElementById('mesAuxilioId').value = auxilioId;
+            document.getElementById('mesValor').value = (auxilio.valor / 1).toFixed(2);
+            document.getElementById('mesDias').value = auxilio.dias_totais || 22;
+            document.getElementById('mesDataInicio').value = hoje.toISOString().split('T')[0];
+            
+            const mesesArray = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+            document.getElementById('mesSelecionado').value = mesesArray[mesAtual];
+            document.getElementById('anoSelecionado').value = anoAtual;
+            
+            document.getElementById('erroMes').style.display = 'none';
+            document.getElementById('sucessoMes').style.display = 'none';
+            document.getElementById('mesModal').style.display = 'flex';
+        }
+
+        // ===== EXCLUIR MÊS =====
         const excluirMesModal = document.getElementById('excluirMesModal');
         const excluirMesModalContent = document.getElementById('excluirMesModalContent');
 
         window.abrirExcluirMes = function(mesId) {
-            console.log('🗑️ Abrindo modal de exclusão para mês:', mesId);
             document.getElementById('excluirMesId').value = mesId;
             document.getElementById('justificativaMes').value = '';
             document.getElementById('erroExcluirMes').style.display = 'none';
@@ -851,9 +1029,6 @@ const { data: mesesData, error: mesesError } = await supabase
             const justificativa = document.getElementById('justificativaMes').value.trim();
             const erroEl = document.getElementById('erroExcluirMes');
             
-            console.log('🔍 Iniciando exclusão do mês:', mesId);
-            console.log('📝 Justificativa:', justificativa);
-            
             if (!justificativa) {
                 erroEl.style.display = 'block';
                 erroEl.textContent = 'Por favor, informe uma justificativa';
@@ -863,11 +1038,8 @@ const { data: mesesData, error: mesesError } = await supabase
             try {
                 const mes = meses.find(m => m.id === mesId);
                 if (!mes) throw new Error('Mês não encontrado');
-                console.log('📦 Mês encontrado:', mes.nome);
 
-                // 1. Salvar no histórico
-                console.log('📝 Salvando no histórico...');
-                const { error: histError } = await supabase.from('historico_exclusao_meses').insert({
+                await supabase.from('historico_exclusao_meses').insert({
                     user_id: user.id,
                     mes_id: mesId,
                     nome: mes.nome,
@@ -876,118 +1048,68 @@ const { data: mesesData, error: mesesError } = await supabase
                     data_inicio: mes.data_inicio,
                     justificativa: justificativa
                 });
-                if (histError) throw histError;
-                console.log('✅ Histórico salvo');
 
-                // 2. Excluir gastos relacionados a este mês
-                console.log('🗑️ Excluindo gastos do mês...');
-                const { error: gastosError } = await supabase
-                    .from('gastos')
-                    .delete()
-                    .eq('mes_id', mesId);
-                if (gastosError) throw gastosError;
-                console.log('✅ Gastos excluídos');
+                await supabase.from('gastos').delete().eq('mes_id', mesId);
 
-                // 3. Excluir o mês
-                console.log('🗑️ Excluindo mês...');
-                const { error: mesError } = await supabase
+                const { error } = await supabase
                     .from('meses')
                     .delete()
                     .eq('id', mesId)
                     .eq('user_id', user.id);
-                if (mesError) throw mesError;
-                console.log('✅ Mês excluído');
 
-                // 4. Fechar modal
+                if (error) throw error;
+
                 excluirMesModal.style.display = 'none';
                 document.body.style.overflow = '';
                 
-                // 5. Recarregar a página COM location.replace (mais eficiente)
-                console.log('🔄 Recarregando página...');
                 alert('✅ Mês excluído com sucesso!');
-                window.location.replace(window.location.href);
+                await carregarDados();
                 
             } catch (error) {
-                console.error('❌ Erro na exclusão:', error);
                 erroEl.style.display = 'block';
                 erroEl.textContent = error.message || 'Erro ao excluir mês';
+                console.error('Erro:', error);
             }
         });
 
-        async function verDetalhesMes(mesId) {
-            const mes = meses.find(m => m.id === mesId);
-            if (!mes) return;
+        // ===== EDIÇÃO DE AUXÍLIO =====
+        async function editarAuxilio(id) {
+            const auxilio = auxilios.find(a => a.id === id);
+            if (!auxilio) return;
 
-            const { data: gastosData } = await supabase
-                .from('gastos')
-                .select('*')
-                .eq('mes_id', mesId)
-                .order('data_gasto', { ascending: false });
-
-            gastos = gastosData || [];
-
-            const totalGasto = gastos.reduce((s, g) => s + g.valor, 0);
-            const saldo = mes.valor_mensal - totalGasto;
-
-            document.getElementById('viewLista').style.display = 'none';
-            document.getElementById('viewDetalhes').style.display = 'block';
-
-            const container = document.getElementById('detalhesContainer');
-            container.innerHTML = `
-                <div class="detalhes-header">
-                    <h2>📅 ${mes.nome}</h2>
-                    <div class="actions">
-                        <span class="total">R$ ${mes.valor_mensal.toFixed(2)}</span>
-                    </div>
-                </div>
-
-                <div class="resumo-detalhes">
-                    <div class="resumo-item">
-                        <div class="label">💰 Saldo Atual</div>
-                        <div class="value success">R$ ${saldo.toFixed(2)}</div>
-                    </div>
-                    <div class="resumo-item">
-                        <div class="label">💸 Total Gasto</div>
-                        <div class="value danger">R$ ${totalGasto.toFixed(2)}</div>
-                    </div>
-                    <div class="resumo-item">
-                        <div class="label">📆 Dias</div>
-                        <div class="value">${mes.dias_mes}</div>
-                    </div>
-                </div>
-
-                <h3 style="margin-bottom:var(--space-16); color:var(--text-secondary); font-size:16px;">📋 Gastos do Mês</h3>
-                <div id="listaGastosMes">
-                    ${gastos.length === 0 ? 
-                        '<div class="sem-gastos">🍽️ Nenhum gasto registrado neste mês</div>' :
-                        gastos.map(g => `
-                            <div class="gasto-item">
-                                <div class="gasto-info">
-                                    <span>${new Date(g.data_gasto).toLocaleDateString()} - ${g.local || 'Sem local'}</span>
-                                    <span class="data">${g.observacao || ''} ${g.tipo_dia ? ' | ' + g.tipo_dia : ''}</span>
-                                    ${g.comprovante ? `<span class="comprovante-link">📎 <a href="${g.comprovante}" target="_blank">Ver comprovante</a></span>` : ''}
-                                </div>
-                                <div class="gasto-actions">
-                                    <span class="gasto-valor">R$ ${g.valor.toFixed(2)}</span>
-                                </div>
-                            </div>
-                        `).join('')
-                    }
-                </div>
-            `;
+            document.getElementById('modalTitulo').textContent = '✏️ Editar Auxílio';
+            document.getElementById('auxilioId').value = auxilio.id;
+            document.getElementById('periodo').value = auxilio.periodo;
+            document.getElementById('valor').value = auxilio.valor;
+            document.getElementById('dataInicio').value = auxilio.data_inicio;
+            document.getElementById('dias').value = auxilio.dias_totais;
+            document.getElementById('erroMsg').style.display = 'none';
+            document.getElementById('sucessoMsg').style.display = 'none';
+            document.getElementById('auxilioModal').style.display = 'flex';
         }
 
-        document.getElementById('btnVoltar').addEventListener('click', () => {
-            document.getElementById('viewDetalhes').style.display = 'none';
-            document.getElementById('viewLista').style.display = 'block';
-            carregarDados();
-        });
+        // ===== EXCLUIR AUXÍLIO =====
+        async function excluirAuxilio(id) {
+            if (!confirm('⚠️ Tem certeza que deseja excluir este auxílio? Todos os meses e gastos serão perdidos!')) return;
+            
+            try {
+                await supabase.from('meses').delete().eq('auxilio_id', id);
+                await supabase.from('gastos').delete().eq('auxilio_id', id);
+                const { error } = await supabase
+                    .from('auxilios')
+                    .delete()
+                    .eq('id', id)
+                    .eq('user_id', user.id);
+                if (error) throw error;
+                
+                alert('✅ Auxílio excluído!');
+                await carregarDados();
+            } catch (error) {
+                alert('❌ Erro: ' + error.message);
+            }
+        }
 
-        document.getElementById('btnSair').addEventListener('click', async () => {
-            await logout();
-            window.location.href = 'login.html';
-        });
-
+        // ===== EVENTOS =====
         document.getElementById('btnNovoAuxilio').addEventListener('click', abrirModalAuxilio);
         document.getElementById('fecharModal').addEventListener('click', () => document.getElementById('auxilioModal').style.display = 'none');
         document.getElementById('auxilioModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.style.display = 'none'; });
@@ -995,6 +1117,7 @@ const { data: mesesData, error: mesesError } = await supabase
         document.getElementById('fecharMesModal').addEventListener('click', () => document.getElementById('mesModal').style.display = 'none');
         document.getElementById('mesModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.style.display = 'none'; });
 
+        // ===== FORMULÁRIO AUXÍLIO =====
         document.getElementById('auxilioForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -1042,6 +1165,7 @@ const { data: mesesData, error: mesesError } = await supabase
             }
         });
 
+        // ===== FORMULÁRIO MÊS =====
         document.getElementById('mesForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -1090,6 +1214,13 @@ const { data: mesesData, error: mesesError } = await supabase
             }
         });
 
+        // ===== SAIR =====
+        document.getElementById('btnSair').addEventListener('click', async () => {
+            await logout();
+            window.location.href = 'login.html';
+        });
+
+        // ===== INICIAR =====
         console.log('🚀 Iniciando aplicação...');
         carregarDados();
     </script>
