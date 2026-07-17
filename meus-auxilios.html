@@ -264,7 +264,6 @@
             font-weight: 700;
         }
         
-        /* ===== LISTA DE AUXÍLIOS ===== */
         .lista-auxilios { display: grid; gap: var(--space-16); }
         
         .auxilio-card {
@@ -329,7 +328,6 @@
         .sem-auxilios h2 { color: var(--text-secondary); margin-bottom: var(--space-8); }
         .sem-auxilios p { color: #555; margin-bottom: var(--space-16); }
         
-        /* ===== LISTA DE MESES (DENTRO DO AUXÍLIO) ===== */
         .mes-item {
             background: rgba(255,255,255,0.03);
             border-radius: var(--radius-sm);
@@ -441,7 +439,6 @@
             gap: var(--space-16);
         }
 
-        /* ===== DETALHES DOS GASTOS ===== */
         .detalhes-container {
             background: var(--card);
             border-radius: var(--radius);
@@ -595,7 +592,6 @@
     </nav>
 
     <div class="container">
-        <!-- VIEW: LISTA DE AUXÍLIOS -->
         <div id="viewLista">
             <div class="header-actions">
                 <h2>📋 Meus Auxílios</h2>
@@ -604,20 +600,18 @@
             <div id="listaAuxilios" class="lista-auxilios"></div>
         </div>
 
-        <!-- VIEW: MESES DO AUXÍLIO -->
         <div id="viewMeses" style="display:none;">
             <button class="btn-back" id="btnVoltarMeses">← Voltar</button>
             <div id="mesesContainer"></div>
         </div>
 
-        <!-- VIEW: DETALHES DOS GASTOS DO MÊS -->
         <div id="viewDetalhes" style="display:none;">
             <button class="btn-back" id="btnVoltarDetalhes">← Voltar</button>
             <div class="detalhes-container" id="detalhesContainer"></div>
         </div>
     </div>
 
-    <!-- ===== MODAL: NOVO AUXÍLIO ===== -->
+    <!-- MODAL AUXÍLIO -->
     <div class="modal" id="auxilioModal">
         <div class="modal-content">
             <span class="close" id="fecharModal">&times;</span>
@@ -647,7 +641,7 @@
         </div>
     </div>
 
-    <!-- ===== MODAL: NOVO MÊS ===== -->
+    <!-- MODAL MÊS -->
     <div class="modal" id="mesModal">
         <div class="modal-content">
             <span class="close" id="fecharMesModal">&times;</span>
@@ -701,7 +695,7 @@
         </div>
     </div>
 
-    <!-- ===== MODAL: EXCLUIR MÊS ===== -->
+    <!-- MODAL EXCLUIR MÊS -->
     <div class="modal" id="excluirMesModal">
         <div class="modal-content" id="excluirMesModalContent">
             <span class="close" id="fecharExcluirMesModal">&times;</span>
@@ -723,7 +717,6 @@
         import { supabase } from './js/config.js';
         import { getSessao, logout } from './js/auth.js';
 
-        // ===== MENU HAMBÚRGUER =====
         const menuToggle = document.getElementById('menuToggle');
         const navLinks = document.getElementById('navLinks');
 
@@ -739,15 +732,14 @@
             });
         });
 
-        // ===== VARIÁVEIS =====
         let user = null;
         let auxilios = [];
         let meses = [];
         let gastos = [];
         let auxilioSelecionado = null;
 
-        // ===== FUNÇÕES =====
-        function abrirModalAuxilio() {
+        // ===== FUNÇÃO: ABRIR MODAL AUXÍLIO =====
+        window.abrirModalAuxilio = function() {
             document.getElementById('modalTitulo').textContent = '📝 Cadastrar Auxílio';
             document.getElementById('auxilioId').value = '';
             document.getElementById('periodo').value = '';
@@ -757,7 +749,7 @@
             document.getElementById('erroMsg').style.display = 'none';
             document.getElementById('sucessoMsg').style.display = 'none';
             document.getElementById('auxilioModal').style.display = 'flex';
-        }
+        };
 
         // ===== CARREGAR DADOS =====
         async function carregarDados() {
@@ -768,7 +760,6 @@
                 user = sessao.user;
                 console.log('✅ Usuário logado:', user.email);
 
-                // Carregar auxílios
                 const { data: auxData, error: auxError } = await supabase
                     .from('auxilios')
                     .select('*')
@@ -779,7 +770,6 @@
                 auxilios = auxData || [];
                 console.log('📦 Auxílios carregados:', auxilios.length);
 
-                // Carregar meses
                 const { data: mesesData, error: mesesError } = await supabase
                     .from('meses')
                     .select('*')
@@ -807,15 +797,13 @@
                     <div class="sem-auxilios">
                         <h2>📭 Nenhum auxílio cadastrado</h2>
                         <p>Clique em "Novo Auxílio" para começar</p>
-                        <button class="btn-primary" id="btnNovoAuxilioEmpty" style="margin:0 auto;">+ Novo Auxílio</button>
+                        <button class="btn-primary" id="btnNovoAuxilioEmpty" style="margin:0 auto;" onclick="abrirModalAuxilio()">+ Novo Auxílio</button>
                     </div>
                 `;
-                document.getElementById('btnNovoAuxilioEmpty')?.addEventListener('click', abrirModalAuxilio);
                 return;
             }
 
             container.innerHTML = auxilios.map(a => {
-                // Contar meses deste auxílio
                 const mesesAuxilio = meses.filter(m => m.auxilio_id === a.id);
                 const totalMeses = mesesAuxilio.length;
                 const ativos = mesesAuxilio.filter(m => m.ativo).length;
@@ -846,7 +834,8 @@
         }
 
         // ===== VER MESES DO AUXÍLIO =====
-window.verMeses = async function(auxilioId) {            auxilioSelecionado = auxilios.find(a => a.id === auxilioId);
+        window.verMeses = async function(auxilioId) {
+            auxilioSelecionado = auxilios.find(a => a.id === auxilioId);
             if (!auxilioSelecionado) return;
 
             const mesesAuxilio = meses.filter(m => m.auxilio_id === auxilioId);
@@ -858,7 +847,10 @@ window.verMeses = async function(auxilioId) {            auxilioSelecionado = au
             container.innerHTML = `
                 <div class="header-actions" style="margin-top:0;">
                     <h2 style="font-size:20px; color:var(--primary);">📅 ${auxilioSelecionado.periodo}</h2>
-                    <button class="btn-primary" onclick="abrirMesModal('${auxilioId}')">+ Novo Mês</button>
+                    <div style="display:flex; gap:var(--space-8); flex-wrap:wrap;">
+                        <button class="btn-success" onclick="adicionarProximoMes('${auxilioId}')">📅 + Próximo Mês</button>
+                        <button class="btn-primary" onclick="abrirMesModal('${auxilioId}')">+ Novo Mês</button>
+                    </div>
                 </div>
                 <div style="display:flex; gap:var(--space-16); flex-wrap:wrap; margin-bottom:var(--space-24);">
                     <div class="resumo-item" style="flex:1; min-width:100px;">
@@ -891,15 +883,59 @@ window.verMeses = async function(auxilioId) {            auxilioSelecionado = au
                 </div>
             `;
 
-            // Botão para voltar
             document.getElementById('btnVoltarMeses').onclick = () => {
                 document.getElementById('viewMeses').style.display = 'none';
                 document.getElementById('viewLista').style.display = 'block';
             };
-        }
+        };
+
+        // ===== ADICIONAR PRÓXIMO MÊS AUTOMATICAMENTE =====
+        window.adicionarProximoMes = async function(auxilioId) {
+            const auxilio = auxilios.find(a => a.id === auxilioId);
+            if (!auxilio) {
+                alert('Erro: Auxílio não encontrado');
+                return;
+            }
+
+            const mesesAuxilio = meses.filter(m => m.auxilio_id === auxilioId);
+            const ultimoMes = mesesAuxilio.length > 0 ? mesesAuxilio[mesesAuxilio.length - 1] : null;
+            
+            const mesesArray = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+            let proximoNome = 'Janeiro';
+            let proximoAno = 2026;
+            
+            if (ultimoMes) {
+                const nomeParts = ultimoMes.nome.split('/');
+                const mesIndex = mesesArray.indexOf(nomeParts[0]);
+                const ano = parseInt(nomeParts[1]);
+                
+                if (mesIndex === 11) {
+                    proximoNome = mesesArray[0];
+                    proximoAno = ano + 1;
+                } else {
+                    proximoNome = mesesArray[mesIndex + 1];
+                    proximoAno = ano;
+                }
+            } else {
+                const hoje = new Date();
+                proximoNome = mesesArray[hoje.getMonth()];
+                proximoAno = hoje.getFullYear();
+            }
+
+            document.getElementById('mesAuxilioId').value = auxilioId;
+            document.getElementById('mesSelecionado').value = proximoNome;
+            document.getElementById('anoSelecionado').value = proximoAno.toString();
+            document.getElementById('mesValor').value = (auxilio.valor / 1).toFixed(2);
+            document.getElementById('mesDias').value = auxilio.dias_totais || 22;
+            document.getElementById('mesDataInicio').value = new Date().toISOString().split('T')[0];
+            
+            document.getElementById('erroMes').style.display = 'none';
+            document.getElementById('sucessoMes').style.display = 'none';
+            document.getElementById('mesModal').style.display = 'flex';
+        };
 
         // ===== VER DETALHES DOS GASTOS DO MÊS =====
-        async function verDetalhesMes(mesId) {
+        window.verDetalhesMes = async function(mesId) {
             const mes = meses.find(m => m.id === mesId);
             if (!mes) return;
 
@@ -961,7 +997,7 @@ window.verMeses = async function(auxilioId) {            auxilioSelecionado = au
                 document.getElementById('viewDetalhes').style.display = 'none';
                 verMeses(mes.auxilio_id);
             };
-        }
+        };
 
         // ===== FUNÇÕES DO MODAL MÊS =====
         window.abrirMesModal = function(auxilioId) {
@@ -984,7 +1020,7 @@ window.verMeses = async function(auxilioId) {            auxilioSelecionado = au
             document.getElementById('erroMes').style.display = 'none';
             document.getElementById('sucessoMes').style.display = 'none';
             document.getElementById('mesModal').style.display = 'flex';
-        }
+        };
 
         // ===== EXCLUIR MÊS =====
         const excluirMesModal = document.getElementById('excluirMesModal');
@@ -1085,10 +1121,10 @@ window.verMeses = async function(auxilioId) {            auxilioSelecionado = au
             document.getElementById('erroMsg').style.display = 'none';
             document.getElementById('sucessoMsg').style.display = 'none';
             document.getElementById('auxilioModal').style.display = 'flex';
-        }
+        };
 
         // ===== EXCLUIR AUXÍLIO =====
-       window.excluirAuxilio = async function(id) {
+        window.excluirAuxilio = async function(id) {
             if (!confirm('⚠️ Tem certeza que deseja excluir este auxílio? Todos os meses e gastos serão perdidos!')) return;
             
             try {
@@ -1106,7 +1142,7 @@ window.verMeses = async function(auxilioId) {            auxilioSelecionado = au
             } catch (error) {
                 alert('❌ Erro: ' + error.message);
             }
-        }
+        };
 
         // ===== EVENTOS =====
         document.getElementById('btnNovoAuxilio').addEventListener('click', abrirModalAuxilio);
@@ -1115,6 +1151,8 @@ window.verMeses = async function(auxilioId) {            auxilioSelecionado = au
 
         document.getElementById('fecharMesModal').addEventListener('click', () => document.getElementById('mesModal').style.display = 'none');
         document.getElementById('mesModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.style.display = 'none'; });
+
+        document.getElementById('fecharExcluirMesModal').addEventListener('click', () => document.getElementById('excluirMesModal').style.display = 'none');
 
         // ===== FORMULÁRIO AUXÍLIO =====
         document.getElementById('auxilioForm').addEventListener('submit', async (e) => {
@@ -1213,13 +1251,11 @@ window.verMeses = async function(auxilioId) {            auxilioSelecionado = au
             }
         });
 
-        // ===== SAIR =====
         document.getElementById('btnSair').addEventListener('click', async () => {
             await logout();
             window.location.href = 'login.html';
         });
 
-        // ===== INICIAR =====
         console.log('🚀 Iniciando aplicação...');
         carregarDados();
     </script>
