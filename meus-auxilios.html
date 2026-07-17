@@ -7,21 +7,47 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
+        /* ===== VARIÁVEIS PADRONIZADAS ===== */
+        :root {
+            --primary: #22C55E;
+            --primary-hover: #16A34A;
+            --success: #22C55E;
+            --danger: #EF4444;
+            --info: #3B82F6;
+            --warning: #F59E0B;
+            --background: #0D0D0D;
+            --card: #181818;
+            --border: #2B2B2B;
+            --text: #FFFFFF;
+            --text-secondary: #A1A1AA;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 8px 30px rgba(0,0,0,0.4);
+            --transition: all 0.3s ease;
+            --space-4: 4px;
+            --space-8: 8px;
+            --space-16: 16px;
+            --space-24: 24px;
+            --space-32: 32px;
+            --space-48: 48px;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
-            background: #0a0a0a; 
-            color: #ffffff;
+            background: var(--background); 
+            color: var(--text);
             min-height: 100vh;
         }
         
+        /* ===== NAVBAR ===== */
         .navbar {
-            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+            background: var(--card);
             padding: 0.8rem 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(46, 125, 50, 0.15);
+            border-bottom: 1px solid var(--border);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -37,9 +63,9 @@
             font-size: 1.4rem; 
             font-weight: 800;
             letter-spacing: -0.5px;
-            color: #ffffff;
+            color: var(--text);
         }
-        .navbar h1 span { color: #2E7D32; }
+        .navbar h1 span { color: var(--primary); }
 
         .menu-toggle {
             display: none;
@@ -48,27 +74,23 @@
             gap: 5px;
             padding: 6px 8px;
             background: rgba(255,255,255,0.04);
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.06);
-            transition: all 0.3s;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            transition: var(--transition);
         }
-        .menu-toggle:hover {
-            background: rgba(255,255,255,0.08);
-        }
+        .menu-toggle:hover { background: rgba(255,255,255,0.08); }
         .menu-toggle span {
             display: block;
             width: 24px;
             height: 2.5px;
-            background: #ffffff;
+            background: var(--text);
             border-radius: 2px;
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
         .menu-toggle.active span:nth-child(1) {
             transform: rotate(45deg) translate(5px, 5px);
         }
-        .menu-toggle.active span:nth-child(2) {
-            opacity: 0;
-        }
+        .menu-toggle.active span:nth-child(2) { opacity: 0; }
         .menu-toggle.active span:nth-child(3) {
             transform: rotate(-45deg) translate(5px, -5px);
         }
@@ -77,233 +99,248 @@
             display: flex;
             gap: 0.8rem;
             align-items: center;
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
         .nav-links a { 
-            color: rgba(255,255,255,0.7); 
+            color: var(--text-secondary); 
             text-decoration: none; 
             font-weight: 500;
             padding: 0.4rem 0.8rem;
-            border-radius: 10px;
-            transition: all 0.3s;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
             font-size: 0.85rem;
             white-space: nowrap;
         }
         .nav-links a:hover { 
             background: rgba(255,255,255,0.06); 
-            color: #ffffff;
+            color: var(--text);
         }
         .nav-links a.active {
-            background: rgba(46, 125, 50, 0.2);
-            color: #2E7D32;
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--primary);
         }
         .btn-pdf-calendario {
-            background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
-            color: #ffffff;
+            background: var(--info);
+            color: var(--text);
             font-weight: 600;
             padding: 0.4rem 1rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(21, 101, 192, 0.2);
+            border-radius: var(--radius-sm);
             text-decoration: none;
-            transition: all 0.3s;
+            transition: var(--transition);
         }
         .btn-pdf-calendario:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(21, 101, 192, 0.35);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.35);
         }
         .nav-links .btn-sair {
-            color: rgba(255,255,255,0.4);
+            color: var(--text-secondary);
             font-size: 0.8rem;
             padding: 0.3rem 0.7rem;
         }
         .nav-links .btn-sair:hover {
-            color: #e53935;
-            background: rgba(229, 57, 53, 0.1);
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
         }
         
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .container { max-width: 1200px; margin: 0 auto; padding: var(--space-32); }
         
+        /* ===== BOTÕES ===== */
         .btn-primary {
-            background: linear-gradient(135deg, #1a472a 0%, #2E7D32 50%, #00BFA5 100%);
-            color: white;
+            padding: 10px 24px;
+            background: var(--primary);
+            color: var(--text);
             border: none;
-            padding: 0.7rem 1.8rem;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 0.95rem;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
             font-weight: 600;
-            transition: all 0.3s;
+            cursor: pointer;
+            transition: var(--transition);
             font-family: 'Inter', sans-serif;
-            box-shadow: 0 4px 15px rgba(46, 125, 50, 0.2);
+            height: 44px;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-8);
         }
         .btn-primary:hover {
+            background: var(--primary-hover);
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(46, 125, 50, 0.35);
+            box-shadow: 0 8px 30px rgba(34, 197, 94, 0.35);
         }
+        .btn-primary:active { transform: translateY(0); }
+
         .btn-danger {
-            background: linear-gradient(135deg, #c62828 0%, #e53935 100%);
-            color: white;
+            padding: 6px 12px;
+            background: var(--danger);
+            color: var(--text);
             border: none;
-            padding: 0.4rem 0.8rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.8rem;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
             font-weight: 600;
-            transition: all 0.3s;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Inter', sans-serif;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-4);
         }
         .btn-danger:hover {
+            background: #DC2626;
             transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(229, 57, 53, 0.4);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
         }
+
         .btn-secondary {
-            background: rgba(255,255,255,0.06);
-            color: #b0b0b0;
-            border: 1px solid rgba(255,255,255,0.08);
-            padding: 0.4rem 0.8rem;
-            border-radius: 8px;
+            padding: 6px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 500;
             cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 600;
-            transition: all 0.3s;
+            transition: var(--transition);
+            font-family: 'Inter', sans-serif;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-4);
         }
         .btn-secondary:hover {
-            background: rgba(255,255,255,0.1);
-            color: #ffffff;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text);
         }
+
         .btn-success {
-            background: linear-gradient(135deg, #2e7d32 0%, #43a047 100%);
-            color: white;
+            padding: 6px 14px;
+            background: var(--success);
+            color: var(--text);
             border: none;
-            padding: 0.4rem 0.8rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.8rem;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
             font-weight: 600;
-            transition: all 0.3s;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Inter', sans-serif;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-4);
         }
         .btn-success:hover {
+            background: var(--primary-hover);
             transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(67, 160, 71, 0.4);
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
         }
+
         .btn-back {
-            background: rgba(255,255,255,0.06);
-            color: #b0b0b0;
-            border: 1px solid rgba(255,255,255,0.08);
-            padding: 0.6rem 1.5rem;
-            border-radius: 10px;
+            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
             cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
+            transition: var(--transition);
+            font-family: 'Inter', sans-serif;
+            height: 40px;
+            margin-bottom: var(--space-16);
         }
         .btn-back:hover {
-            background: rgba(255,255,255,0.1);
-            color: #ffffff;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text);
             transform: translateX(-3px);
-        }
-        .btn-pdf {
-            background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
-            color: white;
-            border: none;
-            padding: 0.4rem 0.8rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        .btn-pdf:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.4);
-        }
-        .btn-pdf-blue {
-            background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
-            color: white;
-            border: none;
-            padding: 0.4rem 0.8rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        .btn-pdf-blue:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(21, 101, 192, 0.4);
         }
         
         .header-actions {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
+            margin-bottom: var(--space-32);
             flex-wrap: wrap;
-            gap: 0.5rem;
+            gap: var(--space-16);
         }
         .header-actions h2 { 
-            font-size: 1.5rem; 
-            color: #ffffff;
+            font-size: 24px; 
+            color: var(--text);
             font-weight: 700;
         }
         
-        .lista-auxilios { display: grid; gap: 1.5rem; }
+        /* ===== LISTA DE MESES ===== */
+        .lista-meses { display: grid; gap: var(--space-16); }
         
-        .auxilio-card {
-            background: linear-gradient(145deg, #121212 0%, #1a1a1a 100%);
-            border-radius: 16px;
-            padding: 1.5rem;
-            border: 1px solid rgba(255,255,255,0.06);
-            transition: all 0.3s;
+        .mes-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: var(--space-24);
+            border: 1px solid var(--border);
+            transition: var(--transition);
             cursor: pointer;
         }
-        .auxilio-card:hover { 
-            transform: translateY(-4px); 
-            border-color: rgba(46, 125, 50, 0.2);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+        .mes-card:hover { 
+            transform: translateY(-2px); 
+            border-color: var(--primary);
+            box-shadow: var(--shadow);
         }
         
-        .auxilio-header {
+        .mes-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 0.5rem;
+            gap: var(--space-16);
         }
-        .auxilio-info h3 { 
-            color: #2E7D32; 
-            margin-bottom: 0.3rem; 
-            font-size: 1.2rem;
+        
+        .mes-info {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+        .mes-info h3 { 
+            color: var(--primary); 
+            font-size: 18px;
             font-weight: 700;
         }
-        .auxilio-info p { 
-            color: #888; 
-            font-size: 0.9rem; 
-            margin: 0.2rem 0;
+        .mes-info .mes-detalhes {
+            display: flex;
+            gap: var(--space-16);
+            flex-wrap: wrap;
+            color: var(--text-secondary);
+            font-size: 14px;
         }
-        .auxilio-info .badge {
-            display: inline-block;
-            padding: 0.2rem 0.8rem;
+        .mes-info .mes-detalhes span {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+        .mes-status {
+            font-size: 12px;
+            padding: 4px 12px;
             border-radius: 20px;
-            font-size: 0.7rem;
             font-weight: 600;
-            background: rgba(46, 125, 50, 0.15);
-            color: #2E7D32;
-            margin-top: 0.3rem;
+        }
+        .mes-status.ativo { background: rgba(34, 197, 94, 0.2); color: var(--primary); }
+        .mes-status.inativo { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        
+        .mes-actions {
+            display: flex;
+            gap: var(--space-8);
+            flex-wrap: wrap;
+            align-items: center;
         }
         
-        .auxilio-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-        
-        .sem-auxilios {
+        .sem-meses {
             text-align: center;
-            padding: 4rem;
-            background: linear-gradient(145deg, #121212 0%, #1a1a1a 100%);
-            border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.06);
+            padding: var(--space-48);
+            background: var(--card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
         }
-        .sem-auxilios h2 { color: #888; margin-bottom: 0.5rem; }
-        .sem-auxilios p { color: #555; margin-bottom: 1.5rem; }
+        .sem-meses h2 { color: var(--text-secondary); margin-bottom: var(--space-8); }
+        .sem-meses p { color: #555; margin-bottom: var(--space-16); }
         
+        /* ===== MODAL ===== */
         .modal {
             display: none;
             position: fixed;
@@ -316,256 +353,196 @@
             z-index: 1000;
         }
         .modal-content {
-            background: linear-gradient(145deg, #121212 0%, #1a1a1a 100%);
-            padding: 2.5rem;
-            border-radius: 20px;
+            background: var(--card);
+            padding: var(--space-32);
+            border-radius: var(--radius);
             width: 100%;
             max-width: 500px;
             max-height: 90vh;
             overflow-y: auto;
-            border: 1px solid rgba(255,255,255,0.06);
+            border: 1px solid var(--border);
             animation: modalSlide 0.3s ease;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            box-shadow: var(--shadow);
         }
         @keyframes modalSlide {
             from { transform: translateY(-30px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
         .modal-content h2 { 
-            margin-bottom: 1.5rem;
-            font-size: 1.4rem;
-            color: #ffffff;
+            margin-bottom: var(--space-24);
+            font-size: 20px;
+            color: var(--text);
             font-weight: 700;
         }
-        .modal-content .form-group { margin-bottom: 1.2rem; }
+        .modal-content .form-group { margin-bottom: var(--space-16); }
         .modal-content .form-group label { 
             display: block; 
-            margin-bottom: 0.4rem; 
+            margin-bottom: var(--space-4); 
             font-weight: 500;
-            color: #b0b0b0;
-            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-size: 14px;
         }
         .modal-content .form-group input,
-        .modal-content .form-group select {
+        .modal-content .form-group select,
+        .modal-content .form-group textarea {
             width: 100%;
-            padding: 0.8rem 1rem;
+            padding: 10px 14px;
             background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 12px;
-            font-size: 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-size: 14px;
             font-family: 'Inter', sans-serif;
-            color: #ffffff;
-            transition: all 0.3s;
+            transition: var(--transition);
+            outline: none;
         }
         .modal-content .form-group input:focus,
-        .modal-content .form-group select:focus {
-            outline: none;
-            border-color: #2E7D32;
+        .modal-content .form-group select:focus,
+        .modal-content .form-group textarea:focus {
+            border-color: var(--primary);
             background: rgba(255,255,255,0.06);
-            box-shadow: 0 0 20px rgba(46, 125, 50, 0.08);
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.08);
+        }
+        .modal-content .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
         }
         .close { 
             float: right; 
             font-size: 1.5rem; 
             cursor: pointer;
-            color: #666;
-            transition: color 0.3s;
+            color: var(--text-secondary);
+            transition: var(--transition);
         }
-        .close:hover { color: #ffffff; }
-        .erro { color: #e53935; text-align: center; margin-top: 0.5rem; display: none; font-weight: 500; }
-        .sucesso { color: #4CAF50; text-align: center; margin-top: 0.5rem; display: none; font-weight: 500; }
+        .close:hover { color: var(--text); }
+        .erro { color: var(--danger); text-align: center; margin-top: var(--space-8); display: none; font-weight: 500; }
+        .sucesso { color: var(--success); text-align: center; margin-top: var(--space-8); display: none; font-weight: 500; }
         
-        .detalhes-auxilio {
-            background: linear-gradient(145deg, #121212 0%, #1a1a1a 100%);
-            border-radius: 16px;
-            padding: 2rem;
-            border: 1px solid rgba(255,255,255,0.06);
+        /* ===== DETALHES DOS GASTOS ===== */
+        .detalhes-container {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: var(--space-24);
+            border: 1px solid var(--border);
         }
-        
         .detalhes-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
+            margin-bottom: var(--space-24);
+            padding-bottom: var(--space-16);
+            border-bottom: 1px solid var(--border);
             flex-wrap: wrap;
-            gap: 0.5rem;
+            gap: var(--space-16);
         }
         .detalhes-header h2 { 
-            color: #2E7D32; 
-            font-size: 1.3rem;
+            color: var(--primary); 
+            font-size: 20px;
             font-weight: 700;
         }
         .detalhes-header .total { 
-            font-size: 1.3rem; 
-            font-weight: 800; 
-            color: #ffffff;
+            font-size: 20px; 
+            font-weight: 700; 
+            color: var(--text);
         }
         .detalhes-header .actions { 
             display: flex; 
-            gap: 0.5rem; 
+            gap: var(--space-8); 
             align-items: center; 
             flex-wrap: wrap; 
         }
         
-        .resumo-auxilio {
+        .resumo-detalhes {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: var(--space-16);
+            margin-bottom: var(--space-24);
         }
         .resumo-item {
             background: rgba(255,255,255,0.03);
-            padding: 1rem;
-            border-radius: 10px;
+            padding: var(--space-16);
+            border-radius: var(--radius-sm);
             text-align: center;
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
         }
         .resumo-item .label { 
-            font-size: 0.7rem; 
-            color: #666; 
+            font-size: 12px; 
+            color: var(--text-secondary); 
             text-transform: uppercase; 
             font-weight: 600;
             letter-spacing: 0.5px;
         }
         .resumo-item .value { 
-            font-size: 1.3rem; 
+            font-size: 18px; 
             font-weight: 700; 
-            color: #ffffff; 
-            margin-top: 0.2rem;
+            color: var(--text); 
+            margin-top: var(--space-4);
         }
-        .resumo-item .value.danger { color: #e53935; }
+        .resumo-item .value.danger { color: var(--danger); }
+        .resumo-item .value.success { color: var(--success); }
         
-        .section-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #ffffff;
-            margin-top: 1.5rem;
-            margin-bottom: 0.8rem;
-        }
-        
-        .mes-grupo {
-            margin-bottom: 0.8rem;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.06);
-            overflow: hidden;
-            background: rgba(255,255,255,0.02);
-            transition: all 0.3s;
-        }
-        .mes-grupo:hover {
-            border-color: rgba(46, 125, 50, 0.2);
-        }
-        
-        .mes-header {
+        .gasto-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0.8rem 1.2rem;
-            cursor: pointer;
-            background: rgba(255,255,255,0.03);
-            transition: background 0.3s;
-            user-select: none;
+            padding: var(--space-12) 0;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: var(--space-8);
         }
-        .mes-header:hover {
-            background: rgba(255,255,255,0.06);
-        }
-        .mes-header .mes-nome {
-            font-weight: 600;
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: #ffffff;
-        }
-        .mes-header .mes-nome .icone { font-size: 1.2rem; }
-        .mes-header .mes-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            font-size: 0.9rem;
-        }
-        .mes-header .mes-info .valor { 
-            font-weight: 700; 
-            color: #2E7D32;
-        }
-        .mes-header .mes-status {
-            font-size: 0.7rem;
-            padding: 0.2rem 0.8rem;
-            border-radius: 20px;
-            font-weight: 600;
-        }
-        .mes-header .mes-status.ativo { background: rgba(46, 125, 50, 0.2); color: #4CAF50; }
-        .mes-header .mes-status.inativo { background: rgba(229, 57, 53, 0.2); color: #e53935; }
-        .mes-header .seta {
-            font-size: 1.2rem;
-            transition: transform 0.3s;
-            color: #666;
-        }
-        .mes-header .seta.aberta { transform: rotate(180deg); }
-        
-        .mes-body {
-            padding: 1rem 1.2rem;
-            background: rgba(255,255,255,0.02);
-            display: none;
-            border-top: 1px solid rgba(255,255,255,0.05);
-        }
-        .mes-body.aberto { display: block; }
-        
-        .mes-gasto-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.6rem 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            font-size: 0.9rem;
-        }
-        .mes-gasto-item:last-child { border-bottom: none; }
-        .mes-gasto-item .gasto-info { display: flex; flex-direction: column; }
-        .mes-gasto-item .gasto-info .data { font-size: 0.75rem; color: #666; }
-        .mes-gasto-item .gasto-valor { 
+        .gasto-item:last-child { border-bottom: none; }
+        .gasto-info { display: flex; flex-direction: column; }
+        .gasto-info .data { font-size: 12px; color: var(--text-secondary); }
+        .gasto-valor { 
             font-weight: 600; 
-            color: #e53935;
+            color: var(--danger);
+            font-size: 16px;
         }
+        .gasto-actions { display: flex; gap: var(--space-8); align-items: center; flex-wrap: wrap; }
+        .comprovante-link { font-size: 12px; }
+        .comprovante-link a { color: var(--info); text-decoration: none; }
+        .comprovante-link a:hover { text-decoration: underline; }
         
-        .mes-sem-gastos {
+        .sem-gastos {
             text-align: center;
-            padding: 1rem;
-            color: #666;
-            font-size: 0.9rem;
+            padding: var(--space-32);
+            color: var(--text-secondary);
+            font-size: 14px;
         }
         
         .select-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1rem;
+            gap: var(--space-16);
         }
 
+        /* ===== RESPONSIVIDADE ===== */
         @media (max-width: 768px) {
             .menu-toggle { display: flex; }
             .nav-links {
                 display: none;
                 flex-direction: column;
                 width: 100%;
-                padding: 0.8rem 0;
-                gap: 0.4rem;
-                border-top: 1px solid rgba(255,255,255,0.06);
-                margin-top: 0.5rem;
+                padding: var(--space-16) 0;
+                gap: var(--space-8);
+                border-top: 1px solid var(--border);
+                margin-top: var(--space-8);
                 align-items: stretch;
             }
             .nav-links.open { display: flex; }
             .nav-links a {
                 text-align: center;
-                padding: 0.6rem;
-                font-size: 0.95rem;
+                padding: var(--space-8);
+                font-size: 14px;
                 width: 100%;
             }
-            .container { padding: 1rem; }
-            .modal-content { margin: 1rem; padding: 1.5rem; max-width: 100%; }
-            .resumo-auxilio { grid-template-columns: 1fr 1fr; }
+            .container { padding: var(--space-16); }
+            .modal-content { margin: var(--space-16); padding: var(--space-24); max-width: 100%; }
+            .resumo-detalhes { grid-template-columns: 1fr 1fr; }
             .select-group { grid-template-columns: 1fr; }
-            .mes-header { flex-wrap: wrap; gap: 0.3rem; }
-            .detalhes-header .actions { width: 100%; justify-content: flex-start; }
+            .mes-content { flex-direction: column; align-items: stretch; }
+            .mes-actions { justify-content: flex-start; }
+            .detalhes-header { flex-direction: column; align-items: flex-start; }
             .navbar h1 { font-size: 1.2rem; }
             .header-actions h2 { font-size: 1.2rem; }
         }
@@ -573,28 +550,27 @@
         @media (max-width: 480px) {
             .navbar { padding: 0.6rem 1rem; }
             .menu-toggle span { width: 20px; height: 2px; }
-            .auxilio-card { padding: 1rem; }
-            .auxilio-info h3 { font-size: 1rem; }
-            .detalhes-auxilio { padding: 1rem; }
-            .resumo-auxilio { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
-            .resumo-item { padding: 0.7rem; }
-            .resumo-item .value { font-size: 1.1rem; }
-            .btn-primary { padding: 0.5rem 1rem; font-size: 0.85rem; }
-            .modal-content { padding: 1.2rem; border-radius: 16px; }
-            .modal-content h2 { font-size: 1.2rem; }
-            .mes-header .mes-info { flex-wrap: wrap; gap: 0.3rem; }
+            .mes-card { padding: var(--space-16); }
+            .mes-info h3 { font-size: 16px; }
+            .detalhes-container { padding: var(--space-16); }
+            .resumo-detalhes { grid-template-columns: 1fr 1fr; gap: var(--space-8); }
+            .resumo-item { padding: var(--space-8); }
+            .resumo-item .value { font-size: 16px; }
+            .btn-primary { padding: 8px 16px; font-size: 13px; height: 40px; }
+            .modal-content { padding: var(--space-16); }
+            .modal-content h2 { font-size: 18px; }
         }
 
         @media (max-width: 360px) {
             .navbar h1 { font-size: 1rem; }
             .menu-toggle span { width: 18px; height: 2px; }
-            .auxilio-header { flex-direction: column; align-items: flex-start; }
-            .auxilio-actions { width: 100%; justify-content: flex-start; }
-            .detalhes-header { flex-direction: column; align-items: flex-start; }
+            .mes-info .mes-detalhes { flex-direction: column; gap: var(--space-4); }
+            .resumo-detalhes { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
+    <!-- ===== NAVBAR ===== -->
     <nav class="navbar">
         <div class="nav-left">
             <div class="menu-toggle" id="menuToggle">
@@ -612,21 +588,25 @@
         </div>
     </nav>
 
+    <!-- ===== CONTEÚDO PRINCIPAL ===== -->
     <div class="container">
+        <!-- VIEW: LISTA DE MESES -->
         <div id="viewLista">
             <div class="header-actions">
                 <h2>📋 Meus Auxílios</h2>
                 <button class="btn-primary" id="btnNovoAuxilio">+ Novo Auxílio</button>
             </div>
-            <div id="listaAuxilios" class="lista-auxilios"></div>
+            <div id="listaMeses" class="lista-meses"></div>
         </div>
 
+        <!-- VIEW: DETALHES DOS GASTOS DO MÊS -->
         <div id="viewDetalhes" style="display:none;">
             <button class="btn-back" id="btnVoltar">← Voltar</button>
-            <div class="detalhes-auxilio" id="detalhesContainer"></div>
+            <div class="detalhes-container" id="detalhesContainer"></div>
         </div>
     </div>
 
+    <!-- ===== MODAL: NOVO AUXÍLIO ===== -->
     <div class="modal" id="auxilioModal">
         <div class="modal-content">
             <span class="close" id="fecharModal">&times;</span>
@@ -651,11 +631,12 @@
                 </div>
                 <div class="erro" id="erroMsg">Erro ao salvar</div>
                 <div class="sucesso" id="sucessoMsg">Salvo com sucesso!</div>
-                <button type="submit" class="btn-primary" style="width:100%;">💾 Salvar</button>
+                <button type="submit" class="btn-primary" style="width:100%; justify-content:center;">💾 Salvar</button>
             </form>
         </div>
     </div>
 
+    <!-- ===== MODAL: NOVO MÊS ===== -->
     <div class="modal" id="mesModal">
         <div class="modal-content">
             <span class="close" id="fecharMesModal">&times;</span>
@@ -704,7 +685,25 @@
                 </div>
                 <div class="erro" id="erroMes">Erro ao salvar</div>
                 <div class="sucesso" id="sucessoMes">Salvo com sucesso!</div>
-                <button type="submit" class="btn-success" style="width:100%;">✅ Iniciar Mês</button>
+                <button type="submit" class="btn-primary" style="width:100%; justify-content:center;">✅ Iniciar Mês</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: EXCLUIR MÊS COM JUSTIFICATIVA ===== -->
+    <div class="modal" id="excluirMesModal">
+        <div class="modal-content" id="excluirMesModalContent">
+            <span class="close" id="fecharExcluirMesModal">&times;</span>
+            <h2>🗑️ Excluir Mês</h2>
+            <p style="color:var(--text-secondary); margin-bottom:var(--space-16);">Informe o motivo da exclusão:</p>
+            <form id="excluirMesForm">
+                <input type="hidden" id="excluirMesId">
+                <div class="form-group">
+                    <label>Justificativa *</label>
+                    <textarea id="justificativaMes" placeholder="Ex: Mês criado por engano" required></textarea>
+                </div>
+                <div class="erro" id="erroExcluirMes">Erro ao excluir</div>
+                <button type="submit" class="btn-danger" style="width:100%; padding:12px; font-size:14px; height:44px; justify-content:center;">Confirmar Exclusão</button>
             </form>
         </div>
     </div>
@@ -712,8 +711,8 @@
     <script type="module">
         import { supabase } from './js/config.js';
         import { getSessao, logout } from './js/auth.js';
-        import { gerarRelatorioPDF, gerarCalendarioPDF } from './js/relatorios.js';
 
+        // ===== MENU HAMBÚRGUER =====
         const menuToggle = document.getElementById('menuToggle');
         const navLinks = document.getElementById('navLinks');
 
@@ -734,6 +733,7 @@
         let meses = [];
         let gastos = [];
 
+        // ===== FUNÇÕES =====
         function abrirModalAuxilio() {
             document.getElementById('modalTitulo').textContent = '📝 Cadastrar Auxílio';
             document.getElementById('auxilioId').value = '';
@@ -746,109 +746,182 @@
             document.getElementById('auxilioModal').style.display = 'flex';
         }
 
-        async function carregarAuxilios() {
+        async function carregarDados() {
             try {
                 const sessao = await getSessao();
                 if (!sessao) { window.location.href = 'login.html'; return; }
                 user = sessao.user;
 
-                const { data, error } = await supabase
+                // Buscar auxílios
+                const { data: auxData, error: auxError } = await supabase
                     .from('auxilios')
                     .select('*')
                     .eq('user_id', user.id)
                     .order('created_at', { ascending: false });
 
-                if (error) throw error;
-                auxilios = data || [];
-                renderizarAuxilios();
+                if (auxError) throw auxError;
+                auxilios = auxData || [];
+
+                // Buscar meses
+                const { data: mesesData, error: mesesError } = await supabase
+                    .from('meses')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .order('created_at', { ascending: false });
+
+                if (mesesError) throw mesesError;
+                meses = mesesData || [];
+
+                renderizarMeses();
             } catch (error) {
                 console.error('Erro ao carregar:', error);
-                alert('Erro ao carregar auxílios: ' + error.message);
+                alert('Erro ao carregar dados: ' + error.message);
             }
         }
 
-        function renderizarAuxilios() {
-            const container = document.getElementById('listaAuxilios');
+        function renderizarMeses() {
+            const container = document.getElementById('listaMeses');
             
-            if (auxilios.length === 0) {
+            if (meses.length === 0) {
                 container.innerHTML = `
-                    <div class="sem-auxilios">
-                        <h2>📭 Nenhum auxílio cadastrado</h2>
+                    <div class="sem-meses">
+                        <h2>📭 Nenhum mês cadastrado</h2>
                         <p>Clique em "Novo Auxílio" para começar</p>
-                        <button class="btn-primary" id="btnNovoAuxilioEmpty">+ Novo Auxílio</button>
+                        <button class="btn-primary" id="btnNovoAuxilioEmpty" style="margin:0 auto;">+ Novo Auxílio</button>
                     </div>
                 `;
                 document.getElementById('btnNovoAuxilioEmpty')?.addEventListener('click', abrirModalAuxilio);
                 return;
             }
 
-            container.innerHTML = auxilios.map(a => `
-                <div class="auxilio-card" data-id="${a.id}">
-                    <div class="auxilio-header">
-                        <div class="auxilio-info">
-                            <h3>📅 ${a.periodo}</h3>
-                            <p>💰 <strong>Valor:</strong> R$ ${a.valor.toFixed(2)}</p>
-                            <p>📆 <strong>Início:</strong> ${new Date(a.data_inicio).toLocaleDateString()}</p>
-                            <p>📌 <strong>Dias:</strong> ${a.dias_totais} dias</p>
-                            <span class="badge">Clique para ver detalhes</span>
+            container.innerHTML = meses.map(m => `
+                <div class="mes-card" data-id="${m.id}">
+                    <div class="mes-content">
+                        <div class="mes-info">
+                            <h3>📅 ${m.nome}</h3>
+                            <div class="mes-detalhes">
+                                <span>💰 R$ ${m.valor_mensal.toFixed(2)}</span>
+                                <span>📆 ${m.dias_mes} dias</span>
+                                <span>📅 Início: ${new Date(m.data_inicio).toLocaleDateString()}</span>
+                                <span class="mes-status ${m.ativo ? 'ativo' : 'inativo'}">
+                                    ${m.ativo ? '🟢 Ativo' : '🔴 Finalizado'}
+                                </span>
+                            </div>
                         </div>
-                        <div class="auxilio-actions">
-                            <button class="btn-success" data-mes="${a.id}" onclick="event.stopPropagation();">📅 + Mês</button>
-                            <button class="btn-secondary" data-editar="${a.id}" onclick="event.stopPropagation();">✏️</button>
-                            <button class="btn-danger" data-excluir="${a.id}" onclick="event.stopPropagation();">🗑️</button>
+                        <div class="mes-actions">
+                            <button class="btn-danger" onclick="event.stopPropagation(); abrirExcluirMes('${m.id}')">🗑️ Excluir</button>
                         </div>
                     </div>
                 </div>
             `).join('');
 
-            document.querySelectorAll('.auxilio-card').forEach(card => {
-                card.addEventListener('click', () => verDetalhes(card.dataset.id));
-            });
-
-            document.querySelectorAll('[data-editar]').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    editarAuxilio(btn.dataset.editar);
-                });
-            });
-
-            document.querySelectorAll('[data-excluir]').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    excluirAuxilio(btn.dataset.excluir);
-                });
-            });
-
-            document.querySelectorAll('[data-mes]').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    abrirMesModal(btn.dataset.mes);
-                });
+            document.querySelectorAll('.mes-card').forEach(card => {
+                card.addEventListener('click', () => verDetalhesMes(card.dataset.id));
             });
         }
 
-        async function verDetalhes(auxilioId) {
-            const auxilio = auxilios.find(a => a.id === auxilioId);
-            if (!auxilio) return;
+        // ===== EXCLUIR MÊS COM JUSTIFICATIVA =====
+        const excluirMesModal = document.getElementById('excluirMesModal');
+        const excluirMesModalContent = document.getElementById('excluirMesModalContent');
 
-            const { data: mesesData } = await supabase
-                .from('meses')
-                .select('*')
-                .eq('auxilio_id', auxilioId)
-                .order('created_at', { ascending: false });
+        window.abrirExcluirMes = function(mesId) {
+            document.getElementById('excluirMesId').value = mesId;
+            document.getElementById('justificativaMes').value = '';
+            document.getElementById('erroExcluirMes').style.display = 'none';
+            excluirMesModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        };
 
-            meses = mesesData || [];
+        document.getElementById('fecharExcluirMesModal').addEventListener('click', () => {
+            excluirMesModal.style.display = 'none';
+            document.body.style.overflow = '';
+        });
 
+        excluirMesModal.addEventListener('click', (e) => {
+            if (e.target === excluirMesModal) {
+                excluirMesModal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        });
+
+        excluirMesModalContent.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && excluirMesModal.style.display === 'flex') {
+                excluirMesModal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        });
+
+        document.getElementById('excluirMesForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const mesId = document.getElementById('excluirMesId').value;
+            const justificativa = document.getElementById('justificativaMes').value.trim();
+            const erroEl = document.getElementById('erroExcluirMes');
+            
+            if (!justificativa) {
+                erroEl.style.display = 'block';
+                erroEl.textContent = 'Por favor, informe uma justificativa';
+                return;
+            }
+
+            try {
+                // Buscar dados do mês antes de excluir
+                const mes = meses.find(m => m.id === mesId);
+                if (!mes) throw new Error('Mês não encontrado');
+
+                // Salvar no histórico de exclusão
+                await supabase.from('historico_exclusao_meses').insert({
+                    user_id: user.id,
+                    mes_id: mesId,
+                    nome: mes.nome,
+                    valor_mensal: mes.valor_mensal,
+                    dias_mes: mes.dias_mes,
+                    data_inicio: mes.data_inicio,
+                    justificativa: justificativa
+                });
+
+                // Excluir gastos relacionados a este mês
+                await supabase.from('gastos').delete().eq('mes_id', mesId);
+
+                // Excluir o mês
+                const { error } = await supabase
+                    .from('meses')
+                    .delete()
+                    .eq('id', mesId)
+                    .eq('user_id', user.id);
+
+                if (error) throw error;
+
+                excluirMesModal.style.display = 'none';
+                document.body.style.overflow = '';
+                alert('✅ Mês excluído com sucesso! Justificativa registrada.');
+                await carregarDados();
+            } catch (error) {
+                erroEl.style.display = 'block';
+                erroEl.textContent = error.message || 'Erro ao excluir mês';
+            }
+        });
+
+        // ===== VER DETALHES DOS GASTOS DO MÊS =====
+        async function verDetalhesMes(mesId) {
+            const mes = meses.find(m => m.id === mesId);
+            if (!mes) return;
+
+            // Buscar gastos deste mês
             const { data: gastosData } = await supabase
                 .from('gastos')
                 .select('*')
-                .eq('auxilio_id', auxilioId)
+                .eq('mes_id', mesId)
                 .order('data_gasto', { ascending: false });
 
             gastos = gastosData || [];
 
             const totalGasto = gastos.reduce((s, g) => s + g.valor, 0);
-            const saldo = auxilio.valor - totalGasto;
+            const saldo = mes.valor_mensal - totalGasto;
 
             document.getElementById('viewLista').style.display = 'none';
             document.getElementById('viewDetalhes').style.display = 'block';
@@ -856,19 +929,16 @@
             const container = document.getElementById('detalhesContainer');
             container.innerHTML = `
                 <div class="detalhes-header">
-                    <h2>📅 ${auxilio.periodo}</h2>
+                    <h2>📅 ${mes.nome}</h2>
                     <div class="actions">
-                        <span class="total">R$ ${auxilio.valor.toFixed(2)}</span>
-                        <button class="btn-pdf" id="btnRelatorioPDF">📊 Relatório</button>
-                        <button class="btn-pdf-blue" id="btnCalendarioPDF">📅 Calendário</button>
-                        <button class="btn-success" id="btnMesFromDetalhes">📅 + Mês</button>
+                        <span class="total">R$ ${mes.valor_mensal.toFixed(2)}</span>
                     </div>
                 </div>
 
-                <div class="resumo-auxilio">
+                <div class="resumo-detalhes">
                     <div class="resumo-item">
                         <div class="label">💰 Saldo Atual</div>
-                        <div class="value">R$ ${saldo.toFixed(2)}</div>
+                        <div class="value success">R$ ${saldo.toFixed(2)}</div>
                     </div>
                     <div class="resumo-item">
                         <div class="label">💸 Total Gasto</div>
@@ -876,117 +946,54 @@
                     </div>
                     <div class="resumo-item">
                         <div class="label">📆 Dias</div>
-                        <div class="value">${auxilio.dias_totais}</div>
+                        <div class="value">${mes.dias_mes}</div>
                     </div>
                 </div>
 
-                <div class="section-title">📅 Meses</div>
-                <div id="mesesLista">
-                    ${meses.length === 0 ? '<p style="color:#666; text-align:center; padding:0.5rem;">Nenhum mês iniciado</p>' : 
-                    meses.map((m, index) => {
-                        const gastosMes = gastos.filter(g => {
-                            const dataGasto = new Date(g.data_gasto);
-                            const dataInicioMes = new Date(m.data_inicio);
-                            return dataGasto >= dataInicioMes;
-                        });
-                        const totalMes = gastosMes.reduce((s, g) => s + g.valor, 0);
-                        const saldoMes = m.valor_mensal - totalMes;
-                        const isAtivo = m.ativo;
-                        const estaAberto = index === 0;
-                        
-                        return `
-                            <div class="mes-grupo">
-                                <div class="mes-header" onclick="toggleMes(this)">
-                                    <span class="mes-nome">
-                                        <span class="icone">📅</span>
-                                        ${m.nome}
-                                    </span>
-                                    <div class="mes-info">
-                                        <span class="valor">R$ ${m.valor_mensal.toFixed(2)}</span>
-                                        <span class="mes-status ${isAtivo ? 'ativo' : 'inativo'}">
-                                            ${isAtivo ? '🟢 Ativo' : '🔴 Finalizado'}
-                                        </span>
-                                        <span class="seta ${estaAberto ? 'aberta' : ''}">▼</span>
-                                    </div>
+                <h3 style="margin-bottom:var(--space-16); color:var(--text-secondary); font-size:16px;">📋 Gastos do Mês</h3>
+                <div id="listaGastosMes">
+                    ${gastos.length === 0 ? 
+                        '<div class="sem-gastos">🍽️ Nenhum gasto registrado neste mês</div>' :
+                        gastos.map(g => `
+                            <div class="gasto-item">
+                                <div class="gasto-info">
+                                    <span>${new Date(g.data_gasto).toLocaleDateString()} - ${g.local || 'Sem local'}</span>
+                                    <span class="data">${g.observacao || ''} ${g.tipo_dia ? ' | ' + g.tipo_dia : ''}</span>
+                                    ${g.comprovante ? `<span class="comprovante-link">📎 <a href="${g.comprovante}" target="_blank">Ver comprovante</a></span>` : ''}
                                 </div>
-                                <div class="mes-body ${estaAberto ? 'aberto' : ''}">
-                                    <div style="display:flex; gap:1rem; margin-bottom:0.8rem; flex-wrap:wrap;">
-                                        <span style="font-size:0.85rem; color:#666;">💸 Gastos: <strong>R$ ${totalMes.toFixed(2)}</strong></span>
-                                        <span style="font-size:0.85rem; color:#666;">💰 Saldo: <strong>R$ ${saldoMes.toFixed(2)}</strong></span>
-                                    </div>
-                                    ${gastosMes.length === 0 ? 
-                                        '<div class="mes-sem-gastos">Nenhum gasto registrado neste mês</div>' :
-                                        gastosMes.slice(0, 15).map(g => `
-                                            <div class="mes-gasto-item">
-                                                <div class="gasto-info">
-                                                    <span>${new Date(g.data_gasto).toLocaleDateString()} - ${g.local || 'Sem local'}</span>
-                                                    <span class="data">${g.observacao || ''} ${g.tipo_dia ? ' | ' + g.tipo_dia : ''}</span>
-                                                </div>
-                                                <span class="gasto-valor">R$ ${g.valor.toFixed(2)}</span>
-                                            </div>
-                                        `).join('')
-                                    }
-                                    ${gastosMes.length > 15 ? `<div style="text-align:center; padding:0.5rem; color:#666; font-size:0.8rem;">+ ${gastosMes.length - 15} gastos</div>` : ''}
+                                <div class="gasto-actions">
+                                    <span class="gasto-valor">R$ ${g.valor.toFixed(2)}</span>
                                 </div>
                             </div>
-                        `;
-                    }).join('')}
+                        `).join('')
+                    }
                 </div>
             `;
-
-            document.getElementById('btnRelatorioPDF').addEventListener('click', () => {
-                gerarRelatorioPDF(auxilioId, gastos, auxilio);
-            });
-            document.getElementById('btnCalendarioPDF').addEventListener('click', () => {
-                gerarCalendarioPDF(auxilioId, gastos, auxilio);
-            });
-            document.getElementById('btnMesFromDetalhes').addEventListener('click', () => {
-                abrirMesModal(auxilioId);
-            });
         }
 
-        window.toggleMes = function(element) {
-            const body = element.nextElementSibling;
-            const seta = element.querySelector('.seta');
-            body.classList.toggle('aberto');
-            seta.classList.toggle('aberta');
-        };
-
-        function abrirMesModal(auxilioId) {
-            const auxilio = auxilios.find(a => a.id === auxilioId);
-            if (!auxilio) return;
-
-            const hoje = new Date();
-            const mesAtual = hoje.getMonth();
-            const anoAtual = hoje.getFullYear();
-
-            document.getElementById('mesAuxilioId').value = auxilioId;
-            document.getElementById('mesValor').value = (auxilio.valor / 1).toFixed(2);
-            document.getElementById('mesDias').value = auxilio.dias_totais || 22;
-            document.getElementById('mesDataInicio').value = hoje.toISOString().split('T')[0];
-            
-            const mesesArray = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-            document.getElementById('mesSelecionado').value = mesesArray[mesAtual];
-            document.getElementById('anoSelecionado').value = anoAtual;
-            
-            document.getElementById('erroMes').style.display = 'none';
-            document.getElementById('sucessoMes').style.display = 'none';
-            document.getElementById('mesModal').style.display = 'flex';
-        }
-
+        // ===== VOLTAR =====
         document.getElementById('btnVoltar').addEventListener('click', () => {
             document.getElementById('viewDetalhes').style.display = 'none';
             document.getElementById('viewLista').style.display = 'block';
-            carregarAuxilios();
+            carregarDados();
         });
 
+        // ===== SAIR =====
+        document.getElementById('btnSair').addEventListener('click', async () => {
+            await logout();
+            window.location.href = 'login.html';
+        });
+
+        // ===== MODAL AUXÍLIO =====
         document.getElementById('btnNovoAuxilio').addEventListener('click', abrirModalAuxilio);
         document.getElementById('fecharModal').addEventListener('click', () => document.getElementById('auxilioModal').style.display = 'none');
         document.getElementById('auxilioModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.style.display = 'none'; });
 
+        // ===== MODAL MÊS =====
         document.getElementById('fecharMesModal').addEventListener('click', () => document.getElementById('mesModal').style.display = 'none');
         document.getElementById('mesModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.style.display = 'none'; });
 
+        // ===== FORMULÁRIO AUXÍLIO =====
         document.getElementById('auxilioForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -1026,7 +1033,7 @@
                 sucessoMsg.style.display = 'block';
                 setTimeout(() => {
                     document.getElementById('auxilioModal').style.display = 'none';
-                    carregarAuxilios();
+                    carregarDados();
                 }, 1000);
             } catch (error) {
                 erroMsg.style.display = 'block';
@@ -1034,6 +1041,7 @@
             }
         });
 
+        // ===== FORMULÁRIO MÊS =====
         document.getElementById('mesForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -1074,7 +1082,7 @@
                 sucessoMsg.textContent = '✅ Mês iniciado!';
                 setTimeout(() => {
                     document.getElementById('mesModal').style.display = 'none';
-                    verDetalhes(auxilioId);
+                    carregarDados();
                 }, 1000);
             } catch (error) {
                 erroMsg.style.display = 'block';
@@ -1082,47 +1090,8 @@
             }
         });
 
-        async function editarAuxilio(id) {
-            const auxilio = auxilios.find(a => a.id === id);
-            if (!auxilio) return;
-
-            document.getElementById('modalTitulo').textContent = '✏️ Editar Auxílio';
-            document.getElementById('auxilioId').value = auxilio.id;
-            document.getElementById('periodo').value = auxilio.periodo;
-            document.getElementById('valor').value = auxilio.valor;
-            document.getElementById('dataInicio').value = auxilio.data_inicio;
-            document.getElementById('dias').value = auxilio.dias_totais;
-            document.getElementById('erroMsg').style.display = 'none';
-            document.getElementById('sucessoMsg').style.display = 'none';
-            document.getElementById('auxilioModal').style.display = 'flex';
-        }
-
-        async function excluirAuxilio(id) {
-            if (!confirm('⚠️ Tem certeza que deseja excluir este auxílio?')) return;
-            
-            try {
-                await supabase.from('meses').delete().eq('auxilio_id', id);
-                await supabase.from('gastos').delete().eq('auxilio_id', id);
-                const { error } = await supabase
-                    .from('auxilios')
-                    .delete()
-                    .eq('id', id)
-                    .eq('user_id', user.id);
-                if (error) throw error;
-                
-                alert('✅ Auxílio excluído!');
-                await carregarAuxilios();
-            } catch (error) {
-                alert('❌ Erro: ' + error.message);
-            }
-        }
-
-        document.getElementById('btnSair').addEventListener('click', async () => {
-            await logout();
-            window.location.href = 'login.html';
-        });
-
-        carregarAuxilios();
+        // ===== INICIAR =====
+        carregarDados();
     </script>
 </body>
 </html>
