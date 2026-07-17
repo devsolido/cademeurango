@@ -732,9 +732,11 @@
 
         async function carregarDados() {
             try {
+                console.log('🔄 Carregando dados...');
                 const sessao = await getSessao();
                 if (!sessao) { window.location.href = 'login.html'; return; }
                 user = sessao.user;
+                console.log('✅ Usuário logado:', user.email);
 
                 const { data: auxData, error: auxError } = await supabase
                     .from('auxilios')
@@ -744,6 +746,7 @@
 
                 if (auxError) throw auxError;
                 auxilios = auxData || [];
+                console.log('📦 Auxílios carregados:', auxilios.length);
 
                 const { data: mesesData, error: mesesError } = await supabase
                     .from('meses')
@@ -753,16 +756,19 @@
 
                 if (mesesError) throw mesesError;
                 meses = mesesData || [];
+                console.log('📦 Meses carregados:', meses.length);
 
                 renderizarMeses();
+                console.log('✅ Renderização concluída');
             } catch (error) {
-                console.error('Erro ao carregar:', error);
+                console.error('❌ Erro ao carregar:', error);
                 alert('Erro ao carregar dados: ' + error.message);
             }
         }
 
         function renderizarMeses() {
             const container = document.getElementById('listaMeses');
+            console.log('🔄 Renderizando meses. Total:', meses.length);
             
             if (meses.length === 0) {
                 container.innerHTML = `
@@ -806,6 +812,7 @@
         const excluirMesModalContent = document.getElementById('excluirMesModalContent');
 
         window.abrirExcluirMes = function(mesId) {
+            console.log('🗑️ Abrindo modal de exclusão para mês:', mesId);
             document.getElementById('excluirMesId').value = mesId;
             document.getElementById('justificativaMes').value = '';
             document.getElementById('erroExcluirMes').style.display = 'none';
@@ -843,6 +850,9 @@
             const justificativa = document.getElementById('justificativaMes').value.trim();
             const erroEl = document.getElementById('erroExcluirMes');
             
+            console.log('🔍 Iniciando exclusão do mês:', mesId);
+            console.log('📝 Justificativa:', justificativa);
+            
             if (!justificativa) {
                 erroEl.style.display = 'block';
                 erroEl.textContent = 'Por favor, informe uma justificativa';
@@ -850,10 +860,14 @@
             }
 
             try {
+                // Buscar dados do mês
                 const mes = meses.find(m => m.id === mesId);
                 if (!mes) throw new Error('Mês não encontrado');
+                console.log('📦 Mês encontrado:', mes.nome);
 
-                await supabase.from('historico_exclusao_meses').insert({
+                // 1. Salvar no histórico
+                console.log('📝 Salvando no histórico...');
+                const { error: histError } = await supabase.from('historico_exclusao_meses').insert({
                     user_id: user.id,
                     mes_id: mesId,
                     nome: mes.nome,
@@ -862,27 +876,41 @@
                     data_inicio: mes.data_inicio,
                     justificativa: justificativa
                 });
+                if (histError) throw histError;
+                console.log('✅ Histórico salvo');
 
-                await supabase.from('gastos').delete().eq('mes_id', mesId);
+                // 2. Excluir gastos
+                console.log('🗑️ Excluindo gastos do mês...');
+                const { error: gastosError } = await supabase
+                    .from('gastos')
+                    .delete()
+                    .eq('mes_id', mesId);
+                if (gastosError) throw gastosError;
+                console.log('✅ Gastos excluídos');
 
-                const { error } = await supabase
+                // 3. Excluir o mês
+                console.log('🗑️ Excluindo mês...');
+                const { error: mesError } = await supabase
                     .from('meses')
                     .delete()
                     .eq('id', mesId)
                     .eq('user_id', user.id);
+                if (mesError) throw mesError;
+                console.log('✅ Mês excluído');
 
-                if (error) throw error;
-
+                // 4. Fechar modal
                 excluirMesModal.style.display = 'none';
                 document.body.style.overflow = '';
                 
-                // ===== RECARREGAR A PÁGINA FORÇADAMENTE =====
+                // 5. Recarregar a página
+                console.log('🔄 Recarregando página...');
+                alert('✅ Mês excluído com sucesso!');
                 window.location.reload();
                 
             } catch (error) {
+                console.error('❌ Erro na exclusão:', error);
                 erroEl.style.display = 'block';
                 erroEl.textContent = error.message || 'Erro ao excluir mês';
-                console.error('Erro detalhado:', error);
             }
         });
 
@@ -1062,6 +1090,7 @@
             }
         });
 
+        console.log('🚀 Iniciando aplicação...');
         carregarDados();
     </script>
 </body>
