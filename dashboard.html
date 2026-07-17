@@ -451,7 +451,8 @@
         <div class="nav-links" id="navLinks">
             <a href="#" id="btnNovoGasto" class="btn-nav">+ Novo Gasto</a>
             <a href="meus-auxilios.html">Meus Auxílios</a>
-<a href="/calendario-academico.pdf" target="_blank" class="btn-pdf-calendario">📅 Calendário</a>            <a href="#" id="btnSair" class="btn-sair">Sair</a>
+            <a href="/calendario-academico.pdf" target="_blank" class="btn-pdf-calendario">📅 Calendário</a>
+            <a href="#" id="btnSair" class="btn-sair">Sair</a>
         </div>
     </nav>
 
@@ -828,9 +829,30 @@
                 }
             }
 
+            // ===== BUSCAR MÊS ATIVO =====
+            let mesId = null;
+            try {
+                const { data: mesData } = await supabase
+                    .from('meses')
+                    .select('id')
+                    .eq('auxilio_id', auxilio.id)
+                    .eq('ativo', true)
+                    .limit(1);
+                
+                if (mesData && mesData.length > 0) {
+                    mesId = mesData[0].id;
+                    console.log('📅 Mês ativo encontrado:', mesId);
+                } else {
+                    console.log('⚠️ Nenhum mês ativo encontrado para este auxílio');
+                }
+            } catch (err) {
+                console.error('Erro ao buscar mês ativo:', err);
+            }
+
             await supabase.from('gastos').insert({
                 user_id: user.id,
                 auxilio_id: auxilio.id,
+                mes_id: mesId,  // <-- ADICIONADO
                 valor: valor,
                 data_gasto: data,
                 local: local,
