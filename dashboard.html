@@ -371,6 +371,14 @@
             color: #555;
         }
 
+        /* ===== NOVO CARD SOBRA ===== */
+        .card-sobra {
+            border-left: 4px solid #3B82F6;
+        }
+        .card-sobra .valor {
+            color: #3B82F6;
+        }
+
         @media (max-width: 768px) {
             .menu-toggle { display: flex; }
             .nav-links {
@@ -470,7 +478,7 @@
                     <h3>Status do Rango</h3>
                     <div class="status-text" id="statusTexto">Nenhum gasto registrado ainda</div>
                 </div>
-                <div class="card">
+                <div class="card card-sobra">
                     <div class="icon">💰</div>
                     <h3>Saldo Atual</h3>
                     <div class="valor" id="saldoAtual">R$ 0,00</div>
@@ -631,14 +639,19 @@
 
         function atualizarDashboard() {
             const totalGasto = gastos.reduce((s, g) => s + g.valor, 0);
-            const saldo = auxilio.valor - totalGasto;
+            
+            // ===== SALDO ATUAL (já considera todos os gastos) =====
+            const saldoAtual = auxilio.valor - totalGasto;
 
+            // ===== DIAS RESTANTES =====
             const diasComGastos = new Set();
             gastos.forEach(g => diasComGastos.add(g.data_gasto));
             const diasRestantes = Math.max(0, auxilio.dias_totais - diasComGastos.size);
-            const mediaPorDia = diasRestantes > 0 ? saldo / diasRestantes : 0;
+            
+            // ===== MÉDIA POR DIA =====
+            const mediaPorDia = diasRestantes > 0 ? saldoAtual / diasRestantes : 0;
 
-            document.getElementById('saldoAtual').textContent = `R$ ${saldo.toFixed(2)}`;
+            document.getElementById('saldoAtual').textContent = `R$ ${saldoAtual.toFixed(2)}`;
             document.getElementById('diasRestantes').textContent = diasRestantes;
             document.getElementById('mediaDiaria').textContent = `R$ ${mediaPorDia.toFixed(2)}`;
 
@@ -839,7 +852,6 @@
             
             let mesId = null;
             try {
-                // Buscar mês correspondente à data
                 const { data: mesData, error: mesError } = await supabase
                     .from('meses')
                     .select('id')
@@ -851,7 +863,6 @@
                     mesId = mesData[0].id;
                     console.log(`📅 Mês encontrado para ${nomeMes}:`, mesId);
                 } else {
-                    // Se não encontrar, buscar mês ativo
                     const { data: mesAtivo } = await supabase
                         .from('meses')
                         .select('id')
@@ -870,7 +881,6 @@
                 console.error('Erro ao buscar mês:', err);
             }
 
-            // ===== INSERIR GASTO =====
             await supabase.from('gastos').insert({
                 user_id: user.id,
                 auxilio_id: auxilio.id,
