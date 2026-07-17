@@ -146,7 +146,8 @@
             margin-bottom: var(--space-4);
         }
 
-        .form-group input {
+        .form-group input,
+        .form-group select {
             width: 100%;
             padding: 10px 14px;
             background: rgba(255, 255, 255, 0.04);
@@ -159,11 +160,17 @@
             outline: none;
         }
 
+        .form-group select option {
+            background: var(--card);
+            color: var(--text);
+        }
+
         .form-group input::placeholder {
             color: #555;
         }
 
-        .form-group input:focus {
+        .form-group input:focus,
+        .form-group select:focus {
             border-color: var(--primary);
             background: rgba(255, 255, 255, 0.06);
             box-shadow: 0 0 20px rgba(34, 197, 94, 0.08);
@@ -289,7 +296,8 @@
             .logo h1 {
                 font-size: 20px;
             }
-            .form-group input {
+            .form-group input,
+            .form-group select {
                 padding: 8px 12px;
                 font-size: 13px;
             }
@@ -330,7 +338,8 @@
             .form-group {
                 margin-bottom: var(--space-8);
             }
-            .form-group input {
+            .form-group input,
+            .form-group select {
                 padding: 6px 10px;
                 font-size: 13px;
             }
@@ -369,8 +378,22 @@
         <!-- ===== FORMULÁRIO ===== -->
         <form id="auxilioForm">
             <div class="form-group">
-                <label>Período (Ex: Agosto/2026)</label>
-                <input type="text" id="periodo" placeholder="Ex: Agosto/2026" required>
+                <label>Mês de Referência</label>
+                <select id="mesReferencia" required>
+                    <option value="">Selecione o mês</option>
+                    <option value="Janeiro/2026">Janeiro/2026</option>
+                    <option value="Fevereiro/2026">Fevereiro/2026</option>
+                    <option value="Março/2026">Março/2026</option>
+                    <option value="Abril/2026">Abril/2026</option>
+                    <option value="Maio/2026">Maio/2026</option>
+                    <option value="Junho/2026">Junho/2026</option>
+                    <option value="Julho/2026">Julho/2026</option>
+                    <option value="Agosto/2026">Agosto/2026</option>
+                    <option value="Setembro/2026">Setembro/2026</option>
+                    <option value="Outubro/2026">Outubro/2026</option>
+                    <option value="Novembro/2026">Novembro/2026</option>
+                    <option value="Dezembro/2026">Dezembro/2026</option>
+                </select>
             </div>
 
             <div class="form-group">
@@ -411,8 +434,8 @@
         document.getElementById('auxilioForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            const mesReferencia = document.getElementById('mesReferencia').value;
             const valor = parseFloat(document.getElementById('valor').value);
-            const periodo = document.getElementById('periodo').value;
             const dataInicio = document.getElementById('dataInicio').value;
             const dias = parseInt(document.getElementById('dias').value);
             const erroMsg = document.getElementById('erroMsg');
@@ -421,13 +444,19 @@
             erroMsg.style.display = 'none';
             sucessoMsg.style.display = 'none';
 
+            if (!mesReferencia) {
+                erroMsg.style.display = 'block';
+                erroMsg.textContent = 'Por favor, selecione o mês de referência';
+                return;
+            }
+
             try {
                 const sessao = await getSessao();
                 if (!sessao) { window.location.href = 'login.html'; return; }
 
                 const { data, error } = await supabase.from('auxilios').insert({
                     user_id: sessao.user.id,
-                    periodo: periodo,
+                    periodo: mesReferencia,
                     valor: valor,
                     data_inicio: dataInicio,
                     dias_totais: dias,
