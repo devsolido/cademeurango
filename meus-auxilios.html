@@ -846,8 +846,7 @@
         }
 
         // ===== VER MESES DO AUXÍLIO =====
-        async function verMeses(auxilioId) {
-            auxilioSelecionado = auxilios.find(a => a.id === auxilioId);
+window.verMeses = async function(auxilioId) {            auxilioSelecionado = auxilios.find(a => a.id === auxilioId);
             if (!auxilioSelecionado) return;
 
             const mesesAuxilio = meses.filter(m => m.auxilio_id === auxilioId);
@@ -965,7 +964,7 @@
         }
 
         // ===== FUNÇÕES DO MODAL MÊS =====
-        function abrirMesModal(auxilioId) {
+        window.abrirMesModal = function(auxilioId) {
             const auxilio = auxilios.find(a => a.id === auxilioId);
             if (!auxilio) return;
 
@@ -1073,7 +1072,7 @@
         });
 
         // ===== EDIÇÃO DE AUXÍLIO =====
-        async function editarAuxilio(id) {
+        window.editarAuxilio = async function(id) {
             const auxilio = auxilios.find(a => a.id === id);
             if (!auxilio) return;
 
@@ -1089,7 +1088,7 @@
         }
 
         // ===== EXCLUIR AUXÍLIO =====
-        async function excluirAuxilio(id) {
+       window.excluirAuxilio = async function(id) {
             if (!confirm('⚠️ Tem certeza que deseja excluir este auxílio? Todos os meses e gastos serão perdidos!')) return;
             
             try {
