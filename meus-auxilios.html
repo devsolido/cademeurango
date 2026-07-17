@@ -1,3 +1,12 @@
+## ✅ `meus-auxilios.html` CORRIGIDO - SELECT VISÍVEL
+
+---
+
+### 📁 **ARQUIVO: `meus-auxilios.html`** (Raiz do projeto)
+
+**Substitua TODO o conteúdo por este:**
+
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -402,7 +411,7 @@
         .modal-content .form-group textarea {
             width: 100%;
             padding: 10px 14px;
-            background: rgba(255,255,255,0.04);
+            background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
             color: var(--text);
@@ -415,7 +424,7 @@
         .modal-content .form-group select:focus,
         .modal-content .form-group textarea:focus {
             border-color: var(--primary);
-            background: rgba(255,255,255,0.06);
+            background: rgba(255, 255, 255, 0.06);
             box-shadow: 0 0 20px rgba(34, 197, 94, 0.08);
         }
         .modal-content .form-group textarea {
@@ -521,6 +530,49 @@
             font-size: 14px;
         }
 
+        /* ===== FIX SELECT DROPDOWN ===== */
+        select option {
+            background: #1a1a1a !important;
+            color: #ffffff !important;
+            padding: 8px 12px;
+        }
+
+        select option:checked {
+            background: #22C55E !important;
+            color: #ffffff !important;
+        }
+
+        select option:hover {
+            background: #16A34A !important;
+            color: #ffffff !important;
+        }
+
+        select {
+            background: #1a1a1a !important;
+            color: #ffffff !important;
+        }
+
+        select:focus {
+            background: #1a1a1a !important;
+            color: #ffffff !important;
+        }
+
+        .modal-content .form-group select option {
+            background: #1a1a1a !important;
+            color: #ffffff !important;
+            padding: 8px 12px;
+        }
+
+        .modal-content .form-group select option:checked {
+            background: var(--primary) !important;
+            color: #ffffff !important;
+        }
+
+        .modal-content .form-group select option:hover {
+            background: var(--primary-hover) !important;
+            color: #ffffff !important;
+        }
+
         @media (max-width: 768px) {
             .menu-toggle { display: flex; }
             .nav-links {
@@ -611,7 +663,7 @@
         </div>
     </div>
 
-    <!-- MODAL AUXÍLIO - COM CAMPO "Nome do Auxílio" -->
+    <!-- MODAL AUXÍLIO -->
     <div class="modal" id="auxilioModal">
         <div class="modal-content">
             <span class="close" id="fecharModal">&times;</span>
@@ -738,7 +790,6 @@
         let gastos = [];
         let auxilioSelecionado = null;
 
-        // ===== FUNÇÃO: ABRIR MODAL AUXÍLIO =====
         window.abrirModalAuxilio = function() {
             document.getElementById('modalTitulo').textContent = '📝 Cadastrar Auxílio';
             document.getElementById('auxilioId').value = '';
@@ -751,7 +802,6 @@
             document.getElementById('auxilioModal').style.display = 'flex';
         };
 
-        // ===== CARREGAR DADOS =====
         async function carregarDados() {
             try {
                 console.log('🔄 Carregando dados...');
@@ -788,7 +838,6 @@
             }
         }
 
-        // ===== RENDERIZAR AUXÍLIOS =====
         function renderizarAuxilios() {
             const container = document.getElementById('listaAuxilios');
             
@@ -833,7 +882,6 @@
             }).join('');
         }
 
-        // ===== VER MESES DO AUXÍLIO =====
         window.verMeses = async function(auxilioId) {
             auxilioSelecionado = auxilios.find(a => a.id === auxilioId);
             if (!auxilioSelecionado) return;
@@ -847,9 +895,9 @@
             container.innerHTML = `
                 <div class="header-actions" style="margin-top:0;">
                     <h2 style="font-size:20px; color:var(--primary);">📅 ${auxilioSelecionado.periodo}</h2>
-                   <div style="display:flex; gap:var(--space-8); flex-wrap:wrap;">
-    <button class="btn-primary" onclick="abrirMesModal('${auxilioId}')">+ Adicionar Mês</button>
-</div>
+                    <div style="display:flex; gap:var(--space-8); flex-wrap:wrap;">
+                        <button class="btn-primary" onclick="abrirMesModal('${auxilioId}')">+ Adicionar Mês</button>
+                    </div>
                 </div>
                 <div style="display:flex; gap:var(--space-16); flex-wrap:wrap; margin-bottom:var(--space-24);">
                     <div class="resumo-item" style="flex:1; min-width:100px;">
@@ -888,7 +936,6 @@
             };
         };
 
-        // ===== ADICIONAR PRÓXIMO MÊS AUTOMATICAMENTE =====
         window.adicionarProximoMes = async function(auxilioId) {
             const auxilio = auxilios.find(a => a.id === auxilioId);
             if (!auxilio) {
@@ -933,7 +980,6 @@
             document.getElementById('mesModal').style.display = 'flex';
         };
 
-        // ===== VER DETALHES DOS GASTOS DO MÊS =====
         window.verDetalhesMes = async function(mesId) {
             const mes = meses.find(m => m.id === mesId);
             if (!mes) return;
@@ -998,7 +1044,6 @@
             };
         };
 
-        // ===== FUNÇÕES DO MODAL MÊS =====
         window.abrirMesModal = function(auxilioId) {
             const auxilio = auxilios.find(a => a.id === auxilioId);
             if (!auxilio) return;
@@ -1021,7 +1066,6 @@
             document.getElementById('mesModal').style.display = 'flex';
         };
 
-        // ===== EXCLUIR MÊS =====
         const excluirMesModal = document.getElementById('excluirMesModal');
         const excluirMesModalContent = document.getElementById('excluirMesModalContent');
 
@@ -1106,7 +1150,6 @@
             }
         });
 
-        // ===== EDIÇÃO DE AUXÍLIO =====
         window.editarAuxilio = async function(id) {
             const auxilio = auxilios.find(a => a.id === id);
             if (!auxilio) return;
@@ -1122,7 +1165,6 @@
             document.getElementById('auxilioModal').style.display = 'flex';
         };
 
-        // ===== EXCLUIR AUXÍLIO =====
         window.excluirAuxilio = async function(id) {
             if (!confirm('⚠️ Tem certeza que deseja excluir este auxílio? Todos os meses e gastos serão perdidos!')) return;
             
@@ -1143,7 +1185,6 @@
             }
         };
 
-        // ===== EVENTOS =====
         document.getElementById('btnNovoAuxilio').addEventListener('click', abrirModalAuxilio);
         document.getElementById('fecharModal').addEventListener('click', () => document.getElementById('auxilioModal').style.display = 'none');
         document.getElementById('auxilioModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.style.display = 'none'; });
@@ -1153,7 +1194,6 @@
 
         document.getElementById('fecharExcluirMesModal').addEventListener('click', () => document.getElementById('excluirMesModal').style.display = 'none');
 
-        // ===== FORMULÁRIO AUXÍLIO =====
         document.getElementById('auxilioForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -1201,7 +1241,6 @@
             }
         });
 
-        // ===== FORMULÁRIO MÊS =====
         document.getElementById('mesForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -1260,3 +1299,4 @@
     </script>
 </body>
 </html>
+```
