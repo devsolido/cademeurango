@@ -529,7 +529,6 @@
         </div>
     </div>
 
-    <!-- ===== MODAL: EXCLUIR GASTO ===== -->
     <div class="modal" id="excluirModal">
         <div class="modal-content" id="excluirModalContent">
             <span class="close" id="fecharExcluirModal">&times;</span>
@@ -573,8 +572,8 @@
         let graficoSaldo = null;
         let graficoGastos = null;
 
-        // ===== CARREGAR DADOS =====
-        async function carregarDados() {
+        // ===== CARREGAR DADOS COM FORCE REFRESH =====
+        async function carregarDados(forceRefresh = false) {
             const sessao = await getSessao();
             if (!sessao) { window.location.href = 'login.html'; return; }
             user = sessao.user;
@@ -596,7 +595,6 @@
             document.getElementById('semAuxilio').style.display = 'none';
             document.getElementById('dashboardPrincipal').style.display = 'block';
 
-            // Recarregar gastos do banco
             const { data: gastosData } = await supabase
                 .from('gastos')
                 .select('*')
@@ -605,7 +603,16 @@
 
             gastos = gastosData || [];
             
-            // Atualizar tudo
+            // Destruir gráficos antigos para recriar
+            if (graficoSaldo) {
+                graficoSaldo.destroy();
+                graficoSaldo = null;
+            }
+            if (graficoGastos) {
+                graficoGastos.destroy();
+                graficoGastos = null;
+            }
+            
             atualizarDashboard();
             atualizarGraficos();
         }
@@ -649,7 +656,6 @@
                 cardEl.style.borderLeftColor = '#e53935';
             }
 
-            // ===== ATUALIZAR LISTA DE GASTOS =====
             const lista = document.getElementById('listaGastos');
             if (gastos.length === 0) {
                 lista.innerHTML = '<div class="empty-state">Nenhum gasto registrado</div>';
@@ -674,8 +680,6 @@
         // ===== ATUALIZAR GRÁFICOS =====
         function atualizarGraficos() {
             if (gastos.length === 0) {
-                if (graficoSaldo) { graficoSaldo.destroy(); graficoSaldo = null; }
-                if (graficoGastos) { graficoGastos.destroy(); graficoGastos = null; }
                 return;
             }
 
@@ -829,7 +833,7 @@
 
             modal.style.display = 'none';
             document.getElementById('gastoForm').reset();
-            await carregarDados(); // Recarrega tudo
+            await carregarDados(true);
         });
 
         // ===== MODAL EXCLUIR GASTO =====
@@ -905,7 +909,7 @@
                 excluirModal.style.display = 'none';
                 document.body.style.overflow = '';
                 alert('✅ Gasto excluído com sucesso! Justificativa registrada.');
-                await carregarDados(); // Recarrega tudo
+                await carregarDados(true);
             } catch (error) {
                 erroEl.style.display = 'block';
                 erroEl.textContent = error.message || 'Erro ao excluir gasto';
@@ -920,4 +924,4 @@
         carregarDados();
     </script>
 </body>
-</html>
+</html> 
