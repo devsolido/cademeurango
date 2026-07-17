@@ -176,6 +176,12 @@
             box-shadow: 0 0 20px rgba(34, 197, 94, 0.08);
         }
 
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-16);
+        }
+
         .btn-primary {
             width: 100%;
             padding: 12px 24px;
@@ -277,6 +283,9 @@
             .info-box p {
                 font-size: 12px;
             }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
             .btn-primary {
                 padding: 10px 20px;
                 font-size: 15px;
@@ -373,14 +382,15 @@
             <p>📌 <strong>Valor padrão:</strong> R$ 440,00</p>
             <p>📅 <strong>Dias padrão:</strong> 22 dias</p>
             <p>💰 <strong>Média:</strong> R$ 20,00 por dia</p>
+            <p style="margin-top:var(--space-8); color:var(--primary);">📌 O primeiro mês será criado automaticamente!</p>
         </div>
 
         <!-- ===== FORMULÁRIO ===== -->
         <form id="auxilioForm">
             <div class="form-group">
-                <label>Mês de Referência</label>
-                <select id="mesReferencia" required>
-                    <option value="">Selecione o mês</option>
+                <label>Período do Auxílio</label>
+                <select id="periodo" required>
+                    <option value="">Selecione o período</option>
                     <option value="Janeiro/2026">Janeiro/2026</option>
                     <option value="Fevereiro/2026">Fevereiro/2026</option>
                     <option value="Março/2026">Março/2026</option>
@@ -401,20 +411,63 @@
                 <input type="number" id="valor" value="440" step="0.01" required>
             </div>
 
-            <div class="form-group">
-                <label>Data de Início</label>
-                <input type="date" id="dataInicio" required>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Data de Início</label>
+                    <input type="date" id="dataInicio" required>
+                </div>
+                <div class="form-group">
+                    <label>Dias Totais</label>
+                    <input type="number" id="dias" value="22" min="1" required>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label>Quantidade de Dias</label>
-                <input type="number" id="dias" value="22" min="1" required>
+            <!-- Campos para o primeiro mês -->
+            <div style="border-top: 1px solid var(--border); padding-top: var(--space-16); margin-top: var(--space-8);">
+                <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: var(--space-16);">
+                    📅 <strong>Primeiro Mês de Acompanhamento</strong>
+                </p>
+
+                <div class="form-group">
+                    <label>Mês de Acompanhamento</label>
+                    <select id="mesAcompanhamento" required>
+                        <option value="">Selecione o mês</option>
+                        <option value="Janeiro">Janeiro</option>
+                        <option value="Fevereiro">Fevereiro</option>
+                        <option value="Março">Março</option>
+                        <option value="Abril">Abril</option>
+                        <option value="Maio">Maio</option>
+                        <option value="Junho">Junho</option>
+                        <option value="Julho">Julho</option>
+                        <option value="Agosto">Agosto</option>
+                        <option value="Setembro">Setembro</option>
+                        <option value="Outubro">Outubro</option>
+                        <option value="Novembro">Novembro</option>
+                        <option value="Dezembro">Dezembro</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Valor do Mês (R$)</label>
+                        <input type="number" id="mesValor" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Dias do Mês</label>
+                        <input type="number" id="mesDias" value="22" min="1" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Data de Início do Mês</label>
+                    <input type="date" id="mesDataInicio" required>
+                </div>
             </div>
 
-            <div class="erro" id="erroMsg">Erro ao cadastrar auxílio</div>
-            <div class="sucesso" id="sucessoMsg">✅ Auxílio cadastrado com sucesso!</div>
+            <div class="erro" id="erroMsg">Erro ao cadastrar</div>
+            <div class="sucesso" id="sucessoMsg">✅ Cadastrado com sucesso!</div>
 
-            <button type="submit" class="btn-primary">💾 Cadastrar Auxílio</button>
+            <button type="submit" class="btn-primary">💾 Cadastrar Auxílio + Mês</button>
             <button type="button" class="btn-secondary" onclick="window.location.href='dashboard.html'">← Voltar ao Dashboard</button>
         </form>
 
@@ -428,25 +481,49 @@
         import { supabase } from './js/config.js';
         import { getSessao } from './js/auth.js';
 
-        // Data atual no input
-        document.getElementById('dataInicio').value = new Date().toISOString().split('T')[0];
+        // Datas padrão
+        const hoje = new Date();
+        document.getElementById('dataInicio').value = hoje.toISOString().split('T')[0];
+        document.getElementById('mesDataInicio').value = hoje.toISOString().split('T')[0];
+
+        // Atualizar valor do mês automaticamente
+        document.getElementById('valor').addEventListener('input', function() {
+            document.getElementById('mesValor').value = this.value;
+        });
+
+        // Atualizar dias do mês automaticamente
+        document.getElementById('dias').addEventListener('input', function() {
+            document.getElementById('mesDias').value = this.value;
+        });
 
         document.getElementById('auxilioForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const mesReferencia = document.getElementById('mesReferencia').value;
+            const periodo = document.getElementById('periodo').value;
             const valor = parseFloat(document.getElementById('valor').value);
             const dataInicio = document.getElementById('dataInicio').value;
             const dias = parseInt(document.getElementById('dias').value);
+            
+            const mesNome = document.getElementById('mesAcompanhamento').value;
+            const mesValor = parseFloat(document.getElementById('mesValor').value);
+            const mesDias = parseInt(document.getElementById('mesDias').value);
+            const mesDataInicio = document.getElementById('mesDataInicio').value;
+            
             const erroMsg = document.getElementById('erroMsg');
             const sucessoMsg = document.getElementById('sucessoMsg');
             
             erroMsg.style.display = 'none';
             sucessoMsg.style.display = 'none';
 
-            if (!mesReferencia) {
+            if (!periodo) {
                 erroMsg.style.display = 'block';
-                erroMsg.textContent = 'Por favor, selecione o mês de referência';
+                erroMsg.textContent = 'Selecione o período do auxílio';
+                return;
+            }
+
+            if (!mesNome) {
+                erroMsg.style.display = 'block';
+                erroMsg.textContent = 'Selecione o mês de acompanhamento';
                 return;
             }
 
@@ -454,23 +531,41 @@
                 const sessao = await getSessao();
                 if (!sessao) { window.location.href = 'login.html'; return; }
 
-                const { data, error } = await supabase.from('auxilios').insert({
+                // 1. Criar o auxílio
+                const { data: auxData, error: auxError } = await supabase.from('auxilios').insert({
                     user_id: sessao.user.id,
-                    periodo: mesReferencia,
+                    periodo: periodo,
                     valor: valor,
                     data_inicio: dataInicio,
                     dias_totais: dias,
                     saldo_inicial: valor
+                }).select();
+
+                if (auxError) throw auxError;
+
+                const auxilioId = auxData[0].id;
+
+                // 2. Criar o primeiro mês
+                const mesNomeCompleto = `${mesNome}/${periodo.split('/')[1]}`;
+                const { error: mesError } = await supabase.from('meses').insert({
+                    user_id: sessao.user.id,
+                    auxilio_id: auxilioId,
+                    nome: mesNomeCompleto,
+                    valor_mensal: mesValor,
+                    dias_mes: mesDias,
+                    saldo_inicial_mes: mesValor,
+                    data_inicio: mesDataInicio,
+                    ativo: true
                 });
 
-                if (error) throw error;
+                if (mesError) throw mesError;
 
                 sucessoMsg.style.display = 'block';
-                sucessoMsg.textContent = '✅ Auxílio cadastrado! Redirecionando...';
+                sucessoMsg.textContent = '✅ Auxílio e mês cadastrados! Redirecionando...';
                 setTimeout(() => window.location.href = 'dashboard.html', 1500);
             } catch (error) {
                 erroMsg.style.display = 'block';
-                erroMsg.textContent = error.message || 'Erro ao cadastrar auxílio';
+                erroMsg.textContent = error.message || 'Erro ao cadastrar';
                 console.error('Erro:', error);
             }
         });
