@@ -6,31 +6,63 @@
     <title>Login - Cadê Meu Rango? 🍽️</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* ===== VARIÁVEIS PADRONIZADAS ===== */
+        :root {
+            --primary: #22C55E;
+            --primary-hover: #16A34A;
+            --success: #22C55E;
+            --danger: #EF4444;
+            --info: #3B82F6;
+            --warning: #F59E0B;
+            --background: #0D0D0D;
+            --card: #181818;
+            --border: #2B2B2B;
+            --text: #FFFFFF;
+            --text-secondary: #A1A1AA;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 8px 30px rgba(0,0,0,0.4);
+            --transition: all 0.3s ease;
+            
+            /* Espaçamentos */
+            --space-4: 4px;
+            --space-8: 8px;
+            --space-16: 16px;
+            --space-24: 24px;
+            --space-32: 32px;
+            --space-48: 48px;
+            --space-64: 64px;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #0a0a0a;
+            background: var(--background);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: var(--space-24);
         }
+
+        /* ===== CONTAINER ===== */
         .login-container {
             max-width: 420px;
             width: 100%;
-            background: linear-gradient(145deg, #0d0d0d 0%, #1a1a1a 100%);
-            border-radius: 20px;
-            padding: 48px 40px;
-            border: 1px solid rgba(46, 125, 50, 0.15);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(46, 125, 50, 0.05);
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: var(--space-48) var(--space-40);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
             position: relative;
             overflow: hidden;
         }
+
         .login-container::before {
             content: '';
             position: absolute;
@@ -38,9 +70,10 @@
             right: -50%;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at 70% 30%, rgba(46, 125, 50, 0.06) 0%, transparent 70%);
+            background: radial-gradient(circle at 70% 30%, rgba(34, 197, 94, 0.06) 0%, transparent 70%);
             pointer-events: none;
         }
+
         .login-container::after {
             content: '';
             position: absolute;
@@ -48,140 +81,164 @@
             left: -50%;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at 30% 70%, rgba(0, 150, 136, 0.04) 0%, transparent 70%);
+            background: radial-gradient(circle at 30% 70%, rgba(59, 130, 246, 0.04) 0%, transparent 70%);
             pointer-events: none;
         }
+
+        /* ===== LOGO ===== */
         .logo {
             text-align: center;
-            margin-bottom: 36px;
+            margin-bottom: var(--space-32);
             position: relative;
             z-index: 1;
         }
+
         .logo h1 {
-            font-size: 30px;
-            font-weight: 800;
-            color: #ffffff;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text);
             letter-spacing: -0.5px;
         }
+
         .logo h1 span {
-            color: #2E7D32;
+            color: var(--primary);
         }
+
         .logo p {
-            color: #888888;
+            color: var(--text-secondary);
             font-size: 14px;
-            margin-top: 4px;
+            margin-top: var(--space-4);
             font-weight: 400;
         }
+
         .divider {
             width: 50px;
             height: 3px;
-            background: linear-gradient(90deg, #2E7D32, #00BFA5);
+            background: var(--primary);
             border-radius: 4px;
-            margin: 0 auto 32px;
+            margin: 0 auto var(--space-32);
         }
+
+        /* ===== FORMULÁRIO ===== */
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: var(--space-20);
             position: relative;
             z-index: 1;
         }
+
         .form-group label {
             display: block;
-            color: #b0b0b0;
-            font-size: 13px;
+            color: var(--text-secondary);
+            font-size: 14px;
             font-weight: 500;
-            margin-bottom: 6px;
-            letter-spacing: 0.3px;
+            margin-bottom: var(--space-8);
         }
+
         .form-group input {
             width: 100%;
             padding: 14px 16px;
             background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            color: #ffffff;
-            font-size: 15px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-size: 16px;
             font-family: 'Inter', sans-serif;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             outline: none;
         }
+
         .form-group input::placeholder {
             color: #555555;
         }
+
         .form-group input:focus {
-            border-color: #2E7D32;
+            border-color: var(--primary);
             background: rgba(255, 255, 255, 0.06);
-            box-shadow: 0 0 20px rgba(46, 125, 50, 0.08);
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.08);
         }
-        .btn-login {
+
+        /* ===== BOTÕES PADRONIZADOS ===== */
+        .btn-primary {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #1a472a 0%, #2E7D32 50%, #00BFA5 100%);
-            color: #ffffff;
+            padding: 12px 24px;
+            background: var(--primary);
+            color: var(--text);
             border: none;
-            border-radius: 12px;
+            border-radius: var(--radius-sm);
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 20px rgba(46, 125, 50, 0.2);
+            transition: var(--transition);
             font-family: 'Inter', sans-serif;
-            margin-top: 8px;
-            position: relative;
-            z-index: 1;
+            height: 48px;
         }
-        .btn-login:hover {
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
             transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(46, 125, 50, 0.35);
+            box-shadow: 0 8px 30px rgba(34, 197, 94, 0.35);
         }
-        .btn-login:active {
+
+        .btn-primary:active {
             transform: translateY(0);
         }
+
+        /* ===== LINKS ===== */
         .links {
             text-align: center;
-            margin-top: 24px;
+            margin-top: var(--space-24);
             position: relative;
             z-index: 1;
         }
+
         .links a {
-            color: #888888;
+            color: var(--text-secondary);
             text-decoration: none;
             font-size: 14px;
-            transition: color 0.3s ease;
-            margin: 0 8px;
+            transition: var(--transition);
+            margin: 0 var(--space-8);
         }
+
         .links a:hover {
-            color: #2E7D32;
+            color: var(--primary);
         }
+
         .links .separator {
-            color: #333333;
-            margin: 0 4px;
+            color: var(--border);
+            margin: 0 var(--space-4);
         }
+
+        /* ===== MENSAGENS ===== */
         .erro {
-            color: #e53935;
+            color: var(--danger);
             text-align: center;
-            font-size: 13px;
-            margin-top: 12px;
+            font-size: 14px;
+            margin-top: var(--space-12);
             display: none;
             position: relative;
             z-index: 1;
         }
+
+        /* ===== RODAPÉ ===== */
         .footer-text {
             text-align: center;
-            margin-top: 28px;
+            margin-top: var(--space-32);
             color: #444444;
-            font-size: 11px;
+            font-size: 12px;
             position: relative;
             z-index: 1;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.04);
-        }
-        .footer-text span {
-            color: #2E7D32;
+            padding-top: var(--space-20);
+            border-top: 1px solid var(--border);
         }
 
+        .footer-text span {
+            color: var(--primary);
+        }
+
+        /* ===== RESPONSIVIDADE ===== */
         @media (max-width: 768px) {
             .login-container {
-                padding: 36px 28px;
+                padding: var(--space-32) var(--space-24);
                 max-width: 380px;
             }
             .logo h1 {
@@ -191,9 +248,9 @@
 
         @media (max-width: 480px) {
             .login-container {
-                padding: 28px 18px;
-                border-radius: 16px;
-                margin: 10px;
+                padding: var(--space-24) var(--space-16);
+                border-radius: var(--radius-sm);
+                margin: var(--space-8);
                 max-width: 100%;
             }
             .logo h1 {
@@ -203,10 +260,10 @@
                 font-size: 12px;
             }
             .logo {
-                margin-bottom: 28px;
+                margin-bottom: var(--space-24);
             }
             .form-group {
-                margin-bottom: 16px;
+                margin-bottom: var(--space-16);
             }
             .form-group label {
                 font-size: 12px;
@@ -214,32 +271,31 @@
             .form-group input {
                 padding: 12px 14px;
                 font-size: 14px;
-                border-radius: 10px;
             }
-            .btn-login {
-                padding: 12px;
+            .btn-primary {
+                padding: 10px 20px;
                 font-size: 15px;
-                border-radius: 10px;
+                height: 44px;
             }
             .links a {
                 font-size: 13px;
             }
             .divider {
                 width: 40px;
-                margin-bottom: 24px;
+                margin-bottom: var(--space-24);
             }
             .footer-text {
                 font-size: 10px;
-                margin-top: 24px;
-                padding-top: 16px;
+                margin-top: var(--space-24);
+                padding-top: var(--space-16);
             }
         }
 
         @media (max-width: 360px) {
             .login-container {
-                padding: 20px 14px;
-                border-radius: 12px;
-                margin: 6px;
+                padding: var(--space-16) var(--space-12);
+                border-radius: var(--radius-sm);
+                margin: var(--space-4);
             }
             .logo h1 {
                 font-size: 20px;
@@ -248,24 +304,25 @@
                 font-size: 10px;
             }
             .logo {
-                margin-bottom: 20px;
+                margin-bottom: var(--space-16);
             }
             .form-group {
-                margin-bottom: 12px;
+                margin-bottom: var(--space-12);
             }
             .form-group input {
                 padding: 10px 12px;
                 font-size: 13px;
             }
-            .btn-login {
-                padding: 10px;
+            .btn-primary {
+                padding: 8px 16px;
                 font-size: 14px;
+                height: 40px;
             }
             .links {
                 display: flex;
                 flex-direction: column;
-                gap: 6px;
-                margin-top: 18px;
+                gap: var(--space-8);
+                margin-top: var(--space-16);
             }
             .links .separator {
                 display: none;
@@ -275,19 +332,18 @@
             }
             .divider {
                 width: 32px;
-                margin-bottom: 18px;
+                margin-bottom: var(--space-16);
             }
             .footer-text {
                 font-size: 9px;
-                margin-top: 18px;
-                padding-top: 14px;
+                margin-top: var(--space-16);
+                padding-top: var(--space-12);
             }
         }
 
         @media (max-width: 280px) {
             .login-container {
-                padding: 14px 10px;
-                border-radius: 10px;
+                padding: var(--space-12) var(--space-8);
             }
             .logo h1 {
                 font-size: 17px;
@@ -299,9 +355,10 @@
                 padding: 8px 10px;
                 font-size: 12px;
             }
-            .btn-login {
-                padding: 8px;
+            .btn-primary {
+                padding: 6px 12px;
                 font-size: 12px;
+                height: 36px;
             }
             .links a {
                 font-size: 11px;
@@ -310,11 +367,11 @@
 
         @media (max-height: 500px) and (orientation: landscape) {
             .login-container {
-                padding: 20px 24px;
+                padding: var(--space-16) var(--space-24);
                 max-width: 380px;
             }
             .logo {
-                margin-bottom: 16px;
+                margin-bottom: var(--space-16);
             }
             .logo h1 {
                 font-size: 22px;
@@ -323,22 +380,23 @@
                 font-size: 11px;
             }
             .form-group {
-                margin-bottom: 10px;
+                margin-bottom: var(--space-8);
             }
             .form-group input {
                 padding: 8px 12px;
                 font-size: 13px;
             }
-            .btn-login {
-                padding: 10px;
+            .btn-primary {
+                padding: 8px 16px;
                 font-size: 14px;
+                height: 38px;
             }
             .divider {
                 width: 32px;
-                margin-bottom: 16px;
+                margin-bottom: var(--space-16);
             }
             .links {
-                margin-top: 12px;
+                margin-top: var(--space-12);
             }
             .footer-text {
                 display: none;
@@ -348,12 +406,14 @@
 </head>
 <body>
     <div class="login-container">
+        <!-- ===== LOGO ===== -->
         <div class="logo">
             <h1>🍽️ Cadê Meu <span>Rango</span>?</h1>
             <p>Controle de Auxílio Alimentação</p>
         </div>
         <div class="divider"></div>
 
+        <!-- ===== FORMULÁRIO ===== -->
         <form id="loginForm">
             <div class="form-group">
                 <label>E-mail</label>
@@ -364,15 +424,17 @@
                 <input type="password" id="password" placeholder="••••••••" required minlength="6" autocomplete="current-password">
             </div>
             <div class="erro" id="erroMsg">E-mail ou senha inválidos</div>
-            <button type="submit" class="btn-login">Entrar</button>
+            <button type="submit" class="btn-primary">Entrar</button>
         </form>
 
+        <!-- ===== LINKS ===== -->
         <div class="links">
             <a href="cadastro.html">Criar conta</a>
             <span class="separator">•</span>
             <a href="recuperar.html">Esqueci a senha</a>
         </div>
 
+        <!-- ===== RODAPÉ ===== -->
         <div class="footer-text">
             <span>🍽️ Cadê Meu Rango?</span> • Transformando a sua relação com a gestão do seu auxílio.
         </div>
