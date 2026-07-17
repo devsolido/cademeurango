@@ -899,7 +899,10 @@
                 excluirMesModal.style.display = 'none';
                 document.body.style.overflow = '';
                 alert('✅ Mês excluído com sucesso! Justificativa registrada.');
+                
+                // ===== FORÇAR RECARREGAMENTO =====
                 await carregarDados();
+                
             } catch (error) {
                 erroEl.style.display = 'block';
                 erroEl.textContent = error.message || 'Erro ao excluir mês';
