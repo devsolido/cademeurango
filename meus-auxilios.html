@@ -860,7 +860,6 @@
             }
 
             try {
-                // Buscar dados do mês
                 const mes = meses.find(m => m.id === mesId);
                 if (!mes) throw new Error('Mês não encontrado');
                 console.log('📦 Mês encontrado:', mes.nome);
@@ -879,7 +878,7 @@
                 if (histError) throw histError;
                 console.log('✅ Histórico salvo');
 
-                // 2. Excluir gastos
+                // 2. Excluir gastos relacionados a este mês
                 console.log('🗑️ Excluindo gastos do mês...');
                 const { error: gastosError } = await supabase
                     .from('gastos')
