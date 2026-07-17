@@ -573,8 +573,8 @@
         let graficoSaldo = null;
         let graficoGastos = null;
 
-        // ===== CARREGAR DADOS COM FORCE REFRESH =====
-        async function carregarDados(forceRefresh = false) {
+        // ===== CARREGAR DADOS =====
+        async function carregarDados() {
             const sessao = await getSessao();
             if (!sessao) { window.location.href = 'login.html'; return; }
             user = sessao.user;
@@ -596,6 +596,7 @@
             document.getElementById('semAuxilio').style.display = 'none';
             document.getElementById('dashboardPrincipal').style.display = 'block';
 
+            // Recarregar gastos do banco
             const { data: gastosData } = await supabase
                 .from('gastos')
                 .select('*')
@@ -603,10 +604,13 @@
                 .order('data_gasto', { ascending: false });
 
             gastos = gastosData || [];
+            
+            // Atualizar tudo
             atualizarDashboard();
             atualizarGraficos();
         }
 
+        // ===== ATUALIZAR DASHBOARD =====
         function atualizarDashboard() {
             const totalGasto = gastos.reduce((s, g) => s + g.valor, 0);
             const saldo = auxilio.valor - totalGasto;
@@ -645,6 +649,7 @@
                 cardEl.style.borderLeftColor = '#e53935';
             }
 
+            // ===== ATUALIZAR LISTA DE GASTOS =====
             const lista = document.getElementById('listaGastos');
             if (gastos.length === 0) {
                 lista.innerHTML = '<div class="empty-state">Nenhum gasto registrado</div>';
@@ -666,6 +671,7 @@
             `).join('');
         }
 
+        // ===== ATUALIZAR GRÁFICOS =====
         function atualizarGraficos() {
             if (gastos.length === 0) {
                 if (graficoSaldo) { graficoSaldo.destroy(); graficoSaldo = null; }
@@ -823,7 +829,7 @@
 
             modal.style.display = 'none';
             document.getElementById('gastoForm').reset();
-            await carregarDados(true); // <-- FORCE REFRESH
+            await carregarDados(); // Recarrega tudo
         });
 
         // ===== MODAL EXCLUIR GASTO =====
@@ -899,7 +905,7 @@
                 excluirModal.style.display = 'none';
                 document.body.style.overflow = '';
                 alert('✅ Gasto excluído com sucesso! Justificativa registrada.');
-                await carregarDados(true); // <-- FORCE REFRESH
+                await carregarDados(); // Recarrega tudo
             } catch (error) {
                 erroEl.style.display = 'block';
                 erroEl.textContent = error.message || 'Erro ao excluir gasto';
