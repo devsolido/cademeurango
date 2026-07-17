@@ -451,7 +451,7 @@
         <div class="nav-links" id="navLinks">
             <a href="#" id="btnNovoGasto" class="btn-nav">+ Novo Gasto</a>
             <a href="meus-auxilios.html">Meus Auxílios</a>
-    <a href="./assets/calendario-academico.pdf" download="Calendario_Academico_IFPA.pdf" class="btn-pdf-calendario" target="_blank">📅 Calendndário</a>
+            <a href="/assets/calendario-academico.pdf" target="_blank" class="btn-pdf-calendario">📅 Calendário</a>
             <a href="#" id="btnSair" class="btn-sair">Sair</a>
         </div>
     </nav>
@@ -565,7 +565,6 @@
         import { supabase } from './js/config.js';
         import { getSessao, logout } from './js/auth.js';
 
-        // ===== MENU HAMBÚRGUER =====
         const menuToggle = document.getElementById('menuToggle');
         const navLinks = document.getElementById('navLinks');
 
@@ -587,7 +586,6 @@
         let graficoSaldo = null;
         let graficoGastos = null;
 
-        // ===== CARREGAR DADOS COM FORCE REFRESH =====
         async function carregarDados(forceRefresh = false) {
             const sessao = await getSessao();
             if (!sessao) { window.location.href = 'login.html'; return; }
@@ -618,7 +616,6 @@
 
             gastos = gastosData || [];
             
-            // Destruir gráficos antigos para recriar
             if (graficoSaldo) {
                 graficoSaldo.destroy();
                 graficoSaldo = null;
@@ -632,7 +629,6 @@
             atualizarGraficos();
         }
 
-        // ===== ATUALIZAR DASHBOARD =====
         function atualizarDashboard() {
             const totalGasto = gastos.reduce((s, g) => s + g.valor, 0);
             const saldo = auxilio.valor - totalGasto;
@@ -692,7 +688,6 @@
             `).join('');
         }
 
-        // ===== ATUALIZAR GRÁFICOS =====
         function atualizarGraficos() {
             if (gastos.length === 0) {
                 return;
@@ -792,7 +787,6 @@
             }
         }
 
-        // ===== MODAL NOVO GASTO =====
         const modal = document.getElementById('gastoModal');
         document.getElementById('btnNovoGasto').addEventListener('click', () => {
             document.getElementById('gastoData').value = new Date().toISOString().split('T')[0];
@@ -851,7 +845,6 @@
             await carregarDados(true);
         });
 
-        // ===== MODAL EXCLUIR GASTO =====
         const excluirModal = document.getElementById('excluirModal');
         const excluirModalContent = document.getElementById('excluirModalContent');
         
