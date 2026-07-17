@@ -901,10 +901,10 @@
                 excluirMesModal.style.display = 'none';
                 document.body.style.overflow = '';
                 
-                // 5. Recarregar a página
+                // 5. Recarregar a página COM location.replace (mais eficiente)
                 console.log('🔄 Recarregando página...');
                 alert('✅ Mês excluído com sucesso!');
-                window.location.reload();
+                window.location.replace(window.location.href);
                 
             } catch (error) {
                 console.error('❌ Erro na exclusão:', error);
