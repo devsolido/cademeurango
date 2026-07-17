@@ -747,12 +747,13 @@
                 if (auxError) throw auxError;
                 auxilios = auxData || [];
                 console.log('📦 Auxílios carregados:', auxilios.length);
-
-                const { data: mesesData, error: mesesError } = await supabase
-                    .from('meses')
-                    .select('*')
-                    .eq('user_id', user.id)
-                    .order('created_at', { ascending: false });
+// Adicionar timestamp para evitar cache
+const timestamp = new Date().getTime();
+const { data: mesesData, error: mesesError } = await supabase
+    .from('meses')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
 
                 if (mesesError) throw mesesError;
                 meses = mesesData || [];
