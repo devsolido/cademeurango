@@ -529,7 +529,7 @@
         </div>
     </div>
 
-    <!-- ===== MODAL: EXCLUIR GASTO (CORRIGIDO) ===== -->
+    <!-- ===== MODAL: EXCLUIR GASTO ===== -->
     <div class="modal" id="excluirModal">
         <div class="modal-content" id="excluirModalContent">
             <span class="close" id="fecharExcluirModal">&times;</span>
@@ -573,7 +573,8 @@
         let graficoSaldo = null;
         let graficoGastos = null;
 
-        async function carregarDados() {
+        // ===== CARREGAR DADOS COM FORCE REFRESH =====
+        async function carregarDados(forceRefresh = false) {
             const sessao = await getSessao();
             if (!sessao) { window.location.href = 'login.html'; return; }
             user = sessao.user;
@@ -766,7 +767,7 @@
             }
         }
 
-        // MODAL NOVO GASTO
+        // ===== MODAL NOVO GASTO =====
         const modal = document.getElementById('gastoModal');
         document.getElementById('btnNovoGasto').addEventListener('click', () => {
             document.getElementById('gastoData').value = new Date().toISOString().split('T')[0];
@@ -822,10 +823,10 @@
 
             modal.style.display = 'none';
             document.getElementById('gastoForm').reset();
-            await carregarDados();
+            await carregarDados(true); // <-- FORCE REFRESH
         });
 
-        // ===== MODAL EXCLUIR GASTO (CORRIGIDO) =====
+        // ===== MODAL EXCLUIR GASTO =====
         const excluirModal = document.getElementById('excluirModal');
         const excluirModalContent = document.getElementById('excluirModalContent');
         
@@ -837,13 +838,11 @@
             document.body.style.overflow = 'hidden';
         };
 
-        // Fechar pelo X
         document.getElementById('fecharExcluirModal').addEventListener('click', () => {
             excluirModal.style.display = 'none';
             document.body.style.overflow = '';
         });
 
-        // Fechar clicando fora (apenas no fundo, não no conteúdo)
         excluirModal.addEventListener('click', (e) => {
             if (e.target === excluirModal) {
                 excluirModal.style.display = 'none';
@@ -851,12 +850,10 @@
             }
         });
 
-        // IMPEDIR que o modal feche ao clicar dentro do conteúdo
         excluirModalContent.addEventListener('click', (e) => {
             e.stopPropagation();
         });
 
-        // Fechar com tecla ESC
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && excluirModal.style.display === 'flex') {
                 excluirModal.style.display = 'none';
@@ -902,7 +899,7 @@
                 excluirModal.style.display = 'none';
                 document.body.style.overflow = '';
                 alert('✅ Gasto excluído com sucesso! Justificativa registrada.');
-                await carregarDados();
+                await carregarDados(true); // <-- FORCE REFRESH
             } catch (error) {
                 erroEl.style.display = 'block';
                 erroEl.textContent = error.message || 'Erro ao excluir gasto';
