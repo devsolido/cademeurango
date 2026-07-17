@@ -756,6 +756,28 @@
         </div>
     </div>
 
+    <!-- MODAL EDITAR MÊS -->
+    <div class="modal" id="editarMesModal">
+        <div class="modal-content">
+            <span class="close" id="fecharEditarMesModal">&times;</span>
+            <h2>✏️ Editar Mês</h2>
+            <form id="editarMesForm">
+                <input type="hidden" id="editarMesId">
+                <div class="form-group">
+                    <label>Valor do Mês (R$)</label>
+                    <input type="number" id="editarMesValor" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Dias do Mês</label>
+                    <input type="number" id="editarMesDias" min="1" required>
+                </div>
+                <div class="erro" id="erroEditarMes">Erro ao salvar</div>
+                <div class="sucesso" id="sucessoEditarMes">Salvo com sucesso!</div>
+                <button type="submit" class="btn-primary" style="width:100%; justify-content:center;">💾 Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
+
     <script type="module">
         import { supabase } from './js/config.js';
         import { getSessao, logout } from './js/auth.js';
@@ -914,8 +936,10 @@
                                 <span class="mes-status ${m.ativo ? 'ativo' : 'inativo'}">
                                     ${m.ativo ? '🟢 Ativo' : '🔴 Finalizado'}
                                 </span>
-                                <div style="display:flex; gap:4px;">
+                                <div style="display:flex; gap:4px; flex-wrap:wrap;">
                                     ${m.ativo ? `<button class="btn-secondary" onclick="event.stopPropagation(); finalizarMes('${m.id}')" style="font-size:11px; padding:2px 8px; height:28px;">🔴 Finalizar</button>` : ''}
+                                    <button class="btn-secondary" onclick="event.stopPropagation(); abrirEditarMes('${m.id}')" style="font-size:11px; padding:2px 8px; height:28px;">✏️</button>
+                                    <button class="btn-secondary" onclick="event.stopPropagation(); exportarMesCSV('${m.id}')" style="font-size:11px; padding:2px 8px; height:28px;">📊 CSV</button>
                                     <button class="btn-danger" onclick="event.stopPropagation(); abrirExcluirMes('${m.id}')" style="font-size:11px; padding:2px 8px; height:28px;">🗑️</button>
                                 </div>
                             </div>
@@ -950,6 +974,126 @@
                 console.error('Erro:', error);
             }
         };
+
+        // ===== EXPORTAR MÊS PARA CSV =====
+        window.exportarMesCSV = async function(mesId) {
+            const mes = meses.find(m => m.id === mesId);
+            if (!mes) {
+                alert('Mês não encontrado');
+                return;
+            }
+
+            try {
+                // Buscar gastos do mês
+                const { data: gastosData } = await supabase
+                    .from('gastos')
+                    .select('*')
+                    .eq('mes_id', mesId)
+                    .order('data_gasto', { ascending: true });
+
+                const gastosMes = gastosData || [];
+                const totalGasto = gastosMes.reduce((s, g) => s + g.valor, 0);
+                const saldo = mes.valor_mensal - totalGasto;
+
+                // Criar CSV
+                let csv = 'Data,Local,Valor,Tipo,Observação\n';
+                csv += `"Resumo do Mês","${mes.nome}",,,\n`;
+                csv += `"Valor Total","R$ ${mes.valor_mensal.toFixed(2)}",,,\n`;
+                csv += `"Total Gasto","R$ ${totalGasto.toFixed(2)}",,,\n`;
+                csv += `"Saldo","R$ ${saldo.toFixed(2)}",,,\n\n`;
+                csv += 'Data,Local,Valor,Tipo,Observação\n';
+
+                if (gastosMes.length === 0) {
+                    csv += 'Nenhum gasto registrado,,,,\n';
+                } else {
+                    gastosMes.forEach(g => {
+                        const data = new Date(g.data_gasto).toLocaleDateString();
+                        const valor = g.valor.toFixed(2).replace('.', ',');
+                        const local = (g.local || 'Sem local').replace(/,/g, ';');
+                        const obs = (g.observacao || '').replace(/,/g, ';');
+                        const tipo = g.tipo_dia || '';
+                        csv += `"${data}","${local}",${valor},"${tipo}","${obs}"\n`;
+                    });
+                }
+
+                // Baixar CSV
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.href = url;
+                link.setAttribute('download', `${mes.nome.replace('/', '_')}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+
+            } catch (error) {
+                alert('❌ Erro ao exportar: ' + error.message);
+                console.error('Erro:', error);
+            }
+        };
+
+        // ===== EDIÇÃO DE MÊS =====
+        window.abrirEditarMes = function(mesId) {
+            const mes = meses.find(m => m.id === mesId);
+            if (!mes) {
+                alert('Mês não encontrado');
+                return;
+            }
+
+            document.getElementById('editarMesId').value = mesId;
+            document.getElementById('editarMesValor').value = mes.valor_mensal;
+            document.getElementById('editarMesDias').value = mes.dias_mes;
+            document.getElementById('erroEditarMes').style.display = 'none';
+            document.getElementById('sucessoEditarMes').style.display = 'none';
+            document.getElementById('editarMesModal').style.display = 'flex';
+        };
+
+        document.getElementById('fecharEditarMesModal').addEventListener('click', () => {
+            document.getElementById('editarMesModal').style.display = 'none';
+        });
+
+        document.getElementById('editarMesModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                document.getElementById('editarMesModal').style.display = 'none';
+            }
+        });
+
+        document.getElementById('editarMesForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const mesId = document.getElementById('editarMesId').value;
+            const valor = parseFloat(document.getElementById('editarMesValor').value);
+            const dias = parseInt(document.getElementById('editarMesDias').value);
+            const erroMsg = document.getElementById('erroEditarMes');
+            const sucessoMsg = document.getElementById('sucessoEditarMes');
+            
+            erroMsg.style.display = 'none';
+            sucessoMsg.style.display = 'none';
+
+            try {
+                const { error } = await supabase
+                    .from('meses')
+                    .update({ 
+                        valor_mensal: valor, 
+                        dias_mes: dias 
+                    })
+                    .eq('id', mesId)
+                    .eq('user_id', user.id);
+
+                if (error) throw error;
+
+                sucessoMsg.style.display = 'block';
+                sucessoMsg.textContent = '✅ Mês atualizado!';
+                setTimeout(() => {
+                    document.getElementById('editarMesModal').style.display = 'none';
+                    carregarDados();
+                }, 1000);
+            } catch (error) {
+                erroMsg.style.display = 'block';
+                erroMsg.textContent = error.message || 'Erro ao salvar';
+            }
+        });
 
         window.verDetalhesMes = async function(mesId) {
             const mes = meses.find(m => m.id === mesId);
