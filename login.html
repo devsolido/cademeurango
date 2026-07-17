@@ -178,12 +178,177 @@
         .footer-text span {
             color: #2E7D32;
         }
-        @media (max-width: 480px) {
+
+        /* ===== RESPONSIVIDADE COMPLETA ===== */
+
+        /* Tablets e celulares grandes */
+        @media (max-width: 768px) {
             .login-container {
-                padding: 32px 20px;
+                padding: 36px 28px;
+                max-width: 380px;
             }
             .logo h1 {
-                font-size: 26px;
+                font-size: 28px;
+            }
+        }
+
+        /* Celulares médios */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 28px 18px;
+                border-radius: 16px;
+                margin: 10px;
+                max-width: 100%;
+            }
+            .logo h1 {
+                font-size: 24px;
+            }
+            .logo p {
+                font-size: 12px;
+            }
+            .logo {
+                margin-bottom: 28px;
+            }
+            .form-group {
+                margin-bottom: 16px;
+            }
+            .form-group label {
+                font-size: 12px;
+            }
+            .form-group input {
+                padding: 12px 14px;
+                font-size: 14px;
+                border-radius: 10px;
+            }
+            .btn-login {
+                padding: 12px;
+                font-size: 15px;
+                border-radius: 10px;
+            }
+            .links a {
+                font-size: 13px;
+            }
+            .divider {
+                width: 40px;
+                margin-bottom: 24px;
+            }
+            .footer-text {
+                font-size: 10px;
+                margin-top: 24px;
+                padding-top: 16px;
+            }
+        }
+
+        /* Celulares pequenos */
+        @media (max-width: 360px) {
+            .login-container {
+                padding: 20px 14px;
+                border-radius: 12px;
+                margin: 6px;
+            }
+            .logo h1 {
+                font-size: 20px;
+            }
+            .logo p {
+                font-size: 10px;
+            }
+            .logo {
+                margin-bottom: 20px;
+            }
+            .form-group {
+                margin-bottom: 12px;
+            }
+            .form-group input {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+            .btn-login {
+                padding: 10px;
+                font-size: 14px;
+            }
+            .links {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                margin-top: 18px;
+            }
+            .links .separator {
+                display: none;
+            }
+            .links a {
+                font-size: 12px;
+            }
+            .divider {
+                width: 32px;
+                margin-bottom: 18px;
+            }
+            .footer-text {
+                font-size: 9px;
+                margin-top: 18px;
+                padding-top: 14px;
+            }
+        }
+
+        /* Telas muito pequenas */
+        @media (max-width: 280px) {
+            .login-container {
+                padding: 14px 10px;
+                border-radius: 10px;
+            }
+            .logo h1 {
+                font-size: 17px;
+            }
+            .logo p {
+                font-size: 9px;
+            }
+            .form-group input {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+            .btn-login {
+                padding: 8px;
+                font-size: 12px;
+            }
+            .links a {
+                font-size: 11px;
+            }
+        }
+
+        /* Landscape (celular deitado) */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .login-container {
+                padding: 20px 24px;
+                max-width: 380px;
+            }
+            .logo {
+                margin-bottom: 16px;
+            }
+            .logo h1 {
+                font-size: 22px;
+            }
+            .logo p {
+                font-size: 11px;
+            }
+            .form-group {
+                margin-bottom: 10px;
+            }
+            .form-group input {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+            .btn-login {
+                padding: 10px;
+                font-size: 14px;
+            }
+            .divider {
+                width: 32px;
+                margin-bottom: 16px;
+            }
+            .links {
+                margin-top: 12px;
+            }
+            .footer-text {
+                display: none;
             }
         }
     </style>
@@ -216,7 +381,7 @@
         </div>
 
         <div class="footer-text">
-            <span>🍽️ Cadê Meu Rango?</span> • IFPA Campus Marabá Industrial
+            <span>🍽️ Cadê Meu Rango?</span> • Transformando a sua relação com a gestão do seu auxílio.
         </div>
     </div>
 
