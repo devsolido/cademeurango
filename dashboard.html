@@ -572,6 +572,7 @@
     <script type="module">
         import { supabase } from './js/config.js';
         import { getSessao, logout } from './js/auth.js';
+        import { loadSnapshot, saveSnapshot, logSistema } from './js/sync.js';
 
         const menuToggle = document.getElementById('menuToggle');
         const navLinks = document.getElementById('navLinks');
@@ -597,16 +598,19 @@
 
         const refreshChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('cademeurango-refresh') : null;
 
-        window.forceReloadData = async function() {
+        window.atualizarSistemaCompleto = async function() {
             const refreshStamp = Date.now().toString();
             localStorage.setItem('cademeurango:data-refresh', refreshStamp);
             if (refreshChannel) {
                 refreshChannel.postMessage({ type: 'refresh', stamp: refreshStamp });
             }
+            logSistema('refresh-dashboard', { stamp: refreshStamp });
             if (typeof carregarDados === 'function') {
                 await carregarDados(true);
             }
         };
+
+        window.forceReloadData = window.atualizarSistemaCompleto;
 
         window.addEventListener('storage', (event) => {
             if (event.key === 'cademeurango:data-refresh' && event.newValue) {
@@ -628,6 +632,24 @@
             const sessao = await getSessao();
             if (!sessao) { window.location.href = 'login.html'; return; }
             user = sessao.user;
+
+            const cachedSnapshot = loadSnapshot(user.id);
+            if (cachedSnapshot && !forceRefresh) {
+                auxilio = cachedSnapshot.auxilio || null;
+                gastos = cachedSnapshot.gastos || [];
+                meses = cachedSnapshot.meses || [];
+                if (cachedSnapshot.auxilio) {
+                    document.getElementById('semAuxilio').style.display = 'none';
+                    document.getElementById('dashboardPrincipal').style.display = 'block';
+                } else {
+                    document.getElementById('semAuxilio').style.display = 'block';
+                    document.getElementById('dashboardPrincipal').style.display = 'none';
+                }
+                logSistema('restore-dashboard-cache', { updatedAt: cachedSnapshot.updatedAt });
+                atualizarDashboard();
+                atualizarGraficos();
+                return;
+            }
 
             const { data: auxData } = await supabase
                 .from('auxilios')
@@ -665,6 +687,8 @@
                 .order('created_at', { ascending: true });
 
             meses = mesesData || [];
+            saveSnapshot(user.id, { auxilios: [auxilio], meses, gastos, auxilio, updatedAt: new Date().toISOString() });
+            logSistema('dashboard-fetched', { auxilioId: auxilio?.id, gastosCount: gastos.length, mesesCount: meses.length });
             
             if (graficoSaldo) {
                 graficoSaldo.destroy();
@@ -1041,7 +1065,7 @@
                     excluirModal.style.display = 'none';
                     document.body.style.overflow = '';
                     alert('⚠️ Gasto já removido. Interface atualizada.');
-                    await window.forceReloadData();
+                    await window.atualizarSistemaCompleto();
                     return;
                 }
 

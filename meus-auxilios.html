@@ -788,6 +788,7 @@
     <script type="module">
         import { supabase } from './js/config.js';
         import { getSessao, logout } from './js/auth.js';
+        import { loadSnapshot, saveSnapshot, logSistema } from './js/sync.js';
 
         const menuToggle = document.getElementById('menuToggle');
         const navLinks = document.getElementById('navLinks');
@@ -812,16 +813,19 @@
 
         const refreshChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('cademeurango-refresh') : null;
 
-        window.forceReloadData = async function() {
+        window.atualizarSistemaCompleto = async function() {
             const refreshStamp = Date.now().toString();
             localStorage.setItem('cademeurango:data-refresh', refreshStamp);
             if (refreshChannel) {
                 refreshChannel.postMessage({ type: 'refresh', stamp: refreshStamp });
             }
+            logSistema('refresh-meus-auxilios', { stamp: refreshStamp });
             if (typeof carregarDados === 'function') {
                 await carregarDados(true);
             }
         };
+
+        window.forceReloadData = window.atualizarSistemaCompleto;
 
         window.addEventListener('storage', (event) => {
             if (event.key === 'cademeurango:data-refresh' && event.newValue) {
@@ -889,6 +893,15 @@
                 user = sessao.user;
                 console.log('✅ Usuário logado:', user.email);
 
+                const cachedSnapshot = loadSnapshot(user.id);
+                if (cachedSnapshot && !forceRefresh) {
+                    auxilios = cachedSnapshot.auxilios || [];
+                    meses = cachedSnapshot.meses || [];
+                    logSistema('restore-meus-auxilios-cache', { updatedAt: cachedSnapshot.updatedAt });
+                    renderizarAuxilios();
+                    return;
+                }
+
                 const { data: auxData, error: auxError } = await supabase
                     .from('auxilios')
                     .select('*')
@@ -907,6 +920,8 @@
 
                 if (mesesError) throw mesesError;
                 meses = mesesData || [];
+                saveSnapshot(user.id, { auxilios, meses, gastos, auxilio: null, updatedAt: new Date().toISOString() });
+                logSistema('meus-auxilios-fetched', { auxiliosCount: auxilios.length, mesesCount: meses.length });
                 console.log('📦 Meses carregados:', meses.length);
 
                 renderizarAuxilios();
