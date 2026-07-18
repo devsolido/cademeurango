@@ -591,8 +591,38 @@
         let user = null;
         let auxilio = null;
         let gastos = [];
+        let meses = [];
         let graficoSaldo = null;
         let graficoGastos = null;
+
+        const refreshChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('cademeurango-refresh') : null;
+
+        window.forceReloadData = async function() {
+            const refreshStamp = Date.now().toString();
+            localStorage.setItem('cademeurango:data-refresh', refreshStamp);
+            if (refreshChannel) {
+                refreshChannel.postMessage({ type: 'refresh', stamp: refreshStamp });
+            }
+            if (typeof carregarDados === 'function') {
+                await carregarDados(true);
+            }
+        };
+
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'cademeurango:data-refresh' && event.newValue) {
+                if (typeof carregarDados === 'function') {
+                    carregarDados(true);
+                }
+            }
+        });
+
+        if (refreshChannel) {
+            refreshChannel.addEventListener('message', () => {
+                if (typeof carregarDados === 'function') {
+                    carregarDados(true);
+                }
+            });
+        }
 
         async function carregarDados(forceRefresh = false) {
             const sessao = await getSessao();
@@ -607,6 +637,9 @@
                 .limit(1);
 
             if (!auxData || auxData.length === 0) {
+                auxilio = null;
+                gastos = [];
+                meses = [];
                 document.getElementById('semAuxilio').style.display = 'block';
                 document.getElementById('dashboardPrincipal').style.display = 'none';
                 return;
@@ -623,6 +656,15 @@
                 .order('data_gasto', { ascending: false });
 
             gastos = gastosData || [];
+
+            const { data: mesesData } = await supabase
+                .from('meses')
+                .select('*')
+                .eq('user_id', user.id)
+                .eq('auxilio_id', auxilio.id)
+                .order('created_at', { ascending: true });
+
+            meses = mesesData || [];
             
             if (graficoSaldo) {
                 graficoSaldo.destroy();
@@ -637,11 +679,37 @@
             atualizarGraficos();
         }
 
+        function calcularSaldoAtual() {
+            const totalGasto = gastos.reduce((s, g) => s + Number(g.valor || 0), 0);
+
+            if (!auxilio) {
+                return { saldoAtual: 0, totalGasto };
+            }
+
+            const mesesDoAuxilio = (meses || []).filter(m => m.auxilio_id === auxilio.id);
+            if (mesesDoAuxilio.length === 0) {
+                return { saldoAtual: Number(auxilio.valor || 0) - totalGasto, totalGasto };
+            }
+
+            const mesesOrdenados = [...mesesDoAuxilio].sort((a, b) => {
+                const dataA = new Date(a.data_inicio || a.created_at || 0).getTime();
+                const dataB = new Date(b.data_inicio || b.created_at || 0).getTime();
+                return dataA - dataB;
+            });
+
+            let saldoCorrente = 0;
+            mesesOrdenados.forEach((mes) => {
+                const valorMes = Number(mes.valor_mensal || mes.valor || 0);
+                const gastosMes = gastos.filter(g => g.mes_id === mes.id);
+                const totalGastoMes = gastosMes.reduce((s, g) => s + Number(g.valor || 0), 0);
+                saldoCorrente = saldoCorrente + valorMes - totalGastoMes;
+            });
+
+            return { saldoAtual: saldoCorrente, totalGasto };
+        }
+
         function atualizarDashboard() {
-            const totalGasto = gastos.reduce((s, g) => s + g.valor, 0);
-            
-            // ===== SALDO ATUAL (já considera todos os gastos) =====
-            const saldoAtual = auxilio.valor - totalGasto;
+            const { saldoAtual, totalGasto } = calcularSaldoAtual();
 
             // ===== DIAS RESTANTES =====
             const diasComGastos = new Set();
@@ -716,21 +784,22 @@
             const datas = Object.keys(gastosPorDia).sort((a, b) => new Date(a) - new Date(b));
             const dadosGastos = datas.map(data => ({ data, total: gastosPorDia[data] }));
 
-            let saldoAtual = auxilio.valor;
-            const dadosSaldo = [{ data: 'Início', saldo: auxilio.valor }];
+            const { saldoAtual: saldoInicial } = calcularSaldoAtual();
+            let saldoAtual = saldoInicial;
+            const dadosSaldo = [{ data: 'Início', saldo: saldoInicial }];
             
             const gastosOrdenados = [...gastos].sort((a, b) => new Date(a.data_gasto) - new Date(b.data_gasto));
             let totalGasto = 0;
             let dataAtual = null;
 
             gastosOrdenados.forEach(g => {
-                totalGasto += g.valor;
+                totalGasto += Number(g.valor || 0);
                 const data = new Date(g.data_gasto).toLocaleDateString();
                 if (data !== dataAtual) {
-                    dadosSaldo.push({ data, saldo: auxilio.valor - totalGasto });
+                    dadosSaldo.push({ data, saldo: saldoInicial - totalGasto });
                     dataAtual = data;
                 } else {
-                    dadosSaldo[dadosSaldo.length - 1].saldo = auxilio.valor - totalGasto;
+                    dadosSaldo[dadosSaldo.length - 1].saldo = saldoInicial - totalGasto;
                 }
             });
 
@@ -895,7 +964,7 @@
 
             modal.style.display = 'none';
             document.getElementById('gastoForm').reset();
-            await carregarDados(true);
+            await window.forceReloadData();
         });
 
         const excluirModal = document.getElementById('excluirModal');
@@ -970,7 +1039,7 @@
                 excluirModal.style.display = 'none';
                 document.body.style.overflow = '';
                 alert('✅ Gasto excluído com sucesso! Justificativa registrada.');
-                await carregarDados(true);
+                await window.forceReloadData();
             } catch (error) {
                 erroEl.style.display = 'block';
                 erroEl.textContent = error.message || 'Erro ao excluir gasto';

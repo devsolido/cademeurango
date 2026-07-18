@@ -418,6 +418,24 @@
         // Data atual no input
         document.getElementById('dataInicio').value = new Date().toISOString().split('T')[0];
 
+        const refreshChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('cademeurango-refresh') : null;
+
+        window.forceReloadData = async function() {
+            const refreshStamp = Date.now().toString();
+            localStorage.setItem('cademeurango:data-refresh', refreshStamp);
+            if (refreshChannel) {
+                refreshChannel.postMessage({ type: 'refresh', stamp: refreshStamp });
+            }
+        };
+
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'cademeurango:data-refresh' && event.newValue) {
+                if (window.location.pathname.includes('dashboard.html')) {
+                    window.location.reload();
+                }
+            }
+        });
+
         // ===== LÓGICA DO TIPO DE AUXÍLIO =====
         const tipoSelect = document.getElementById('tipoAuxilio');
         const valorInput = document.getElementById('valor');
@@ -484,6 +502,9 @@
 
                 sucessoMsg.style.display = 'block';
                 sucessoMsg.textContent = '✅ Auxílio cadastrado! Redirecionando...';
+                if (window.forceReloadData) {
+                    await window.forceReloadData();
+                }
                 setTimeout(() => window.location.href = 'dashboard.html', 1500);
             } catch (error) {
                 erroMsg.style.display = 'block';

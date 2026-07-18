@@ -662,6 +662,13 @@
             <form id="auxilioForm">
                 <input type="hidden" id="auxilioId">
                 <div class="form-group">
+                    <label>Tipo de Auxílio</label>
+                    <select id="tipoAuxilio">
+                        <option value="alimentacao">🍽️ Alimentação (padrão)</option>
+                        <option value="outro">✍️ Outro (digitar manualmente)</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label>Nome do Auxílio</label>
                     <input type="text" id="periodo" placeholder="Ex: Auxílio Alimentação 2026" required>
                 </div>
@@ -803,19 +810,78 @@
         let gastos = [];
         let auxilioSelecionado = null;
 
+        const refreshChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('cademeurango-refresh') : null;
+
+        window.forceReloadData = async function() {
+            const refreshStamp = Date.now().toString();
+            localStorage.setItem('cademeurango:data-refresh', refreshStamp);
+            if (refreshChannel) {
+                refreshChannel.postMessage({ type: 'refresh', stamp: refreshStamp });
+            }
+            if (typeof carregarDados === 'function') {
+                await carregarDados(true);
+            }
+        };
+
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'cademeurango:data-refresh' && event.newValue) {
+                if (typeof carregarDados === 'function') {
+                    carregarDados(true);
+                }
+            }
+        });
+
+        if (refreshChannel) {
+            refreshChannel.addEventListener('message', () => {
+                if (typeof carregarDados === 'function') {
+                    carregarDados(true);
+                }
+            });
+        }
+
+        const tipoAuxilioSelect = document.getElementById('tipoAuxilio');
+        const periodoInput = document.getElementById('periodo');
+
+        function aplicarTipoAuxilio(tipo = tipoAuxilioSelect?.value) {
+            if (!tipoAuxilioSelect || !periodoInput) return;
+
+            if (tipo === 'outro') {
+                document.getElementById('valor').value = '';
+                document.getElementById('dias').value = '';
+                if (periodoInput.value === 'Auxílio Alimentação 2026') {
+                    periodoInput.value = '';
+                }
+                periodoInput.placeholder = 'Digite o nome do auxílio';
+                return;
+            }
+
+            document.getElementById('valor').value = '440';
+            document.getElementById('dias').value = '22';
+            if (!periodoInput.value || periodoInput.value === 'Outro') {
+                periodoInput.value = 'Auxílio Alimentação 2026';
+            }
+            periodoInput.placeholder = 'Ex: Auxílio Alimentação 2026';
+        }
+
+        tipoAuxilioSelect?.addEventListener('change', (event) => {
+            aplicarTipoAuxilio(event.target.value);
+        });
+
         window.abrirModalAuxilio = function() {
             document.getElementById('modalTitulo').textContent = '📝 Cadastrar Auxílio';
             document.getElementById('auxilioId').value = '';
-            document.getElementById('periodo').value = '';
+            tipoAuxilioSelect.value = 'alimentacao';
+            periodoInput.value = 'Auxílio Alimentação 2026';
             document.getElementById('valor').value = '440';
             document.getElementById('dataInicio').value = new Date().toISOString().split('T')[0];
             document.getElementById('dias').value = '22';
             document.getElementById('erroMsg').style.display = 'none';
             document.getElementById('sucessoMsg').style.display = 'none';
+            aplicarTipoAuxilio('alimentacao');
             document.getElementById('auxilioModal').style.display = 'flex';
         };
 
-        async function carregarDados() {
+        async function carregarDados(forceRefresh = false) {
             try {
                 console.log('🔄 Carregando dados...');
                 const sessao = await getSessao();
@@ -968,7 +1034,7 @@
                 if (error) throw error;
                 
                 alert('✅ Mês finalizado com sucesso!');
-                await carregarDados();
+                await window.forceReloadData();
             } catch (error) {
                 alert('❌ Erro ao finalizar mês: ' + error.message);
                 console.error('Erro:', error);
@@ -1085,9 +1151,9 @@
 
                 sucessoMsg.style.display = 'block';
                 sucessoMsg.textContent = '✅ Mês atualizado!';
-                setTimeout(() => {
+                setTimeout(async () => {
                     document.getElementById('editarMesModal').style.display = 'none';
-                    carregarDados();
+                    await window.forceReloadData();
                 }, 1000);
             } catch (error) {
                 erroMsg.style.display = 'block';
@@ -1294,7 +1360,7 @@
                 if (error) throw error;
                 
                 alert('✅ Auxílio excluído!');
-                await carregarDados();
+                await window.forceReloadData();
             } catch (error) {
                 alert('❌ Erro: ' + error.message);
             }
@@ -1346,9 +1412,9 @@
                 }
 
                 sucessoMsg.style.display = 'block';
-                setTimeout(() => {
+                setTimeout(async () => {
                     document.getElementById('auxilioModal').style.display = 'none';
-                    carregarDados();
+                    await window.forceReloadData();
                 }, 1000);
             } catch (error) {
                 erroMsg.style.display = 'block';
@@ -1394,9 +1460,9 @@
 
                 sucessoMsg.style.display = 'block';
                 sucessoMsg.textContent = '✅ Mês iniciado!';
-                setTimeout(() => {
+                setTimeout(async () => {
                     document.getElementById('mesModal').style.display = 'none';
-                    carregarDados();
+                    await window.forceReloadData();
                 }, 1000);
             } catch (error) {
                 erroMsg.style.display = 'block';
