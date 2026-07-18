@@ -996,7 +996,7 @@
                     ${mesesAuxilio.length === 0 ? 
                         '<div class="sem-auxilios" style="padding:var(--space-32);"><p style="color:var(--text-secondary);">Nenhum mês cadastrado neste auxílio</p></div>' :
                         mesesAuxilio.map(m => `
-                            <div class="mes-item" onclick="verDetalhesMes('${m.id}')">
+                            <div class="mes-item" id="mes-${m.id}" onclick="verDetalhesMes('${m.id}')">
                                 <span class="mes-nome">📅 ${m.nome}</span>
                                 <span class="mes-valor">R$ ${m.valor_mensal.toFixed(2)}</span>
                                 <span class="mes-status ${m.ativo ? 'ativo' : 'inativo'}">
@@ -1295,8 +1295,29 @@
             }
 
             try {
+                function removeMesElement(id) {
+                    try {
+                        const node = document.getElementById('mes-' + id);
+                        if (node && node.parentNode) node.parentNode.removeChild(node);
+                        const container = document.getElementById('mesesContainer');
+                        if (!container.querySelectorAll('.mes-item').length) {
+                            container.innerHTML = '<div class="sem-auxilios" style="padding:var(--space-32);"><p style="color:var(--text-secondary);">Nenhum mês cadastrado neste auxílio</p></div>';
+                        }
+                    } catch (err) {
+                        console.warn('Erro ao remover elemento do DOM:', err);
+                    }
+                }
+
                 const mes = meses.find(m => m.id === mesId);
-                if (!mes) throw new Error('Mês não encontrado');
+                if (!mes) {
+                    // já removido no backend ou por outro cliente - garantir UI limpa
+                    removeMesElement(mesId);
+                    excluirMesModal.style.display = 'none';
+                    document.body.style.overflow = '';
+                    alert('⚠️ Mês já removido. Interface atualizada.');
+                    await window.forceReloadData();
+                    return;
+                }
 
                 await supabase.from('historico_exclusao_meses').insert({
                     user_id: user.id,
@@ -1318,12 +1339,15 @@
 
                 if (error) throw error;
 
+                // remover do DOM imediatamente
+                removeMesElement(mesId);
+
                 excluirMesModal.style.display = 'none';
                 document.body.style.overflow = '';
                 
                 alert('✅ Mês excluído com sucesso!');
-                await carregarDados();
-                
+                await window.forceReloadData();
+
             } catch (error) {
                 erroEl.style.display = 'block';
                 erroEl.textContent = error.message || 'Erro ao excluir mês';
@@ -1399,15 +1423,42 @@
                     if (error) throw error;
                     sucessoMsg.textContent = '✅ Auxílio atualizado!';
                 } else {
-                    const { error } = await supabase.from('auxilios').insert({
-                        user_id: user.id,
-                        periodo: periodo,
-                        valor: valor,
-                        data_inicio: dataInicio,
-                        dias_totais: dias,
-                        saldo_inicial: valor
-                    });
-                    if (error) throw error;
+                    // inserir auxílio e criar mês inicial automaticamente com base em dataInicio
+                    const { data: auxData, error: auxError } = await supabase.from('auxilios')
+                        .insert({
+                            user_id: user.id,
+                            periodo: periodo,
+                            valor: valor,
+                            data_inicio: dataInicio,
+                            dias_totais: dias,
+                            saldo_inicial: valor
+                        })
+                        .select();
+
+                    if (auxError) throw auxError;
+
+                    const insertedAuxilio = (auxData && auxData[0]) ? auxData[0] : null;
+                    if (insertedAuxilio) {
+                        // criar mês correspondente à data de início
+                        try {
+                            const d = new Date(dataInicio);
+                            const mesesArray = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+                            const nomeMes = `${mesesArray[d.getMonth()]}/${d.getFullYear()}`;
+                            await supabase.from('meses').insert({
+                                user_id: user.id,
+                                auxilio_id: insertedAuxilio.id,
+                                nome: nomeMes,
+                                valor_mensal: valor,
+                                dias_mes: dias,
+                                saldo_inicial_mes: valor,
+                                data_inicio: dataInicio,
+                                ativo: true
+                            });
+                        } catch (err) {
+                            console.warn('Falha ao criar mês inicial automaticamente:', err.message || err);
+                        }
+                    }
+
                     sucessoMsg.textContent = '✅ Auxílio cadastrado!';
                 }
 
