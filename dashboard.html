@@ -755,7 +755,7 @@
             }
 
             lista.innerHTML = gastos.slice(0, 10).map(g => `
-                <div class="gasto-item">
+                <div class="gasto-item" id="gasto-${g.id}">
                     <div class="gasto-info">
                         <span>${new Date(g.data_gasto).toLocaleDateString()} - ${g.local || 'Sem local'} ${g.observacao ? ' - ' + g.observacao : ''}</span>
                         <span class="data">${g.tipo_dia || ''}</span>
@@ -767,6 +767,11 @@
                     </div>
                 </div>
             `).join('');
+
+            // safety: if after rendering there are no gasto-item nodes, show empty state
+            if (document.querySelectorAll('.gasto-item').length === 0) {
+                lista.innerHTML = '<div class="empty-state">Nenhum gasto registrado</div>';
+            }
         }
 
         function atualizarGraficos() {
@@ -1015,8 +1020,30 @@
             }
 
             try {
+                // helper to remove DOM node if present
+                function removeGastoElement(id) {
+                    try {
+                        const node = document.getElementById('gasto-' + id);
+                        if (node && node.parentNode) node.parentNode.removeChild(node);
+                        const lista = document.getElementById('listaGastos');
+                        if (!document.querySelectorAll('.gasto-item').length) {
+                            lista.innerHTML = '<div class="empty-state">Nenhum gasto registrado</div>';
+                        }
+                    } catch (err) {
+                        console.warn('Erro ao remover elemento do DOM:', err);
+                    }
+                }
+
                 const gasto = gastos.find(g => g.id === gastoId);
-                if (!gasto) throw new Error('Gasto não encontrado');
+                if (!gasto) {
+                    // item already removed from local state / DB; ensure UI reflects that and stop
+                    removeGastoElement(gastoId);
+                    excluirModal.style.display = 'none';
+                    document.body.style.overflow = '';
+                    alert('⚠️ Gasto já removido. Interface atualizada.');
+                    await window.forceReloadData();
+                    return;
+                }
 
                 await supabase.from('historico_exclusoes').insert({
                     user_id: user.id,
@@ -1035,6 +1062,9 @@
                     .eq('user_id', user.id);
 
                 if (error) throw error;
+
+                // remove immediately from DOM to avoid stale UI state
+                removeGastoElement(gastoId);
 
                 excluirModal.style.display = 'none';
                 document.body.style.overflow = '';
