@@ -571,7 +571,7 @@
 
     <script type="module">
         import { supabase } from './js/config.js';
-        import { getSessao, logout } from './js/auth.js';
+        import { getSessao, logout, subscribeAuth } from './js/auth.js';
         import { loadSnapshot, saveSnapshot, logSistema } from './js/sync.js';
 
         const menuToggle = document.getElementById('menuToggle');
@@ -595,6 +595,7 @@
         let meses = [];
         let graficoSaldo = null;
         let graficoGastos = null;
+        let carregandoDados = false;
 
         const refreshChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('cademeurango-refresh') : null;
 
@@ -629,78 +630,87 @@
         }
 
         async function carregarDados(forceRefresh = false) {
-            const sessao = await getSessao();
-            if (!sessao) { window.location.href = 'login.html'; return; }
-            user = sessao.user;
+            if (carregandoDados && !forceRefresh) {
+                return;
+            }
 
-            const cachedSnapshot = loadSnapshot(user.id);
-            if (cachedSnapshot && !forceRefresh) {
-                auxilio = cachedSnapshot.auxilio || null;
-                gastos = cachedSnapshot.gastos || [];
-                meses = cachedSnapshot.meses || [];
-                if (cachedSnapshot.auxilio) {
-                    document.getElementById('semAuxilio').style.display = 'none';
-                    document.getElementById('dashboardPrincipal').style.display = 'block';
-                } else {
+            carregandoDados = true;
+            try {
+                const sessao = await getSessao({ retry: true, maxAttempts: 8, delayMs: 300 });
+                if (!sessao) { window.location.href = 'login.html'; return; }
+                user = sessao.user;
+
+                const cachedSnapshot = loadSnapshot(user.id);
+                if (cachedSnapshot && !forceRefresh) {
+                    auxilio = cachedSnapshot.auxilio || null;
+                    gastos = cachedSnapshot.gastos || [];
+                    meses = cachedSnapshot.meses || [];
+                    if (cachedSnapshot.auxilio) {
+                        document.getElementById('semAuxilio').style.display = 'none';
+                        document.getElementById('dashboardPrincipal').style.display = 'block';
+                    } else {
+                        document.getElementById('semAuxilio').style.display = 'block';
+                        document.getElementById('dashboardPrincipal').style.display = 'none';
+                    }
+                    logSistema('restore-dashboard-cache', { updatedAt: cachedSnapshot.updatedAt });
+                    atualizarDashboard();
+                    atualizarGraficos();
+                    return;
+                }
+
+                const { data: auxData } = await supabase
+                    .from('auxilios')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .order('created_at', { ascending: false })
+                    .limit(1);
+
+                if (!auxData || auxData.length === 0) {
+                    auxilio = null;
+                    gastos = [];
+                    meses = [];
                     document.getElementById('semAuxilio').style.display = 'block';
                     document.getElementById('dashboardPrincipal').style.display = 'none';
+                    return;
                 }
-                logSistema('restore-dashboard-cache', { updatedAt: cachedSnapshot.updatedAt });
+
+                auxilio = auxData[0];
+                document.getElementById('semAuxilio').style.display = 'none';
+                document.getElementById('dashboardPrincipal').style.display = 'block';
+
+                const { data: gastosData } = await supabase
+                    .from('gastos')
+                    .select('*')
+                    .eq('auxilio_id', auxilio.id)
+                    .order('data_gasto', { ascending: false });
+
+                gastos = gastosData || [];
+
+                const { data: mesesData } = await supabase
+                    .from('meses')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .eq('auxilio_id', auxilio.id)
+                    .order('created_at', { ascending: true });
+
+                meses = mesesData || [];
+                saveSnapshot(user.id, { auxilios: [auxilio], meses, gastos, auxilio, updatedAt: new Date().toISOString() });
+                logSistema('dashboard-fetched', { auxilioId: auxilio?.id, gastosCount: gastos.length, mesesCount: meses.length });
+                
+                if (graficoSaldo) {
+                    graficoSaldo.destroy();
+                    graficoSaldo = null;
+                }
+                if (graficoGastos) {
+                    graficoGastos.destroy();
+                    graficoGastos = null;
+                }
+                
                 atualizarDashboard();
                 atualizarGraficos();
-                return;
+            } finally {
+                carregandoDados = false;
             }
-
-            const { data: auxData } = await supabase
-                .from('auxilios')
-                .select('*')
-                .eq('user_id', user.id)
-                .order('created_at', { ascending: false })
-                .limit(1);
-
-            if (!auxData || auxData.length === 0) {
-                auxilio = null;
-                gastos = [];
-                meses = [];
-                document.getElementById('semAuxilio').style.display = 'block';
-                document.getElementById('dashboardPrincipal').style.display = 'none';
-                return;
-            }
-
-            auxilio = auxData[0];
-            document.getElementById('semAuxilio').style.display = 'none';
-            document.getElementById('dashboardPrincipal').style.display = 'block';
-
-            const { data: gastosData } = await supabase
-                .from('gastos')
-                .select('*')
-                .eq('auxilio_id', auxilio.id)
-                .order('data_gasto', { ascending: false });
-
-            gastos = gastosData || [];
-
-            const { data: mesesData } = await supabase
-                .from('meses')
-                .select('*')
-                .eq('user_id', user.id)
-                .eq('auxilio_id', auxilio.id)
-                .order('created_at', { ascending: true });
-
-            meses = mesesData || [];
-            saveSnapshot(user.id, { auxilios: [auxilio], meses, gastos, auxilio, updatedAt: new Date().toISOString() });
-            logSistema('dashboard-fetched', { auxilioId: auxilio?.id, gastosCount: gastos.length, mesesCount: meses.length });
-            
-            if (graficoSaldo) {
-                graficoSaldo.destroy();
-                graficoSaldo = null;
-            }
-            if (graficoGastos) {
-                graficoGastos.destroy();
-                graficoGastos = null;
-            }
-            
-            atualizarDashboard();
-            atualizarGraficos();
         }
 
         function calcularSaldoAtual() {
@@ -1103,6 +1113,26 @@
         document.getElementById('btnSair').addEventListener('click', async () => {
             await logout();
             window.location.href = 'login.html';
+        });
+
+        window.addEventListener('focus', () => {
+            if (document.visibilityState === 'visible') {
+                carregarDados(true);
+            }
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                carregarDados(true);
+            }
+        });
+
+        subscribeAuth(async ({ event }) => {
+            if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+                await carregarDados(true);
+            } else if (event === 'SIGNED_OUT') {
+                window.location.href = 'login.html';
+            }
         });
 
         carregarDados();
