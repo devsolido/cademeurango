@@ -50,6 +50,54 @@
             padding: var(--space-24);
         }
 
+        /* ===== LOADING SCREEN ===== */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--background);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+        #loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .loader {
+            text-align: center;
+        }
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        .loader p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ===== CONTEÚDO PRINCIPAL (escondido até verificação) ===== */
+        #main-content {
+            display: none;
+            width: 100%;
+            max-width: 420px;
+        }
+        #main-content.visible {
+            display: block;
+        }
+
         /* ===== CONTAINER ===== */
         .login-container {
             max-width: 420px;
@@ -405,51 +453,103 @@
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <!-- ===== LOGO ===== -->
-        <div class="logo">
-            <h1>🍽️ Cadê Meu <span>Rango</span>?</h1>
-            <p>Controle de Auxílio Alimentação</p>
+    <!-- ===== TELA DE LOADING (sempre visível inicialmente) ===== -->
+    <div id="loading-screen">
+        <div class="loader">
+            <div class="loader-spinner"></div>
+            <p>Carregando...</p>
         </div>
-        <div class="divider"></div>
+    </div>
 
-        <!-- ===== FORMULÁRIO ===== -->
-        <form id="loginForm">
-            <div class="form-group">
-                <label>E-mail</label>
-                <input type="email" id="email" placeholder="seu@email.com" required autocomplete="email">
+    <!-- ===== CONTEÚDO PRINCIPAL ===== -->
+    <div id="main-content">
+        <div class="login-container">
+            <!-- ===== LOGO ===== -->
+            <div class="logo">
+                <h1>🍽️ Cadê Meu <span>Rango</span>?</h1>
+                <p>Controle de Auxílio Alimentação</p>
             </div>
-            <div class="form-group">
-                <label>Senha</label>
-                <input type="password" id="password" placeholder="••••••••" required minlength="6" autocomplete="current-password">
+            <div class="divider"></div>
+
+            <!-- ===== FORMULÁRIO ===== -->
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" id="email" placeholder="seu@email.com" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" id="password" placeholder="••••••••" required minlength="6" autocomplete="current-password">
+                </div>
+                <div class="erro" id="erroMsg">E-mail ou senha inválidos</div>
+                <button type="submit" class="btn-primary">Entrar</button>
+            </form>
+
+            <!-- ===== LINKS ===== -->
+            <div class="links">
+                <a href="cadastro.html">Criar conta</a>
+                <span class="separator">•</span>
+                <a href="recuperar.html">Esqueci a senha</a>
             </div>
-            <div class="erro" id="erroMsg">E-mail ou senha inválidos</div>
-            <button type="submit" class="btn-primary">Entrar</button>
-        </form>
 
-        <!-- ===== LINKS ===== -->
-        <div class="links">
-            <a href="cadastro.html">Criar conta</a>
-            <span class="separator">•</span>
-            <a href="recuperar.html">Esqueci a senha</a>
-        </div>
-
-        <!-- ===== RODAPÉ ===== -->
-        <div class="footer-text">
-            <span>🍽️ Cadê Meu Rango?</span> • Transformando a sua relação com a gestão do seu auxílio.
+            <!-- ===== RODAPÉ ===== -->
+            <div class="footer-text">
+                <span>🍽️ Cadê Meu Rango?</span> • Transformando a sua relação com a gestão do seu auxílio.
+            </div>
         </div>
     </div>
 
     <script type="module">
         import { login } from './js/auth.js';
-        
+        import { getSessao } from './js/auth.js';
+
+        // ============================================================
+        // 1. VERIFICAR SE USUÁRIO JÁ ESTÁ LOGADO
+        //    Se estiver, redireciona para o dashboard
+        // ============================================================
+        async function verificarSessao() {
+            try {
+                const sessao = await getSessao({ retry: true, maxAttempts: 3, delayMs: 300 });
+                
+                // Se já estiver logado, não faz sentido ficar na página de login
+                if (sessao && sessao.user) {
+                    window.location.href = 'dashboard.html';
+                    return false;
+                }
+                
+                // Usuário não logado: mostrar conteúdo
+                document.getElementById('loading-screen').classList.add('hidden');
+                document.getElementById('main-content').classList.add('visible');
+                return true;
+                
+            } catch (error) {
+                console.warn('⚠️ Erro ao verificar sessão:', error);
+                // Em caso de erro, mostra a página mesmo assim
+                document.getElementById('loading-screen').classList.add('hidden');
+                document.getElementById('main-content').classList.add('visible');
+                return true;
+            }
+        }
+
+        // ============================================================
+        // 2. FORMULÁRIO DE LOGIN
+        // ============================================================
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const erroMsg = document.getElementById('erroMsg');
             
             erroMsg.style.display = 'none';
+
+            // Desabilitar botão
+            const submitBtn = e.submitter || e.target.querySelector('button[type="submit"]');
+            const textoOriginal = submitBtn?.textContent || 'Entrar';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = '⏳ Entrando...';
+            }
             
             try {
                 await login(email, password);
@@ -457,8 +557,19 @@
             } catch (error) {
                 erroMsg.style.display = 'block';
                 erroMsg.textContent = 'E-mail ou senha inválidos';
+                
+                // Reabilitar botão em caso de erro
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = textoOriginal;
+                }
             }
         });
+
+        // ============================================================
+        // 3. INICIAR VERIFICAÇÃO
+        // ============================================================
+        verificarSessao();
     </script>
 </body>
 </html>
