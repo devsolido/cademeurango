@@ -1296,6 +1296,9 @@
             }
         });
 
+        // ============================================
+        // EXCLUSÃO DE MÊS - VERSÃO CORRIGIDA
+        // ============================================
         document.getElementById('excluirMesForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -1309,31 +1312,35 @@
                 return;
             }
 
-            try {
-                function removeMesElement(id) {
-                    try {
-                        const node = document.getElementById('mes-' + id);
-                        if (node && node.parentNode) node.parentNode.removeChild(node);
-                        const container = document.getElementById('mesesContainer');
-                        if (!container.querySelectorAll('.mes-item').length) {
-                            container.innerHTML = '<div class="sem-auxilios" style="padding:var(--space-32);"><p style="color:var(--text-secondary);">Nenhum mês cadastrado neste auxílio</p></div>';
-                        }
-                    } catch (err) {
-                        console.warn('Erro ao remover elemento do DOM:', err);
-                    }
-                }
+            // Desabilitar botão
+            const submitBtn = e.submitter || e.target.querySelector('button[type="submit"]');
+            const textoOriginal = submitBtn?.textContent || 'Confirmar Exclusão';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = '⏳ Excluindo...';
+            }
 
-                const mes = meses.find(m => m.id === mesId);
-                if (!mes) {
-                    // já removido no backend ou por outro cliente - garantir UI limpa
-                    removeMesElement(mesId);
-                    excluirMesModal.style.display = 'none';
-                    document.body.style.overflow = '';
-                    alert('⚠️ Mês já removido. Interface atualizada.');
-                    await window.forceReloadData();
+            try {
+                console.log('🗑️ Excluindo mês:', mesId);
+
+                // 1. Buscar o mês para registrar histórico
+                const { data: mes, error: findError } = await supabase
+                    .from('meses')
+                    .select('*')
+                    .eq('id', mesId)
+                    .eq('user_id', user.id)
+                    .single();
+
+                if (findError) {
+                    console.warn('⚠️ Mês não encontrado:', findError);
+                    // Limpar cache local
+                    await limparCacheLocal(mesId);
+                    alert('Mês removido do cache!');
+                    location.reload();
                     return;
                 }
 
+                // 2. Registrar histórico
                 await supabase.from('historico_exclusao_meses').insert({
                     user_id: user.id,
                     mes_id: mesId,
@@ -1344,31 +1351,95 @@
                     justificativa: justificativa
                 });
 
+                // 3. Deletar gastos
                 await supabase.from('gastos').delete().eq('mes_id', mesId);
 
-                const { error } = await supabase
+                // 4. Deletar o mês
+                const { error: deleteError } = await supabase
                     .from('meses')
                     .delete()
                     .eq('id', mesId)
                     .eq('user_id', user.id);
 
-                if (error) throw error;
+                if (deleteError) throw deleteError;
 
-                // remover do DOM imediatamente
-                removeMesElement(mesId);
+                console.log('✅ Mês deletado do Supabase');
 
+                // 5. Limpar cache
+                await limparCacheLocal(mesId);
+
+                // 6. Remover do DOM
+                const elemento = document.getElementById(`mes-${mesId}`);
+                if (elemento) {
+                    elemento.remove();
+                    console.log('✅ Elemento removido do DOM');
+                }
+
+                // 7. Verificar se lista está vazia
+                const container = document.getElementById('mesesContainer');
+                if (container && !container.querySelector('.mes-item')) {
+                    container.innerHTML = `
+                        <div class="sem-auxilios" style="padding:var(--space-32);">
+                            <p style="color:var(--text-secondary);">Nenhum mês cadastrado neste auxílio</p>
+                        </div>
+                    `;
+                }
+
+                // 8. Fechar modal
                 excluirMesModal.style.display = 'none';
                 document.body.style.overflow = '';
-                
+
                 alert('✅ Mês excluído com sucesso!');
+
+                // 9. Recarregar dados
                 await window.forceReloadData();
 
+                // 10. Recarregar página para garantir
+                setTimeout(() => {
+                    location.reload();
+                }, 500);
+
             } catch (error) {
+                console.error('❌ Erro na exclusão:', error);
                 erroEl.style.display = 'block';
                 erroEl.textContent = error.message || 'Erro ao excluir mês';
-                console.error('Erro:', error);
+            } finally {
+                // Reabilitar botão
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = textoOriginal;
+                }
             }
         });
+
+        // ===== FUNÇÃO AUXILIAR PARA LIMPAR CACHE =====
+        async function limparCacheLocal(mesId) {
+            try {
+                console.log('🧹 Limpando cache...');
+                const snapshotKey = `cademeurango:snapshot_${user.id}`;
+                const snapshotStr = localStorage.getItem(snapshotKey);
+                
+                if (snapshotStr) {
+                    const snapshot = JSON.parse(snapshotStr);
+                    const antes = snapshot.meses?.length || 0;
+                    snapshot.meses = (snapshot.meses || []).filter(m => m.id !== mesId);
+                    snapshot.gastos = (snapshot.gastos || []).filter(g => g.mes_id !== mesId);
+                    snapshot.updatedAt = new Date().toISOString();
+                    localStorage.setItem(snapshotKey, JSON.stringify(snapshot));
+                    console.log(`✅ Cache limpo: ${antes} → ${snapshot.meses.length} meses`);
+                }
+                
+                // Também limpar o array global
+                const index = meses.findIndex(m => m.id === mesId);
+                if (index > -1) {
+                    meses.splice(index, 1);
+                    console.log('✅ Array global atualizado');
+                }
+                
+            } catch (error) {
+                console.warn('⚠️ Erro ao limpar cache:', error);
+            }
+        }
 
         window.editarAuxilio = async function(id) {
             const auxilio = auxilios.find(a => a.id === id);
