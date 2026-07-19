@@ -663,7 +663,7 @@
     </style>
 </head>
 <body>
-    <!-- ===== TELA DE LOADING (sempre visível inicialmente) ===== -->
+    <!-- ===== TELA DE LOADING ===== -->
     <div id="loading-screen">
         <div class="loader">
             <div class="loader-spinner"></div>
@@ -711,8 +711,7 @@
         </div>
     </div>
 
-    <!-- MODAIS (permanecem iguais) -->
-    <!-- MODAL AUXÍLIO -->
+    <!-- ===== MODAL AUXÍLIO ===== -->
     <div class="modal" id="auxilioModal">
         <div class="modal-content">
             <span class="close" id="fecharModal">&times;</span>
@@ -749,7 +748,7 @@
         </div>
     </div>
 
-    <!-- MODAL MÊS -->
+    <!-- ===== MODAL MÊS ===== -->
     <div class="modal" id="mesModal">
         <div class="modal-content">
             <span class="close" id="fecharMesModal">&times;</span>
@@ -803,7 +802,7 @@
         </div>
     </div>
 
-    <!-- MODAL EXCLUIR MÊS -->
+    <!-- ===== MODAL EXCLUIR MÊS ===== -->
     <div class="modal" id="excluirMesModal">
         <div class="modal-content" id="excluirMesModalContent">
             <span class="close" id="fecharExcluirMesModal">&times;</span>
@@ -821,7 +820,7 @@
         </div>
     </div>
 
-    <!-- MODAL EDITAR MÊS -->
+    <!-- ===== MODAL EDITAR MÊS ===== -->
     <div class="modal" id="editarMesModal">
         <div class="modal-content">
             <span class="close" id="fecharEditarMesModal">&times;</span>
@@ -849,24 +848,20 @@
         import { loadSnapshot, saveSnapshot, logSistema } from './js/sync.js';
 
         // ============================================================
-        // 1. VERIFICAR AUTENTICAÇÃO ANTES DE MOSTRAR CONTEÚDO
+        // 1. VERIFICAR AUTENTICAÇÃO
         // ============================================================
         async function verificarAutenticacao() {
             try {
                 const sessao = await getSessao({ retry: true, maxAttempts: 5, delayMs: 300 });
-                
                 if (!sessao || !sessao.user) {
                     window.location.href = 'login.html';
                     return false;
                 }
-                
                 user = sessao.user;
                 document.getElementById('loading-screen').classList.add('hidden');
                 document.getElementById('main-content').classList.add('visible');
-                
                 await carregarDados();
                 return true;
-                
             } catch (error) {
                 console.error('❌ Erro na autenticação:', error);
                 window.location.href = 'login.html';
@@ -875,7 +870,7 @@
         }
 
         // ============================================================
-        // 2. EXECUTAR VERIFICAÇÃO IMEDIATAMENTE
+        // 2. VARIÁVEIS GLOBAIS
         // ============================================================
         let user = null;
         let auxilios = [];
@@ -930,48 +925,61 @@
             });
         }
 
-        const tipoAuxilioSelect = document.getElementById('tipoAuxilio');
-        const periodoInput = document.getElementById('periodo');
-
-        function aplicarTipoAuxilio(tipo = tipoAuxilioSelect?.value) {
-            if (!tipoAuxilioSelect || !periodoInput) return;
-
-            if (tipo === 'outro') {
-                document.getElementById('valor').value = '';
-                document.getElementById('dias').value = '';
-                if (periodoInput.value === 'Auxílio Alimentação 2026') {
-                    periodoInput.value = '';
-                }
-                periodoInput.placeholder = 'Digite o nome do auxílio';
+        // ============================================================
+        // 3. FUNÇÃO RENDERIZAR AUXÍLIOS (DEFINIDA PRIMEIRO)
+        // ============================================================
+        function renderizarAuxilios() {
+            const container = document.getElementById('listaAuxilios');
+            
+            if (!container) {
+                console.error('❌ Elemento listaAuxilios não encontrado');
+                return;
+            }
+            
+            if (auxilios.length === 0) {
+                container.innerHTML = `
+                    <div class="sem-auxilios">
+                        <h2>📭 Nenhum auxílio cadastrado</h2>
+                        <p>Clique em "Novo Auxílio" para começar</p>
+                        <button class="btn-primary" id="btnNovoAuxilioEmpty" style="margin:0 auto;" onclick="abrirModalAuxilio()">+ Novo Auxílio</button>
+                    </div>
+                `;
                 return;
             }
 
-            document.getElementById('valor').value = '440';
-            document.getElementById('dias').value = '22';
-            if (!periodoInput.value || periodoInput.value === 'Outro') {
-                periodoInput.value = 'Auxílio Alimentação 2026';
-            }
-            periodoInput.placeholder = 'Ex: Auxílio Alimentação 2026';
+            container.innerHTML = auxilios.map(a => {
+                const mesesAuxilio = meses.filter(m => m.auxilio_id === a.id);
+                const totalMeses = mesesAuxilio.length;
+                const ativos = mesesAuxilio.filter(m => m.ativo).length;
+                
+                return `
+                    <div class="auxilio-card" data-id="${a.id}">
+                        <div class="auxilio-content">
+                            <div class="auxilio-info">
+                                <h3>📅 ${a.periodo}</h3>
+                                <div class="auxilio-detalhes">
+                                    <span>💰 R$ ${a.valor.toFixed(2)}</span>
+                                    <span>📆 Início: ${new Date(a.data_inicio).toLocaleDateString()}</span>
+                                    <span>📌 ${a.dias_totais} dias</span>
+                                    <span style="color:var(--text-secondary); font-size:12px;">
+                                        📅 ${totalMeses} meses (${ativos} ativos)
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="auxilio-actions">
+                                <button class="btn-success" onclick="event.stopPropagation(); verMeses('${a.id}')">📅 Ver Meses</button>
+                                <button class="btn-secondary" onclick="event.stopPropagation(); editarAuxilio('${a.id}')">✏️</button>
+                                <button class="btn-danger" onclick="event.stopPropagation(); excluirAuxilio('${a.id}')">🗑️</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
-        tipoAuxilioSelect?.addEventListener('change', (event) => {
-            aplicarTipoAuxilio(event.target.value);
-        });
-
-        window.abrirModalAuxilio = function() {
-            document.getElementById('modalTitulo').textContent = '📝 Cadastrar Auxílio';
-            document.getElementById('auxilioId').value = '';
-            tipoAuxilioSelect.value = 'alimentacao';
-            periodoInput.value = 'Auxílio Alimentação 2026';
-            document.getElementById('valor').value = '440';
-            document.getElementById('dataInicio').value = new Date().toISOString().split('T')[0];
-            document.getElementById('dias').value = '22';
-            document.getElementById('erroMsg').style.display = 'none';
-            document.getElementById('sucessoMsg').style.display = 'none';
-            aplicarTipoAuxilio('alimentacao');
-            document.getElementById('auxilioModal').style.display = 'flex';
-        };
-
+        // ============================================================
+        // 4. FUNÇÃO CARREGAR DADOS
+        // ============================================================
         async function carregarDados(forceRefresh = false) {
             try {
                 console.log('🔄 Carregando dados...');
@@ -1020,17 +1028,753 @@
             }
         }
 
-        // ===== O RESTO DO CÓDIGO PERMANECE IGUAL =====
-        // (renderizarAuxilios, verMeses, finalizarMes, exportarMesCSV, 
-        //  abrirEditarMes, editarMesForm, verDetalhesMes, abrirMesModal,
-        //  excluirMesModal, excluirMesForm, limparCacheLocal, editarAuxilio,
-        //  excluirAuxilio, auxilioForm, mesForm, btnSair)
+        // ============================================================
+        // 5. FUNÇÃO VER MESES
+        // ============================================================
+        window.verMeses = async function(auxilioId) {
+            auxilioSelecionado = auxilios.find(a => a.id === auxilioId);
+            if (!auxilioSelecionado) return;
 
-        // [Aqui entra todo o código que você já tem, sem alterações]
+            const mesesAuxilio = meses.filter(m => m.auxilio_id === auxilioId);
+
+            document.getElementById('viewLista').style.display = 'none';
+            document.getElementById('viewMeses').style.display = 'block';
+
+            const container = document.getElementById('mesesContainer');
+            container.innerHTML = `
+                <div class="header-actions" style="margin-top:0;">
+                    <h2 style="font-size:20px; color:var(--primary);">📅 ${auxilioSelecionado.periodo}</h2>
+                    <div style="display:flex; gap:var(--space-8); flex-wrap:wrap;">
+                        <button class="btn-primary" onclick="abrirMesModal('${auxilioId}')">+ Adicionar Mês</button>
+                    </div>
+                </div>
+                <div style="display:flex; gap:var(--space-16); flex-wrap:wrap; margin-bottom:var(--space-24);">
+                    <div class="resumo-item" style="flex:1; min-width:100px;">
+                        <div class="label">💰 Total</div>
+                        <div class="value">R$ ${auxilioSelecionado.valor.toFixed(2)}</div>
+                    </div>
+                    <div class="resumo-item" style="flex:1; min-width:100px;">
+                        <div class="label">📅 Meses</div>
+                        <div class="value">${mesesAuxilio.length}</div>
+                    </div>
+                    <div class="resumo-item" style="flex:1; min-width:100px;">
+                        <div class="label">🟢 Ativos</div>
+                        <div class="value" style="color:var(--primary);">${mesesAuxilio.filter(m => m.ativo).length}</div>
+                    </div>
+                </div>
+                <div style="display:grid; gap:var(--space-12);">
+                    ${mesesAuxilio.length === 0 ? 
+                        '<div class="sem-auxilios" style="padding:var(--space-32);"><p style="color:var(--text-secondary);">Nenhum mês cadastrado neste auxílio</p></div>' :
+                        mesesAuxilio.map(m => `
+                            <div class="mes-item" id="mes-${m.id}" onclick="verDetalhesMes('${m.id}')">
+                                <span class="mes-nome">📅 ${m.nome}</span>
+                                <span class="mes-valor">R$ ${m.valor_mensal.toFixed(2)}</span>
+                                <span class="mes-status ${m.ativo ? 'ativo' : 'inativo'}">
+                                    ${m.ativo ? '🟢 Ativo' : '🔴 Finalizado'}
+                                </span>
+                                <div style="display:flex; gap:4px; flex-wrap:wrap;">
+                                    ${m.ativo ? `<button class="btn-secondary" onclick="event.stopPropagation(); finalizarMes('${m.id}')" style="font-size:11px; padding:2px 8px; height:28px;">🔴 Finalizar</button>` : ''}
+                                    <button class="btn-secondary" onclick="event.stopPropagation(); abrirEditarMes('${m.id}')" style="font-size:11px; padding:2px 8px; height:28px;">✏️</button>
+                                    <button class="btn-secondary" onclick="event.stopPropagation(); exportarMesCSV('${m.id}')" style="font-size:11px; padding:2px 8px; height:28px;">📊 CSV</button>
+                                    <button class="btn-danger" onclick="event.stopPropagation(); abrirExcluirMes('${m.id}')" style="font-size:11px; padding:2px 8px; height:28px;">🗑️</button>
+                                </div>
+                            </div>
+                        `).join('')
+                    }
+                </div>
+            `;
+
+            document.getElementById('btnVoltarMeses').onclick = () => {
+                document.getElementById('viewMeses').style.display = 'none';
+                document.getElementById('viewLista').style.display = 'block';
+            };
+        };
 
         // ============================================================
-        // 3. INICIAR APLICAÇÃO (verificação de autenticação)
+        // 6. FINALIZAR MÊS
         // ============================================================
+        window.finalizarMes = async function(mesId) {
+            if (!confirm('⚠️ Tem certeza que deseja finalizar este mês? Ele não poderá mais receber gastos.')) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('meses')
+                    .update({ ativo: false })
+                    .eq('id', mesId)
+                    .eq('user_id', user.id);
+                
+                if (error) throw error;
+                
+                alert('✅ Mês finalizado com sucesso!');
+                await window.forceReloadData();
+            } catch (error) {
+                alert('❌ Erro ao finalizar mês: ' + error.message);
+                console.error('Erro:', error);
+            }
+        };
+
+        // ============================================================
+        // 7. EXPORTAR MÊS PARA CSV
+        // ============================================================
+        window.exportarMesCSV = async function(mesId) {
+            const mes = meses.find(m => m.id === mesId);
+            if (!mes) {
+                alert('Mês não encontrado');
+                return;
+            }
+
+            try {
+                const { data: gastosData } = await supabase
+                    .from('gastos')
+                    .select('*')
+                    .eq('mes_id', mesId)
+                    .eq('user_id', user.id)
+                    .order('data_gasto', { ascending: true });
+
+                const gastosMes = gastosData || [];
+                const totalGasto = gastosMes.reduce((s, g) => s + g.valor, 0);
+                const saldo = mes.valor_mensal - totalGasto;
+
+                let csv = 'Data,Local,Valor,Tipo,Observação\n';
+                csv += `"Resumo do Mês","${mes.nome}",,,\n`;
+                csv += `"Valor Total","R$ ${mes.valor_mensal.toFixed(2)}",,,\n`;
+                csv += `"Total Gasto","R$ ${totalGasto.toFixed(2)}",,,\n`;
+                csv += `"Saldo","R$ ${saldo.toFixed(2)}",,,\n\n`;
+                csv += 'Data,Local,Valor,Tipo,Observação\n';
+
+                if (gastosMes.length === 0) {
+                    csv += 'Nenhum gasto registrado,,,,\n';
+                } else {
+                    gastosMes.forEach(g => {
+                        const data = new Date(g.data_gasto).toLocaleDateString();
+                        const valor = g.valor.toFixed(2).replace('.', ',');
+                        const local = (g.local || 'Sem local').replace(/,/g, ';');
+                        const obs = (g.observacao || '').replace(/,/g, ';');
+                        const tipo = g.tipo_dia || '';
+                        csv += `"${data}","${local}",${valor},"${tipo}","${obs}"\n`;
+                    });
+                }
+
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.href = url;
+                link.setAttribute('download', `${mes.nome.replace('/', '_')}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+
+            } catch (error) {
+                alert('❌ Erro ao exportar: ' + error.message);
+                console.error('Erro:', error);
+            }
+        };
+
+        // ============================================================
+        // 8. EDIÇÃO DE MÊS
+        // ============================================================
+        window.abrirEditarMes = function(mesId) {
+            const mes = meses.find(m => m.id === mesId);
+            if (!mes) {
+                alert('Mês não encontrado');
+                return;
+            }
+
+            document.getElementById('editarMesId').value = mesId;
+            document.getElementById('editarMesValor').value = mes.valor_mensal;
+            document.getElementById('editarMesDias').value = mes.dias_mes;
+            document.getElementById('erroEditarMes').style.display = 'none';
+            document.getElementById('sucessoEditarMes').style.display = 'none';
+            document.getElementById('editarMesModal').style.display = 'flex';
+        };
+
+        document.getElementById('fecharEditarMesModal').addEventListener('click', () => {
+            document.getElementById('editarMesModal').style.display = 'none';
+        });
+
+        document.getElementById('editarMesModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                document.getElementById('editarMesModal').style.display = 'none';
+            }
+        });
+
+        document.getElementById('editarMesForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const mesId = document.getElementById('editarMesId').value;
+            const valor = parseFloat(document.getElementById('editarMesValor').value);
+            const dias = parseInt(document.getElementById('editarMesDias').value);
+            const erroMsg = document.getElementById('erroEditarMes');
+            const sucessoMsg = document.getElementById('sucessoEditarMes');
+            
+            erroMsg.style.display = 'none';
+            sucessoMsg.style.display = 'none';
+
+            try {
+                const { error } = await supabase
+                    .from('meses')
+                    .update({ 
+                        valor_mensal: valor, 
+                        dias_mes: dias 
+                    })
+                    .eq('id', mesId)
+                    .eq('user_id', user.id);
+
+                if (error) throw error;
+
+                sucessoMsg.style.display = 'block';
+                sucessoMsg.textContent = '✅ Mês atualizado!';
+                setTimeout(async () => {
+                    document.getElementById('editarMesModal').style.display = 'none';
+                    await window.forceReloadData();
+                }, 1000);
+            } catch (error) {
+                erroMsg.style.display = 'block';
+                erroMsg.textContent = error.message || 'Erro ao salvar';
+            }
+        });
+
+        // ============================================================
+        // 9. VER DETALHES DO MÊS
+        // ============================================================
+        window.verDetalhesMes = async function(mesId) {
+            const mes = meses.find(m => m.id === mesId);
+            if (!mes) return;
+
+            const { data: gastosData } = await supabase
+                .from('gastos')
+                .select('*')
+                .eq('mes_id', mesId)
+                .eq('user_id', user.id)
+                .order('data_gasto', { ascending: false });
+
+            gastos = gastosData || [];
+
+            const totalGasto = gastos.reduce((s, g) => s + g.valor, 0);
+            const saldo = mes.valor_mensal - totalGasto;
+
+            document.getElementById('viewMeses').style.display = 'none';
+            document.getElementById('viewDetalhes').style.display = 'block';
+
+            const container = document.getElementById('detalhesContainer');
+            container.innerHTML = `
+                <div class="detalhes-header">
+                    <h2>📅 ${mes.nome}</h2>
+                    <span class="total">R$ ${mes.valor_mensal.toFixed(2)}</span>
+                </div>
+
+                <div class="resumo-detalhes">
+                    <div class="resumo-item">
+                        <div class="label">💰 Saldo Atual</div>
+                        <div class="value success">R$ ${saldo.toFixed(2)}</div>
+                    </div>
+                    <div class="resumo-item">
+                        <div class="label">💸 Total Gasto</div>
+                        <div class="value danger">R$ ${totalGasto.toFixed(2)}</div>
+                    </div>
+                    <div class="resumo-item">
+                        <div class="label">📆 Dias</div>
+                        <div class="value">${mes.dias_mes}</div>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom:var(--space-16); color:var(--text-secondary); font-size:16px;">📋 Gastos</h3>
+                <div>
+                    ${gastos.length === 0 ? 
+                        '<div class="sem-gastos">🍽️ Nenhum gasto registrado</div>' :
+                        gastos.map(g => `
+                            <div class="gasto-item">
+                                <div class="gasto-info">
+                                    <span>${new Date(g.data_gasto).toLocaleDateString()} - ${g.local || 'Sem local'}</span>
+                                    <span class="data">${g.observacao || ''} ${g.tipo_dia ? ' | ' + g.tipo_dia : ''}</span>
+                                    ${g.comprovante ? `<span class="comprovante-link">📎 <a href="${g.comprovante}" target="_blank">Ver comprovante</a></span>` : ''}
+                                </div>
+                                <span class="gasto-valor">R$ ${g.valor.toFixed(2)}</span>
+                            </div>
+                        `).join('')
+                    }
+                </div>
+            `;
+
+            document.getElementById('btnVoltarDetalhes').onclick = () => {
+                document.getElementById('viewDetalhes').style.display = 'none';
+                verMeses(mes.auxilio_id);
+            };
+        };
+
+        // ============================================================
+        // 10. ABRIR MODAL MÊS
+        // ============================================================
+        window.abrirMesModal = function(auxilioId) {
+            const auxilio = auxilios.find(a => a.id === auxilioId);
+            if (!auxilio) return;
+
+            const hoje = new Date();
+            const mesAtual = hoje.getMonth();
+            const anoAtual = hoje.getFullYear();
+
+            document.getElementById('mesAuxilioId').value = auxilioId;
+            document.getElementById('mesValor').value = (auxilio.valor / 1).toFixed(2);
+            document.getElementById('mesDias').value = auxilio.dias_totais || 22;
+            document.getElementById('mesDataInicio').value = hoje.toISOString().split('T')[0];
+            
+            const mesesArray = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+            document.getElementById('mesSelecionado').value = mesesArray[mesAtual];
+            document.getElementById('anoSelecionado').value = anoAtual;
+            
+            document.getElementById('erroMes').style.display = 'none';
+            document.getElementById('sucessoMes').style.display = 'none';
+            document.getElementById('mesModal').style.display = 'flex';
+        };
+
+        // ============================================================
+        // 11. TIPO DE AUXÍLIO
+        // ============================================================
+        const tipoAuxilioSelect = document.getElementById('tipoAuxilio');
+        const periodoInput = document.getElementById('periodo');
+
+        function aplicarTipoAuxilio(tipo = tipoAuxilioSelect?.value) {
+            if (!tipoAuxilioSelect || !periodoInput) return;
+
+            if (tipo === 'outro') {
+                document.getElementById('valor').value = '';
+                document.getElementById('dias').value = '';
+                if (periodoInput.value === 'Auxílio Alimentação 2026') {
+                    periodoInput.value = '';
+                }
+                periodoInput.placeholder = 'Digite o nome do auxílio';
+                return;
+            }
+
+            document.getElementById('valor').value = '440';
+            document.getElementById('dias').value = '22';
+            if (!periodoInput.value || periodoInput.value === 'Outro') {
+                periodoInput.value = 'Auxílio Alimentação 2026';
+            }
+            periodoInput.placeholder = 'Ex: Auxílio Alimentação 2026';
+        }
+
+        tipoAuxilioSelect?.addEventListener('change', (event) => {
+            aplicarTipoAuxilio(event.target.value);
+        });
+
+        // ============================================================
+        // 12. ABRIR MODAL AUXÍLIO
+        // ============================================================
+        window.abrirModalAuxilio = function() {
+            document.getElementById('modalTitulo').textContent = '📝 Cadastrar Auxílio';
+            document.getElementById('auxilioId').value = '';
+            tipoAuxilioSelect.value = 'alimentacao';
+            periodoInput.value = 'Auxílio Alimentação 2026';
+            document.getElementById('valor').value = '440';
+            document.getElementById('dataInicio').value = new Date().toISOString().split('T')[0];
+            document.getElementById('dias').value = '22';
+            document.getElementById('erroMsg').style.display = 'none';
+            document.getElementById('sucessoMsg').style.display = 'none';
+            aplicarTipoAuxilio('alimentacao');
+            document.getElementById('auxilioModal').style.display = 'flex';
+        };
+
+        // ============================================================
+        // 13. AUXÍLIO FORM - SUBMIT (COM CRIAÇÃO CORRETA DO MÊS)
+        // ============================================================
+        document.getElementById('auxilioForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const id = document.getElementById('auxilioId').value;
+            const periodo = document.getElementById('periodo').value;
+            const valor = parseFloat(document.getElementById('valor').value);
+            const dataInicio = document.getElementById('dataInicio').value;
+            const dias = parseInt(document.getElementById('dias').value);
+            const erroMsg = document.getElementById('erroMsg');
+            const sucessoMsg = document.getElementById('sucessoMsg');
+            
+            erroMsg.style.display = 'none';
+            sucessoMsg.style.display = 'none';
+
+            // Desabilitar botão
+            const submitBtn = e.submitter || e.target.querySelector('button[type="submit"]');
+            const textoOriginal = submitBtn?.textContent || '💾 Salvar';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = '⏳ Salvando...';
+            }
+
+            try {
+                if (id) {
+                    const { error } = await supabase
+                        .from('auxilios')
+                        .update({ periodo, valor, data_inicio: dataInicio, dias_totais: dias })
+                        .eq('id', id)
+                        .eq('user_id', user.id);
+                    if (error) throw error;
+                    sucessoMsg.textContent = '✅ Auxílio atualizado!';
+                } else {
+                    // INSERIR AUXÍLIO
+                    const { data: auxData, error: auxError } = await supabase.from('auxilios')
+                        .insert({
+                            user_id: user.id,
+                            periodo: periodo,
+                            valor: valor,
+                            data_inicio: dataInicio,
+                            dias_totais: dias,
+                            saldo_inicial: valor
+                        })
+                        .select();
+
+                    if (auxError) throw auxError;
+
+                    const insertedAuxilio = (auxData && auxData[0]) ? auxData[0] : null;
+                    if (insertedAuxilio) {
+                        // ============================================================
+                        // 🔥 CORREÇÃO: CRIAR MÊS CORRESPONDENTE À DATA DE INÍCIO
+                        // ============================================================
+                        try {
+                            const d = new Date(dataInicio);
+                            const mesesArray = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+                            const nomeMes = `${mesesArray[d.getMonth()]}/${d.getFullYear()}`;
+                            
+                            console.log(`📅 Criando mês inicial: ${nomeMes} para auxílio ${insertedAuxilio.id}`);
+                            
+                            await supabase.from('meses').insert({
+                                user_id: user.id,
+                                auxilio_id: insertedAuxilio.id,
+                                nome: nomeMes,
+                                valor_mensal: valor,
+                                dias_mes: dias,
+                                saldo_inicial_mes: valor,
+                                data_inicio: dataInicio,
+                                ativo: true
+                            });
+                            
+                            console.log(`✅ Mês ${nomeMes} criado com sucesso!`);
+                        } catch (err) {
+                            console.warn('⚠️ Falha ao criar mês inicial automaticamente:', err.message || err);
+                        }
+                    }
+
+                    sucessoMsg.textContent = '✅ Auxílio cadastrado!';
+                }
+
+                sucessoMsg.style.display = 'block';
+                setTimeout(async () => {
+                    document.getElementById('auxilioModal').style.display = 'none';
+                    await window.forceReloadData();
+                }, 1000);
+            } catch (error) {
+                erroMsg.style.display = 'block';
+                erroMsg.textContent = error.message || 'Erro ao salvar';
+                console.error('Erro:', error);
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = textoOriginal;
+                }
+            }
+        });
+
+        // ============================================================
+        // 14. MÊS FORM - SUBMIT
+        // ============================================================
+        document.getElementById('mesForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const auxilioId = document.getElementById('mesAuxilioId').value;
+            const mes = document.getElementById('mesSelecionado').value;
+            const ano = document.getElementById('anoSelecionado').value;
+            const nome = `${mes}/${ano}`;
+            const valor = parseFloat(document.getElementById('mesValor').value);
+            const dias = parseInt(document.getElementById('mesDias').value);
+            const dataInicio = document.getElementById('mesDataInicio').value;
+            const erroMsg = document.getElementById('erroMes');
+            const sucessoMsg = document.getElementById('sucessoMes');
+            
+            erroMsg.style.display = 'none';
+            sucessoMsg.style.display = 'none';
+
+            if (!mes || !ano) {
+                erroMsg.style.display = 'block';
+                erroMsg.textContent = 'Selecione o mês e o ano';
+                return;
+            }
+
+            // Desabilitar botão
+            const submitBtn = e.submitter || e.target.querySelector('button[type="submit"]');
+            const textoOriginal = submitBtn?.textContent || '✅ Iniciar Mês';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = '⏳ Salvando...';
+            }
+
+            try {
+                const { error } = await supabase.from('meses').insert({
+                    user_id: user.id,
+                    auxilio_id: auxilioId,
+                    nome: nome,
+                    valor_mensal: valor,
+                    dias_mes: dias,
+                    saldo_inicial_mes: valor,
+                    data_inicio: dataInicio,
+                    ativo: true
+                });
+
+                if (error) throw error;
+
+                sucessoMsg.style.display = 'block';
+                sucessoMsg.textContent = '✅ Mês iniciado!';
+                setTimeout(async () => {
+                    document.getElementById('mesModal').style.display = 'none';
+                    await window.forceReloadData();
+                }, 1000);
+            } catch (error) {
+                erroMsg.style.display = 'block';
+                erroMsg.textContent = error.message || 'Erro ao iniciar mês';
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = textoOriginal;
+                }
+            }
+        });
+
+        // ============================================================
+        // 15. EXCLUIR MÊS
+        // ============================================================
+        const excluirMesModal = document.getElementById('excluirMesModal');
+        const excluirMesModalContent = document.getElementById('excluirMesModalContent');
+
+        window.abrirExcluirMes = function(mesId) {
+            document.getElementById('excluirMesId').value = mesId;
+            document.getElementById('justificativaMes').value = '';
+            document.getElementById('erroExcluirMes').style.display = 'none';
+            excluirMesModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        };
+
+        document.getElementById('fecharExcluirMesModal').addEventListener('click', () => {
+            excluirMesModal.style.display = 'none';
+            document.body.style.overflow = '';
+        });
+
+        excluirMesModal.addEventListener('click', (e) => {
+            if (e.target === excluirMesModal) {
+                excluirMesModal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        });
+
+        excluirMesModalContent.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && excluirMesModal.style.display === 'flex') {
+                excluirMesModal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        });
+
+        // ============================================================
+        // 16. EXCLUSÃO DE MÊS - SUBMIT
+        // ============================================================
+        document.getElementById('excluirMesForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const mesId = document.getElementById('excluirMesId').value;
+            const justificativa = document.getElementById('justificativaMes').value.trim();
+            const erroEl = document.getElementById('erroExcluirMes');
+            
+            if (!justificativa) {
+                erroEl.style.display = 'block';
+                erroEl.textContent = 'Por favor, informe uma justificativa';
+                return;
+            }
+
+            const submitBtn = e.submitter || e.target.querySelector('button[type="submit"]');
+            const textoOriginal = submitBtn?.textContent || 'Confirmar Exclusão';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = '⏳ Excluindo...';
+            }
+
+            try {
+                console.log('🗑️ Excluindo mês:', mesId);
+
+                const { error: rpcError } = await supabase.rpc('excluir_mes_completo', {
+                    p_mes_id: mesId,
+                    p_justificativa: justificativa
+                });
+
+                if (rpcError) {
+                    const funcaoAusente = rpcError.code === 'PGRST202' || /function .* does not exist/i.test(rpcError.message || '');
+                    if (!funcaoAusente) throw rpcError;
+
+                    console.warn('⚠️ RPC indisponível, usando fallback manual');
+                    
+                    const { data: mes, error: findError } = await supabase
+                        .from('meses')
+                        .select('*')
+                        .eq('id', mesId)
+                        .eq('user_id', user.id)
+                        .single();
+
+                    if (findError) {
+                        console.warn('⚠️ Mês não encontrado:', findError);
+                        await limparCacheLocal(mesId);
+                        alert('Mês removido do cache!');
+                        location.reload();
+                        return;
+                    }
+
+                    await supabase.from('historico_exclusao_meses').insert({
+                        user_id: user.id,
+                        mes_id: mesId,
+                        nome: mes.nome,
+                        valor_mensal: mes.valor_mensal,
+                        dias_mes: mes.dias_mes,
+                        data_inicio: mes.data_inicio,
+                        justificativa: justificativa
+                    });
+
+                    await supabase.from('gastos').delete().eq('mes_id', mesId).eq('user_id', user.id);
+                    
+                    const { error: deleteError } = await supabase
+                        .from('meses')
+                        .delete()
+                        .eq('id', mesId)
+                        .eq('user_id', user.id);
+
+                    if (deleteError) throw deleteError;
+                }
+
+                console.log('✅ Mês deletado do Supabase');
+                await limparCacheLocal(mesId);
+
+                const elemento = document.getElementById(`mes-${mesId}`);
+                if (elemento) {
+                    elemento.remove();
+                    console.log('✅ Elemento removido do DOM');
+                }
+
+                const container = document.getElementById('mesesContainer');
+                if (container && !container.querySelector('.mes-item')) {
+                    container.innerHTML = `
+                        <div class="sem-auxilios" style="padding:var(--space-32);">
+                            <p style="color:var(--text-secondary);">Nenhum mês cadastrado neste auxílio</p>
+                        </div>
+                    `;
+                }
+
+                excluirMesModal.style.display = 'none';
+                document.body.style.overflow = '';
+                alert('✅ Mês excluído com sucesso!');
+                location.reload();
+
+            } catch (error) {
+                console.error('❌ Erro na exclusão:', error);
+                erroEl.style.display = 'block';
+                erroEl.textContent = error.message || 'Erro ao excluir mês';
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = textoOriginal;
+                }
+            }
+        });
+
+        // ============================================================
+        // 17. FUNÇÃO AUXILIAR PARA LIMPAR CACHE
+        // ============================================================
+        async function limparCacheLocal(mesId) {
+            try {
+                console.log('🧹 Limpando cache...');
+                const snapshotKey = `cademeurango:snapshot_${user.id}`;
+                const snapshotStr = localStorage.getItem(snapshotKey);
+                
+                if (snapshotStr) {
+                    const snapshot = JSON.parse(snapshotStr);
+                    const antes = snapshot.meses?.length || 0;
+                    snapshot.meses = (snapshot.meses || []).filter(m => m.id !== mesId);
+                    snapshot.gastos = (snapshot.gastos || []).filter(g => g.mes_id !== mesId);
+                    snapshot.updatedAt = new Date().toISOString();
+                    localStorage.setItem(snapshotKey, JSON.stringify(snapshot));
+                    console.log(`✅ Cache limpo: ${antes} → ${snapshot.meses.length} meses`);
+                }
+                
+                const index = meses.findIndex(m => m.id === mesId);
+                if (index > -1) {
+                    meses.splice(index, 1);
+                    console.log('✅ Array global atualizado');
+                }
+                
+            } catch (error) {
+                console.warn('⚠️ Erro ao limpar cache:', error);
+            }
+        }
+
+        // ============================================================
+        // 18. EDIÇÃO DE AUXÍLIO
+        // ============================================================
+        window.editarAuxilio = async function(id) {
+            const auxilio = auxilios.find(a => a.id === id);
+            if (!auxilio) return;
+
+            document.getElementById('modalTitulo').textContent = '✏️ Editar Auxílio';
+            document.getElementById('auxilioId').value = auxilio.id;
+            document.getElementById('periodo').value = auxilio.periodo;
+            document.getElementById('valor').value = auxilio.valor;
+            document.getElementById('dataInicio').value = auxilio.data_inicio;
+            document.getElementById('dias').value = auxilio.dias_totais;
+            document.getElementById('erroMsg').style.display = 'none';
+            document.getElementById('sucessoMsg').style.display = 'none';
+            document.getElementById('auxilioModal').style.display = 'flex';
+        };
+
+        // ============================================================
+        // 19. EXCLUSÃO DE AUXÍLIO
+        // ============================================================
+        window.excluirAuxilio = async function(id) {
+            if (!confirm('⚠️ Tem certeza que deseja excluir este auxílio? Todos os meses e gastos serão perdidos!')) return;
+            
+            try {
+                await supabase.from('meses').delete().eq('auxilio_id', id).eq('user_id', user.id);
+                await supabase.from('gastos').delete().eq('auxilio_id', id).eq('user_id', user.id);
+                const { error } = await supabase
+                    .from('auxilios')
+                    .delete()
+                    .eq('id', id)
+                    .eq('user_id', user.id);
+                if (error) throw error;
+                
+                alert('✅ Auxílio excluído!');
+                await window.forceReloadData();
+            } catch (error) {
+                alert('❌ Erro: ' + error.message);
+            }
+        };
+
+        // ============================================================
+        // 20. EVENT LISTENERS
+        // ============================================================
+        document.getElementById('btnNovoAuxilio').addEventListener('click', abrirModalAuxilio);
+        document.getElementById('fecharModal').addEventListener('click', () => document.getElementById('auxilioModal').style.display = 'none');
+        document.getElementById('auxilioModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.style.display = 'none'; });
+
+        document.getElementById('fecharMesModal').addEventListener('click', () => document.getElementById('mesModal').style.display = 'none');
+        document.getElementById('mesModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.style.display = 'none'; });
+
+        document.getElementById('fecharExcluirMesModal').addEventListener('click', () => document.getElementById('excluirMesModal').style.display = 'none');
+
+        document.getElementById('btnSair').addEventListener('click', async () => {
+            await logout();
+            window.location.href = 'login.html';
+        });
+
+        // ============================================================
+        // 21. INICIAR APLICAÇÃO
+        // ============================================================
+        console.log('🚀 Iniciando aplicação...');
         verificarAutenticacao();
     </script>
 </body>
