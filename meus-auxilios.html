@@ -1070,6 +1070,7 @@
                     .from('gastos')
                     .select('*')
                     .eq('mes_id', mesId)
+                    .eq('user_id', user.id)
                     .order('data_gasto', { ascending: true });
 
                 const gastosMes = gastosData || [];
@@ -1184,6 +1185,7 @@
                 .from('gastos')
                 .select('*')
                 .eq('mes_id', mesId)
+                .eq('user_id', user.id)
                 .order('data_gasto', { ascending: false });
 
             gastos = gastosData || [];
@@ -1297,7 +1299,7 @@
         });
 
         // ============================================
-        // EXCLUSÃO DE MÊS - VERSÃO CORRIGIDA
+        // EXCLUSÃO DE MÊS - VERSÃO CORRIGIDA E ENDURECIDA
         // ============================================
         document.getElementById('excluirMesForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1323,59 +1325,91 @@
             try {
                 console.log('🗑️ Excluindo mês:', mesId);
 
-                // 1. Buscar o mês para registrar histórico
-                const { data: mes, error: findError } = await supabase
-                    .from('meses')
-                    .select('*')
-                    .eq('id', mesId)
-                    .eq('user_id', user.id)
-                    .single();
-
-                if (findError) {
-                    console.warn('⚠️ Mês não encontrado:', findError);
-                    // Limpar cache local
-                    await limparCacheLocal(mesId);
-                    alert('Mês removido do cache!');
-                    location.reload();
-                    return;
-                }
-
-                // 2. Registrar histórico
-                await supabase.from('historico_exclusao_meses').insert({
-                    user_id: user.id,
-                    mes_id: mesId,
-                    nome: mes.nome,
-                    valor_mensal: mes.valor_mensal,
-                    dias_mes: mes.dias_mes,
-                    data_inicio: mes.data_inicio,
-                    justificativa: justificativa
+                // ----------------------------------------------------------
+                // CAMINHO PRINCIPAL: função RPC atômica no Postgres.
+                // A função `excluir_mes_completo` roda em uma única transação
+                // (histórico + gastos + mês) e usa SECURITY DEFINER checando
+                // auth.uid() no servidor — ou seja, a posse do registro é
+                // validada pelo banco, não pelo client. Isso é mais robusto
+                // que depender de .eq('user_id', ...) em cada chamada isolada,
+                // porque não há como um bug futuro no front esquecer o filtro
+                // e vazar/apagar dado de outro usuário. Ver migration.sql.
+                // ----------------------------------------------------------
+                const { error: rpcError } = await supabase.rpc('excluir_mes_completo', {
+                    p_mes_id: mesId,
+                    p_justificativa: justificativa
                 });
 
-                // 3. Deletar gastos
-                await supabase.from('gastos').delete().eq('mes_id', mesId);
+                if (rpcError) {
+                    // Função ainda não existe no banco (migration não aplicada)
+                    // ou outro erro de RPC → cai no fallback manual abaixo,
+                    // mantendo o sistema funcional mesmo sem a migration.
+                    const funcaoAusente = rpcError.code === 'PGRST202' || /function .* does not exist/i.test(rpcError.message || '');
+                    if (!funcaoAusente) throw rpcError;
 
-                // 4. Deletar o mês
-                const { error: deleteError } = await supabase
-                    .from('meses')
-                    .delete()
-                    .eq('id', mesId)
-                    .eq('user_id', user.id);
+                    console.warn('⚠️ RPC excluir_mes_completo indisponível, usando fallback manual:', rpcError.message);
 
-                if (deleteError) throw deleteError;
+                    // FALLBACK MANUAL (mesmo comportamento de antes, sempre
+                    // filtrando por user_id em cada etapa)
+                    const { data: mes, error: findError } = await supabase
+                        .from('meses')
+                        .select('*')
+                        .eq('id', mesId)
+                        .eq('user_id', user.id)
+                        .single();
+
+                    if (findError) {
+                        console.warn('⚠️ Mês não encontrado:', findError);
+                        await limparCacheLocal(mesId);
+                        alert('Mês removido do cache!');
+                        location.reload();
+                        return;
+                    }
+
+                    const { error: histError } = await supabase.from('historico_exclusao_meses').insert({
+                        user_id: user.id,
+                        mes_id: mesId,
+                        nome: mes.nome,
+                        valor_mensal: mes.valor_mensal,
+                        dias_mes: mes.dias_mes,
+                        data_inicio: mes.data_inicio,
+                        justificativa: justificativa
+                    });
+                    if (histError) {
+                        console.warn('⚠️ Falha ao registrar histórico de exclusão:', histError.message);
+                    }
+
+                    const { error: gastosError } = await supabase
+                        .from('gastos')
+                        .delete()
+                        .eq('mes_id', mesId)
+                        .eq('user_id', user.id);
+                    if (gastosError) {
+                        console.warn('⚠️ Erro ao deletar gastos do mês:', gastosError.message);
+                    }
+
+                    const { error: deleteError } = await supabase
+                        .from('meses')
+                        .delete()
+                        .eq('id', mesId)
+                        .eq('user_id', user.id);
+
+                    if (deleteError) throw deleteError;
+                }
 
                 console.log('✅ Mês deletado do Supabase');
 
-                // 5. Limpar cache
+                // Limpar cache local (evita reaparecimento em F5 antes do fetch fresco)
                 await limparCacheLocal(mesId);
 
-                // 6. Remover do DOM
+                // Remover do DOM imediatamente (feedback instantâneo)
                 const elemento = document.getElementById(`mes-${mesId}`);
                 if (elemento) {
                     elemento.remove();
                     console.log('✅ Elemento removido do DOM');
                 }
 
-                // 7. Verificar se lista está vazia
+                // Verificar se lista está vazia
                 const container = document.getElementById('mesesContainer');
                 if (container && !container.querySelector('.mes-item')) {
                     container.innerHTML = `
@@ -1385,19 +1419,14 @@
                     `;
                 }
 
-                // 8. Fechar modal
+                // Fechar modal
                 excluirMesModal.style.display = 'none';
                 document.body.style.overflow = '';
 
                 alert('✅ Mês excluído com sucesso!');
 
-                // 9. Recarregar dados
-                await window.forceReloadData();
-
-                // 10. Recarregar página para garantir
-                setTimeout(() => {
-                    location.reload();
-                }, 500);
+                // Recarregar a página para buscar o estado definitivo do banco.
+                location.reload();
 
             } catch (error) {
                 console.error('❌ Erro na exclusão:', error);
@@ -1460,8 +1489,8 @@
             if (!confirm('⚠️ Tem certeza que deseja excluir este auxílio? Todos os meses e gastos serão perdidos!')) return;
             
             try {
-                await supabase.from('meses').delete().eq('auxilio_id', id);
-                await supabase.from('gastos').delete().eq('auxilio_id', id);
+                await supabase.from('meses').delete().eq('auxilio_id', id).eq('user_id', user.id);
+                await supabase.from('gastos').delete().eq('auxilio_id', id).eq('user_id', user.id);
                 const { error } = await supabase
                     .from('auxilios')
                     .delete()
