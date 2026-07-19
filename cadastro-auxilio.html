@@ -414,9 +414,31 @@
     <script type="module">
         import { supabase } from './js/config.js';
         import { getSessao } from './js/auth.js';
+        import { logSistema } from './js/sync.js';
 
         // Data atual no input
         document.getElementById('dataInicio').value = new Date().toISOString().split('T')[0];
+
+        const refreshChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('cademeurango-refresh') : null;
+
+        window.atualizarSistemaCompleto = async function() {
+            const refreshStamp = Date.now().toString();
+            localStorage.setItem('cademeurango:data-refresh', refreshStamp);
+            if (refreshChannel) {
+                refreshChannel.postMessage({ type: 'refresh', stamp: refreshStamp });
+            }
+            logSistema('refresh-cadastro-auxilio', { stamp: refreshStamp });
+        };
+
+        window.forceReloadData = window.atualizarSistemaCompleto;
+
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'cademeurango:data-refresh' && event.newValue) {
+                if (window.location.pathname.includes('dashboard.html')) {
+                    window.location.reload();
+                }
+            }
+        });
 
         // ===== LÓGICA DO TIPO DE AUXÍLIO =====
         const tipoSelect = document.getElementById('tipoAuxilio');
@@ -471,19 +493,46 @@
                 const sessao = await getSessao();
                 if (!sessao) { window.location.href = 'login.html'; return; }
 
-                const { data, error } = await supabase.from('auxilios').insert({
-                    user_id: sessao.user.id,
-                    periodo: nome,
-                    valor: valor,
-                    data_inicio: dataInicio,
-                    dias_totais: dias,
-                    saldo_inicial: valor
-                });
+                const { data: auxData, error: auxError } = await supabase.from('auxilios')
+                    .insert({
+                        user_id: sessao.user.id,
+                        periodo: nome,
+                        valor: valor,
+                        data_inicio: dataInicio,
+                        dias_totais: dias,
+                        saldo_inicial: valor
+                    })
+                    .select();
 
-                if (error) throw error;
+                if (auxError) throw auxError;
+
+                // criar mês correspondente à data de início automaticamente
+                try {
+                    const inserted = (auxData && auxData[0]) ? auxData[0] : null;
+                    if (inserted) {
+                        const d = new Date(dataInicio);
+                        const mesesArray = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+                        const nomeMes = `${mesesArray[d.getMonth()]}/${d.getFullYear()}`;
+                        await supabase.from('meses').insert({
+                            user_id: sessao.user.id,
+                            auxilio_id: inserted.id,
+                            nome: nomeMes,
+                            valor_mensal: valor,
+                            dias_mes: dias,
+                            saldo_inicial_mes: valor,
+                            data_inicio: dataInicio,
+                            ativo: true
+                        });
+                    }
+                } catch (err) {
+                    console.warn('Falha ao criar mês inicial automaticamente:', err.message || err);
+                }
 
                 sucessoMsg.style.display = 'block';
                 sucessoMsg.textContent = '✅ Auxílio cadastrado! Redirecionando...';
+                if (window.atualizarSistemaCompleto) {
+                    await window.atualizarSistemaCompleto();
+                }
                 setTimeout(() => window.location.href = 'dashboard.html', 1500);
             } catch (error) {
                 erroMsg.style.display = 'block';

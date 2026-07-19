@@ -571,7 +571,8 @@
 
     <script type="module">
         import { supabase } from './js/config.js';
-        import { getSessao, logout } from './js/auth.js';
+        import { getSessao, logout, subscribeAuth } from './js/auth.js';
+        import { loadSnapshot, saveSnapshot, logSistema } from './js/sync.js';
 
         const menuToggle = document.getElementById('menuToggle');
         const navLinks = document.getElementById('navLinks');
@@ -591,57 +592,158 @@
         let user = null;
         let auxilio = null;
         let gastos = [];
+        let meses = [];
         let graficoSaldo = null;
         let graficoGastos = null;
+        let carregandoDados = false;
+
+        const refreshChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('cademeurango-refresh') : null;
+
+        window.atualizarSistemaCompleto = async function() {
+            const refreshStamp = Date.now().toString();
+            localStorage.setItem('cademeurango:data-refresh', refreshStamp);
+            if (refreshChannel) {
+                refreshChannel.postMessage({ type: 'refresh', stamp: refreshStamp });
+            }
+            logSistema('refresh-dashboard', { stamp: refreshStamp });
+            if (typeof carregarDados === 'function') {
+                await carregarDados(true);
+            }
+        };
+
+        window.forceReloadData = window.atualizarSistemaCompleto;
+
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'cademeurango:data-refresh' && event.newValue) {
+                if (typeof carregarDados === 'function') {
+                    carregarDados(true);
+                }
+            }
+        });
+
+        if (refreshChannel) {
+            refreshChannel.addEventListener('message', () => {
+                if (typeof carregarDados === 'function') {
+                    carregarDados(true);
+                }
+            });
+        }
 
         async function carregarDados(forceRefresh = false) {
-            const sessao = await getSessao();
-            if (!sessao) { window.location.href = 'login.html'; return; }
-            user = sessao.user;
-
-            const { data: auxData } = await supabase
-                .from('auxilios')
-                .select('*')
-                .eq('user_id', user.id)
-                .order('created_at', { ascending: false })
-                .limit(1);
-
-            if (!auxData || auxData.length === 0) {
-                document.getElementById('semAuxilio').style.display = 'block';
-                document.getElementById('dashboardPrincipal').style.display = 'none';
+            if (carregandoDados && !forceRefresh) {
                 return;
             }
 
-            auxilio = auxData[0];
-            document.getElementById('semAuxilio').style.display = 'none';
-            document.getElementById('dashboardPrincipal').style.display = 'block';
+            carregandoDados = true;
+            try {
+                const sessao = await getSessao({ retry: true, maxAttempts: 8, delayMs: 300 });
+                if (!sessao) { window.location.href = 'login.html'; return; }
+                user = sessao.user;
 
-            const { data: gastosData } = await supabase
-                .from('gastos')
-                .select('*')
-                .eq('auxilio_id', auxilio.id)
-                .order('data_gasto', { ascending: false });
+                const cachedSnapshot = loadSnapshot(user.id);
+                if (cachedSnapshot && !forceRefresh) {
+                    auxilio = cachedSnapshot.auxilio || null;
+                    gastos = cachedSnapshot.gastos || [];
+                    meses = cachedSnapshot.meses || [];
+                    if (cachedSnapshot.auxilio) {
+                        document.getElementById('semAuxilio').style.display = 'none';
+                        document.getElementById('dashboardPrincipal').style.display = 'block';
+                    } else {
+                        document.getElementById('semAuxilio').style.display = 'block';
+                        document.getElementById('dashboardPrincipal').style.display = 'none';
+                    }
+                    logSistema('restore-dashboard-cache', { updatedAt: cachedSnapshot.updatedAt });
+                    atualizarDashboard();
+                    atualizarGraficos();
+                    return;
+                }
 
-            gastos = gastosData || [];
-            
-            if (graficoSaldo) {
-                graficoSaldo.destroy();
-                graficoSaldo = null;
+                const { data: auxData } = await supabase
+                    .from('auxilios')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .order('created_at', { ascending: false })
+                    .limit(1);
+
+                if (!auxData || auxData.length === 0) {
+                    auxilio = null;
+                    gastos = [];
+                    meses = [];
+                    document.getElementById('semAuxilio').style.display = 'block';
+                    document.getElementById('dashboardPrincipal').style.display = 'none';
+                    return;
+                }
+
+                auxilio = auxData[0];
+                document.getElementById('semAuxilio').style.display = 'none';
+                document.getElementById('dashboardPrincipal').style.display = 'block';
+
+                const { data: gastosData } = await supabase
+                    .from('gastos')
+                    .select('*')
+                    .eq('auxilio_id', auxilio.id)
+                    .order('data_gasto', { ascending: false });
+
+                gastos = gastosData || [];
+
+                const { data: mesesData } = await supabase
+                    .from('meses')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .eq('auxilio_id', auxilio.id)
+                    .order('created_at', { ascending: true });
+
+                meses = mesesData || [];
+                saveSnapshot(user.id, { auxilios: [auxilio], meses, gastos, auxilio, updatedAt: new Date().toISOString() });
+                logSistema('dashboard-fetched', { auxilioId: auxilio?.id, gastosCount: gastos.length, mesesCount: meses.length });
+                
+                if (graficoSaldo) {
+                    graficoSaldo.destroy();
+                    graficoSaldo = null;
+                }
+                if (graficoGastos) {
+                    graficoGastos.destroy();
+                    graficoGastos = null;
+                }
+                
+                atualizarDashboard();
+                atualizarGraficos();
+            } finally {
+                carregandoDados = false;
             }
-            if (graficoGastos) {
-                graficoGastos.destroy();
-                graficoGastos = null;
+        }
+
+        function calcularSaldoAtual() {
+            const totalGasto = gastos.reduce((s, g) => s + Number(g.valor || 0), 0);
+
+            if (!auxilio) {
+                return { saldoAtual: 0, totalGasto };
             }
-            
-            atualizarDashboard();
-            atualizarGraficos();
+
+            const mesesDoAuxilio = (meses || []).filter(m => m.auxilio_id === auxilio.id);
+            if (mesesDoAuxilio.length === 0) {
+                return { saldoAtual: Number(auxilio.valor || 0) - totalGasto, totalGasto };
+            }
+
+            const mesesOrdenados = [...mesesDoAuxilio].sort((a, b) => {
+                const dataA = new Date(a.data_inicio || a.created_at || 0).getTime();
+                const dataB = new Date(b.data_inicio || b.created_at || 0).getTime();
+                return dataA - dataB;
+            });
+
+            let saldoCorrente = 0;
+            mesesOrdenados.forEach((mes) => {
+                const valorMes = Number(mes.valor_mensal || mes.valor || 0);
+                const gastosMes = gastos.filter(g => g.mes_id === mes.id);
+                const totalGastoMes = gastosMes.reduce((s, g) => s + Number(g.valor || 0), 0);
+                saldoCorrente = saldoCorrente + valorMes - totalGastoMes;
+            });
+
+            return { saldoAtual: saldoCorrente, totalGasto };
         }
 
         function atualizarDashboard() {
-            const totalGasto = gastos.reduce((s, g) => s + g.valor, 0);
-            
-            // ===== SALDO ATUAL (já considera todos os gastos) =====
-            const saldoAtual = auxilio.valor - totalGasto;
+            const { saldoAtual, totalGasto } = calcularSaldoAtual();
 
             // ===== DIAS RESTANTES =====
             const diasComGastos = new Set();
@@ -687,7 +789,7 @@
             }
 
             lista.innerHTML = gastos.slice(0, 10).map(g => `
-                <div class="gasto-item">
+                <div class="gasto-item" id="gasto-${g.id}">
                     <div class="gasto-info">
                         <span>${new Date(g.data_gasto).toLocaleDateString()} - ${g.local || 'Sem local'} ${g.observacao ? ' - ' + g.observacao : ''}</span>
                         <span class="data">${g.tipo_dia || ''}</span>
@@ -699,6 +801,11 @@
                     </div>
                 </div>
             `).join('');
+
+            // safety: if after rendering there are no gasto-item nodes, show empty state
+            if (document.querySelectorAll('.gasto-item').length === 0) {
+                lista.innerHTML = '<div class="empty-state">Nenhum gasto registrado</div>';
+            }
         }
 
         function atualizarGraficos() {
@@ -716,21 +823,22 @@
             const datas = Object.keys(gastosPorDia).sort((a, b) => new Date(a) - new Date(b));
             const dadosGastos = datas.map(data => ({ data, total: gastosPorDia[data] }));
 
-            let saldoAtual = auxilio.valor;
-            const dadosSaldo = [{ data: 'Início', saldo: auxilio.valor }];
+            const { saldoAtual: saldoInicial } = calcularSaldoAtual();
+            let saldoAtual = saldoInicial;
+            const dadosSaldo = [{ data: 'Início', saldo: saldoInicial }];
             
             const gastosOrdenados = [...gastos].sort((a, b) => new Date(a.data_gasto) - new Date(b.data_gasto));
             let totalGasto = 0;
             let dataAtual = null;
 
             gastosOrdenados.forEach(g => {
-                totalGasto += g.valor;
+                totalGasto += Number(g.valor || 0);
                 const data = new Date(g.data_gasto).toLocaleDateString();
                 if (data !== dataAtual) {
-                    dadosSaldo.push({ data, saldo: auxilio.valor - totalGasto });
+                    dadosSaldo.push({ data, saldo: saldoInicial - totalGasto });
                     dataAtual = data;
                 } else {
-                    dadosSaldo[dadosSaldo.length - 1].saldo = auxilio.valor - totalGasto;
+                    dadosSaldo[dadosSaldo.length - 1].saldo = saldoInicial - totalGasto;
                 }
             });
 
@@ -895,7 +1003,7 @@
 
             modal.style.display = 'none';
             document.getElementById('gastoForm').reset();
-            await carregarDados(true);
+            await window.forceReloadData();
         });
 
         const excluirModal = document.getElementById('excluirModal');
@@ -946,8 +1054,30 @@
             }
 
             try {
+                // helper to remove DOM node if present
+                function removeGastoElement(id) {
+                    try {
+                        const node = document.getElementById('gasto-' + id);
+                        if (node && node.parentNode) node.parentNode.removeChild(node);
+                        const lista = document.getElementById('listaGastos');
+                        if (!document.querySelectorAll('.gasto-item').length) {
+                            lista.innerHTML = '<div class="empty-state">Nenhum gasto registrado</div>';
+                        }
+                    } catch (err) {
+                        console.warn('Erro ao remover elemento do DOM:', err);
+                    }
+                }
+
                 const gasto = gastos.find(g => g.id === gastoId);
-                if (!gasto) throw new Error('Gasto não encontrado');
+                if (!gasto) {
+                    // item already removed from local state / DB; ensure UI reflects that and stop
+                    removeGastoElement(gastoId);
+                    excluirModal.style.display = 'none';
+                    document.body.style.overflow = '';
+                    alert('⚠️ Gasto já removido. Interface atualizada.');
+                    await window.atualizarSistemaCompleto();
+                    return;
+                }
 
                 await supabase.from('historico_exclusoes').insert({
                     user_id: user.id,
@@ -967,10 +1097,13 @@
 
                 if (error) throw error;
 
+                // remove immediately from DOM to avoid stale UI state
+                removeGastoElement(gastoId);
+
                 excluirModal.style.display = 'none';
                 document.body.style.overflow = '';
                 alert('✅ Gasto excluído com sucesso! Justificativa registrada.');
-                await carregarDados(true);
+                await window.forceReloadData();
             } catch (error) {
                 erroEl.style.display = 'block';
                 erroEl.textContent = error.message || 'Erro ao excluir gasto';
@@ -980,6 +1113,26 @@
         document.getElementById('btnSair').addEventListener('click', async () => {
             await logout();
             window.location.href = 'login.html';
+        });
+
+        window.addEventListener('focus', () => {
+            if (document.visibilityState === 'visible') {
+                carregarDados(true);
+            }
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                carregarDados(true);
+            }
+        });
+
+        subscribeAuth(async ({ event }) => {
+            if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+                await carregarDados(true);
+            } else if (event === 'SIGNED_OUT') {
+                window.location.href = 'login.html';
+            }
         });
 
         carregarDados();
